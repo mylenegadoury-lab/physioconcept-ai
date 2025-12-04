@@ -1,4 +1,5 @@
-import client from "../../lib/openai";
+import client from "../../lib/openai.js";
+
 
 
 export default async function handler(req, res) {
