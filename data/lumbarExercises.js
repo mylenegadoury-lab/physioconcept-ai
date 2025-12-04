@@ -54,3 +54,6 @@ export const lumbarExercises = [
     progression: "Maintien 10 secondes"
   }
 ];
+
+export default lumbarExercises;
+
