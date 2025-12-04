@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import Layout from "../components/Layout";
 
 export default function Home() {
+  const router = useRouter();
+
   const [form, setForm] = useState({
     painLocation: "",
     painDirection: "",
@@ -27,14 +30,17 @@ export default function Home() {
     });
 
     const data = await res.json();
-    window.location.href = `/result?data=${encodeURIComponent(JSON.stringify(data))}`;
+
+    router.push({
+      pathname: "/result",
+      query: { data: JSON.stringify(data) }
+    });
   }
 
   return (
     <Layout>
       <h1>Programme intelligent – Lombalgie</h1>
       <form onSubmit={handleSubmit}>
-
         <label>Langue du programme</label>
         <select onChange={(e) => updateField("language", e.target.value)}>
           <option value="fr">Français</option>
