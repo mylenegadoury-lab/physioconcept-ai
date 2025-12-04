@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     const prompt = `
     Tu es une IA clinique spécialisée en physiothérapie, 100% evidence-based.
     Tu génères un programme d'exercices personnalisé pour la lombalgie.
+    La langue du programme doit être : ${form.language}
 
     Voici les données du patient :
     - Localisation: ${form.painLocation}
@@ -45,8 +46,6 @@ export default async function handler(req, res) {
     });
 
     const output = completion.choices[0].message.content;
-
-    // Converti le JSON retourné
     const parsed = JSON.parse(output);
 
     res.status(200).json(parsed);
