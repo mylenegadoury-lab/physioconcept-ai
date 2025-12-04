@@ -1,82 +1,65 @@
-import { useRouter } from "next/router";
+import Layout from "../components/Layout";
 
-export default function Result() {
-  const router = useRouter();
-  const { program } = router.query;
-
-  let parsedProgram = null;
-
-  try {
-    if (program) parsedProgram = JSON.parse(program);
-  } catch (e) {
-    console.error("Erreur parsing:", e);
-  }
-
-  if (!parsedProgram) {
-    return (
-      <div className="p-10">
-        <h1 className="text-3xl font-bold">Programme généré</h1>
-        <p>Aucun programme reçu.</p>
-      </div>
-    );
-  }
-
+export default function ResultPage({ program, error }) {
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold mb-6">Programme généré</h1>
+    <Layout>
+      <h1>Programme généré</h1>
 
-      {/* 🔹 BLOC ÉDUCATION */}
-      {parsedProgram.education && (
-        <section className="mb-10">
-          <h2 className="text-xl font-bold mb-2">Éducation</h2>
-          <p>{parsedProgram.education}</p>
-        </section>
+      {error && (
+        <p style={{ color: "red" }}>
+          Erreur: {error}
+        </p>
       )}
 
-      {/* 🔹 BLOC EXERCICES */}
-      <section>
-        <h2 className="text-xl font-bold mb-4">Exercices</h2>
+      {!error && program && (
+        <>
+          <h2>Exercices</h2>
 
-        {Array.isArray(parsedProgram.exercises) &&
-          parsedProgram.exercises.map((ex, i) => (
-            <div
-              key={i}
-              className="border rounded-lg shadow p-4 mb-6 bg-white"
-            >
-              <h3 className="text-lg font-semibold">{ex.name}</h3>
+          {program.exercises && program.exercises.length > 0 ? (
+            <ul>
+              {program.exercises.map((ex) => (
+                <li key={ex.id} style={{ marginBottom: "20px" }}>
+                  <h3>{ex.name}</h3>
+                  <p>{ex.description}</p>
+                  <p><strong>Dosage :</strong> {ex.dosage}</p>
+                  <p><strong>Justification :</strong> {ex.justification}</p>
 
-              {ex.image && (
-                <img
-                  src={ex.image}
-                  alt={ex.name}
-                  className="w-48 mt-2 rounded"
-                />
-              )}
+                  {ex.image && (
+                    <img 
+                      src={ex.image} 
+                      alt={ex.name} 
+                      style={{ width: "200px", borderRadius: "8px" }} 
+                    />
+                  )}
 
-              {ex.video && (
-                <a
-                  href={ex.video}
-                  className="text-blue-600 underline block mt-2"
-                  target="_blank"
-                >
-                  Vidéo
-                </a>
-              )}
-
-              <p className="mt-2 text-gray-700">{ex.description}</p>
-
-              {ex.dosage && (
-                <p className="mt-2"><strong>Dosage :</strong> {ex.dosage}</p>
-              )}
-
-              {ex.justification && (
-                <p className="mt-2 text-gray-600">
-                  <strong>Pourquoi :</strong> {ex.justification}
-                </p>
-              )}
-            </div>
-          ))}
-      </section>
-    </div>
+                  {ex.video && (
+                    <p>
+                      <a href={ex.video} target="_blank">Vidéo</a>
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Aucun exercice généré.</p>
+          )}
+        </>
+      )}
+    </Layout>
   );
+}
+
+export async function getServerSideProps({ query }) {
+  const { data } = query;
+
+  if (!data) {
+    return { props: { program: null, error: "Aucune donnée reçue." } };
+  }
+
+  try {
+    const parsed = JSON.parse(data);
+    return { props: { program: parsed.program, error: null } };
+  } catch (err) {
+    return { props: { program: null, error: "Impossible de lire le programme." } };
+  }
 }
