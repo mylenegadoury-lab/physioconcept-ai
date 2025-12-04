@@ -1,58 +1,123 @@
 import client from "../../lib/openai.js";
+import { lumbarExercises } from "../../data/lumbarExercises.js";
 
+// -----------------------------
+// Utile : fonction de sélection intelligente
+// -----------------------------
+function selectExercises(form) {
+  let selected = [];
 
+  // Préférence directionnelle -> EXTENSION
+  if (
+    form.painDirection === "flexion" ||
+    form.directionalPreference === "extension"
+  ) {
+    selected.push(
+      lumbarExercises.find((e) => e.tags.includes("extension"))
+    );
+    selected.push(
+      lumbarExercises.find((e) => e.id === "bridge")
+    );
+  }
 
+  // Préférence directionnelle -> FLEXION
+  if (
+    form.painDirection === "extension" ||
+    form.directionalPreference === "flexion"
+  ) {
+    selected.push(
+      lumbarExercises.find((e) => e.id === "lumbar-rotation")
+    );
+    selected.push(
+      lumbarExercises.find((e) => e.id === "cat-cow")
+    );
+  }
+
+  // Raideur matinale
+  if (form.stiffness === "morning") {
+    selected.push(
+      lumbarExercises.find((e) => e.id === "cat-cow")
+    );
+    selected.push(
+      lumbarExercises.find((e) => e.id === "lumbar-rotation")
+    );
+  }
+
+  // Instabilité lombaire
+  if (form.instability === "yes") {
+    selected.push(
+      lumbarExercises.find((e) => e.id === "dead-bug")
+    );
+    selected.push(
+      lumbarExercises.find((e) => e.id === "bird-dog")
+    );
+  }
+
+  // Niveau d’activité très bas -> exercices simples et doux
+  if (form.activityLevel === "low") {
+    selected.push(
+      lumbarExercises.find((e) => e.id === "lumbar-rotation")
+    );
+    selected.push(
+      lumbarExercises.find((e) => e.id === "cat-cow")
+    );
+  }
+
+  // Nettoyage : retirer doubles + limiter à 6
+  const unique = [...new Set(selected)].filter((x) => x !== undefined);
+
+  return unique.slice(0, 6);
+}
+
+// -----------------------------
+// API principal : combine AI + logique clinique
+// -----------------------------
 export default async function handler(req, res) {
   try {
     const form = req.body;
 
-    const openai = createOpenAI(process.env.OPENAI_API_KEY);
+    // 1) Sélectionner les exercices selon logique clinique
+    const chosenExercises = selectExercises(form);
 
-    const prompt = `
-    Tu es une IA clinique spécialisée en physiothérapie, 100% evidence-based.
-    Tu génères un programme d'exercices personnalisé pour la lombalgie.
-    La langue du programme doit être : ${form.language}
+    // 2) Préparer le message pour OpenAI pour : 
+    // - améliorer texte
+    // - produire explications patient
+    const openaiPrompt = `
+Tu es une IA clinicienne experte en physiothérapie lombaire. 
+Tu vas transformer la liste d’exercices sélectionnés automatiquement en un programme clair pour le patient.
 
-    Voici les données du patient :
-    - Localisation: ${form.painLocation}
-    - Direction aggravante: ${form.painDirection}
-    - Tolérance au mouvement: ${form.movementTolerance}
-    - Niveau d’activité: ${form.activityLevel}
+Langue : ${form.language}
 
-    Règles cliniques à respecter :
-    - Se baser sur la littérature evidence-based moderne.
-    - Intégrer activation, contrôle moteur, exposition graduée, renforcement.
-    - Choisir 3 à 5 exercices pertinents selon le profil du patient.
-    - Fournir des instructions très claires.
-    - Retourner un plan structuré.
+Détails du patient :
+- Localisation : ${form.painLocation}
+- Direction aggravante : ${form.painDirection}
+- Tolérance : ${form.movementTolerance}
+- Activité : ${form.activityLevel}
 
-    Réponds en JSON strict :
-    {
-      "exercises": [
-        {
-          "name": "",
-          "reason": "",
-          "instructions": "",
-          "progression": "",
-          "reps_sets": ""
-        }
-      ],
-      "education": ""
-    }
+Voici les exercices choisis (structure JSON à garder EXACTEMENT) :
+
+${JSON.stringify(chosenExercises, null, 2)}
+
+Pour chaque exercice :
+- produire une version du texte claire, simple et motivante
+- conserver les champs image, vidéo, progression
+- ajouter un champ "dosage" (ex : "10 répétitions, 2 séries")
+- ajouter un champ "justification" pour expliquer pourquoi l’exercice aide ce patient
+
+Répond STRICTEMENT en JSON.
     `;
 
-    const completion = await openai.chat.completions.create({
+    const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.3
+      messages: [{ role: "user", content: openaiPrompt }],
+      temperature: 0.4,
     });
 
-    const output = completion.choices[0].message.content;
-    const parsed = JSON.parse(output);
+    const output = response.choices[0].message.content;
 
-    res.status(200).json(parsed);
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(200).json({ program: JSON.parse(output) });
+  } catch (error) {
+    console.error("Erreur API lombalgie:", error);
+    res.status(500).json({ error: "Erreur lors de la génération du programme." });
   }
 }
