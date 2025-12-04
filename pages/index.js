@@ -6,7 +6,8 @@ export default function Home() {
     painLocation: "",
     painDirection: "",
     movementTolerance: "",
-    activityLevel: ""
+    activityLevel: "",
+    language: "fr"
   });
 
   const [loading, setLoading] = useState(false);
@@ -33,7 +34,13 @@ export default function Home() {
     <Layout>
       <h1>Programme intelligent – Lombalgie</h1>
       <form onSubmit={handleSubmit}>
-        
+
+        <label>Langue du programme</label>
+        <select onChange={(e) => updateField("language", e.target.value)}>
+          <option value="fr">Français</option>
+          <option value="en">Anglais</option>
+        </select>
+
         <label>Où est la douleur?</label>
         <select onChange={(e) => updateField("painLocation", e.target.value)}>
           <option value="">--Choisir--</option>
