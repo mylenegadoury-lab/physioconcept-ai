@@ -22,49 +22,49 @@ export default async function handler(req, res) {
     console.log("Received body:", req.body);
 
     const form = req.body;
-    const chosenExercises = selectExercises(form);
+    const chosen = selectExercises(form);
 
-    console.log("Chosen exercises:", chosenExercises);
+    console.log("Exercises:", chosen);
 
     const prompt = `
-Réponds STRICTEMENT en JSON valide.
-Ne mets PAS de \`\`\`json ni de backticks.
+Réponds strictement en JSON valide.
 
-Voici la liste :
-${JSON.stringify(chosenExercises, null, 2)}
+Voici les exercices :
+${JSON.stringify(chosen, null, 2)}
 
-Retourne exactement :
+Format attendu :
 {
   "exercises": [
     {
-      "id": "...",
-      "name": "...",
-      "description": "...",
-      "image": "...",
-      "video": "...",
-      "dosage": "...",
-      "justification": "..."
+      "id": "",
+      "name": "",
+      "description": "",
+      "image": "",
+      "video": "",
+      "dosage": "",
+      "justification": ""
     }
   ]
 }
-    `;
+`;
 
-    const response = await client.chat.completions.create({
+    const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       temperature: 0,
     });
 
-    console.log("Raw OpenAI output:", response.choices[0].message.content);
+    const output = completion.choices[0].message.content;
+    console.log("Raw output:", output);
 
     let parsed;
     try {
-      parsed = JSON.parse(response.choices[0].message.content);
-    } catch (e) {
-      console.error("JSON parse failed:", e);
+      parsed = JSON.parse(output);
+    } catch (err) {
+      console.log("⚠️ JSON Parse error:", err);
       return res.status(500).json({
-        error: "OpenAI a retourné du JSON invalide",
-        raw: response.choices[0].message.content,
+        error: "Réponse non-JSON",
+        raw: output,
       });
     }
 
@@ -72,6 +72,6 @@ Retourne exactement :
 
   } catch (error) {
     console.error("Erreur API lombalgie:", error);
-    res.status(500).json({ error: "Erreur interne API" });
+    return res.status(500).json({ error: "Erreur interne API" });
   }
 }
