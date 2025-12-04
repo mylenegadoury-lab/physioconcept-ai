@@ -76,4 +76,26 @@ Voici les exercices sélectionnés (à respecter TEL QUEL) :
 ${JSON.stringify(chosenExercises, null, 2)}
 
 Pour chaque exercice :
-- garde les champs ima
+- garde les champs image, vidéo, progression
+- ajoute un champ "dosage" (ex: 10 répétitions, 2 séries)
+- ajoute un champ "justification" expliquant pourquoi l'exercice est pertinent
+
+Répond STRICTEMENT en JSON.
+    `;
+
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: openaiPrompt }],
+      temperature: 0.3,
+    });
+
+    const output = response.choices[0].message.content;
+
+    res.status(200).json({ program: JSON.parse(output) });
+
+  } catch (error) {
+    console.error("Erreur API lombalgie:", error);
+    res.status(500).json({ error: "Erreur lors de la génération du programme." });
+  }
+}
+
