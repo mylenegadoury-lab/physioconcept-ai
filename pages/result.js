@@ -1,11 +1,50 @@
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 
 export default function Result() {
   const router = useRouter();
-  const data = router.query.data ? JSON.parse(router.query.data) : null;
+  const [data, setData] = useState(null);
+  const [parseError, setParseError] = useState(null);
 
-  if (!data) return <Layout>Chargement...</Layout>;
+  useEffect(() => {
+    if (!router.isReady) return;
+    const q = router.query.data;
+
+    if (!q) return;
+
+    try {
+      if (typeof q === "string") {
+        setData(JSON.parse(q));
+      } else {
+        setData(q);
+      }
+    } catch (e) {
+      console.error("Erreur de parsing JSON:", e);
+      setParseError("Impossible de lire les données du programme.");
+    }
+  }, [router.isReady, router.query.data]);
+
+  if (parseError) {
+    return (
+      <Layout>
+        <h1>Votre programme personnalisé</h1>
+        <p>{parseError}</p>
+      </Layout>
+    );
+  }
+
+  if (!data) {
+    return (
+      <Layout>
+        <h1>Votre programme personnalisé</h1>
+        <p>Chargement...</p>
+      </Layout>
+    );
+  }
+
+  const hasRedFlags =
+    data.redFlags && data.redFlags.present && Array.isArray(data.redFlags.items);
 
   return (
     <Layout>
@@ -16,17 +55,21 @@ export default function Result() {
         <>
           <h2>⚠️ Drapeaux rouges</h2>
 
-          {data.redFlags.present ? (
+          {hasRedFlags ? (
             <>
               <ul>
                 {data.redFlags.items.map((f, i) => (
                   <li key={i}>{f}</li>
                 ))}
               </ul>
-              <p><strong>Recommandation :</strong> {data.redFlags.recommendation}</p>
+              {data.redFlags.recommendation && (
+                <p>
+                  <strong>Recommandation :</strong> {data.redFlags.recommendation}
+                </p>
+              )}
             </>
           ) : (
-            <p>Aucun drapeau rouge détecté.</p>
+            <p>Aucun drapeau rouge inquiétant détecté selon vos réponses.</p>
           )}
         </>
       )}
@@ -35,11 +78,33 @@ export default function Result() {
       {data.education && (
         <>
           <h2>📘 Éducation</h2>
-          <p><strong>Comprendre ce que vous vivez :</strong> {data.education.understanding}</p>
-          <p><strong>Ce que cela signifie :</strong> {data.education.meaning}</p>
-          <p><strong>Ce qui aide :</strong> {data.education.helpful}</p>
-          <p><strong>À éviter :</strong> {data.education.avoid}</p>
-          <p><strong>Progression attendue :</strong> {data.education.progression}</p>
+          {data.education.understanding && (
+            <p>
+              <strong>Comprendre ce que vous vivez :</strong>{" "}
+              {data.education.understanding}
+            </p>
+          )}
+          {data.education.meaning && (
+            <p>
+              <strong>Ce que cela signifie :</strong> {data.education.meaning}
+            </p>
+          )}
+          {data.education.helpful && (
+            <p>
+              <strong>Ce qui aide :</strong> {data.education.helpful}
+            </p>
+          )}
+          {data.education.avoid && (
+            <p>
+              <strong>À éviter :</strong> {data.education.avoid}
+            </p>
+          )}
+          {data.education.progression && (
+            <p>
+              <strong>Progression attendue :</strong>{" "}
+              {data.education.progression}
+            </p>
+          )}
         </>
       )}
 
@@ -47,16 +112,35 @@ export default function Result() {
       <h2>📌 Exercices recommandés</h2>
       {data.exercises?.length > 0 ? (
         data.exercises.map((ex, i) => (
-          <div key={i} className="exercise-card">
+          <div
+            key={i}
+            className="exercise-card"
+            style={{ marginBottom: "24px" }}
+          >
             <h3>{ex.name}</h3>
             <p>{ex.description}</p>
 
-            {/* affichage prompts pour images/vidéos IA */}
-            <p><strong>Image suggérée :</strong> {ex.imagePrompt}</p>
-            <p><strong>Vidéo suggérée :</strong> {ex.videoPrompt}</p>
+            {ex.dosage && (
+              <p>
+                <strong>Dosage :</strong> {ex.dosage}
+              </p>
+            )}
+            {ex.justification && (
+              <p>
+                <strong>Pourquoi :</strong> {ex.justification}
+              </p>
+            )}
 
-            <p><strong>Dosage :</strong> {ex.dosage}</p>
-            <p><strong>Justification :</strong> {ex.justification}</p>
+            {ex.imagePrompt && (
+              <p>
+                <strong>Idée d’illustration :</strong> {ex.imagePrompt}
+              </p>
+            )}
+            {ex.videoPrompt && (
+              <p>
+                <strong>Idée de vidéo :</strong> {ex.videoPrompt}
+              </p>
+            )}
           </div>
         ))
       ) : (
