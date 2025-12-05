@@ -25,8 +25,7 @@ Tu dois produire un JSON contenant :
   "present": true/false,
   "items": [
     "Faiblesse inhabituelle dans la jambe...",
-    "Douleur qui descend sous le genou...",
-    ...
+    "Douleur qui descend sous le genou..."
   ],
   "recommendation": "..."
 }
@@ -62,7 +61,7 @@ Chaque exercice :
   "exercises": [ ... ]
 }
 
-Tu dois répondre en JSON 100% valide.
+Répond en JSON 100% valide.
 `;
 
     const userPrompt = `
@@ -78,21 +77,20 @@ Répond STRICTEMENT en JSON.
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
+        { role: "user", content: userPrompt },
       ],
-      temperature: 0.3
+      temperature: 0.3,
     });
 
     const raw = completion.choices[0].message.content;
     const parsed = JSON.parse(raw);
 
     return res.status(200).json(parsed);
-
   } catch (err) {
     console.error("Erreur génération programme:", err);
     return res.status(500).json({
       error: "Erreur interne API",
-      details: err.message
+      details: err.message,
     });
   }
 }
