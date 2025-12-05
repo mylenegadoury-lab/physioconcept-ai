@@ -1,16 +1,19 @@
 import { useState } from "react";
-import { useRouter } from "next/router";
 import Layout from "../components/Layout";
 
 export default function Home() {
-  const router = useRouter();
-
   const [form, setForm] = useState({
+    language: "fr",
     painLocation: "",
     painDirection: "",
     movementTolerance: "",
-    activityLevel: "",
-    language: "fr",
+    fearLevel: "",
+    duration: "",
+    legWeakness: "",
+    numbness: "",
+    nightPain: "",
+    fever: "",
+    trauma: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -23,66 +26,55 @@ export default function Home() {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
 
-      const data = await res.json();
-
-      router.push({
-        pathname: "/result",
-        query: { data: JSON.stringify(data) },
-      });
-    } catch (err) {
-      console.error("Erreur lors de la génération :", err);
-      setLoading(false);
-      alert("Erreur lors de la génération du programme.");
-    }
+    const data = await res.json();
+    window.location.href = `/result?data=${encodeURIComponent(
+      JSON.stringify(data)
+    )}`;
   }
 
   return (
     <Layout>
       <h1>Programme intelligent – Lombalgie</h1>
-      <form onSubmit={handleSubmit}>
-        <label>Langue du programme</label>
-        <select
-          value={form.language}
-          onChange={(e) => updateField("language", e.target.value)}
-        >
+
+      <form onSubmit={handleSubmit} className="form">
+
+        {/* LANGUE */}
+        <h2>🌐 Langue</h2>
+        <select onChange={(e) => updateField("language", e.target.value)}>
           <option value="fr">Français</option>
-          <option value="en">Anglais</option>
+          <option value="en">English</option>
         </select>
 
-        <label>Où est la douleur?</label>
-        <select
-          value={form.painLocation}
-          onChange={(e) => updateField("painLocation", e.target.value)}
-        >
+        {/* LOCALISATION */}
+        <h2>📍 Localisation de la douleur</h2>
+        <select onChange={(e) => updateField("painLocation", e.target.value)}>
           <option value="">--Choisir--</option>
-          <option value="local">Locale au bas du dos</option>
-          <option value="glute">Vers la fesse</option>
-          <option value="leg">Dans la jambe (au-dessus du genou)</option>
-          <option value="belowKnee">Sous le genou</option>
+          <option value="local">Bas du dos uniquement</option>
+          <option value="glute">Bas du dos + fesse</option>
+          <option value="leg">Bas du dos + jambe (au-dessus genou)</option>
+          <option value="belowKnee">Douleur sous le genou</option>
         </select>
 
-        <label>Quel mouvement aggrave le plus?</label>
-        <select
-          value={form.painDirection}
-          onChange={(e) => updateField("painDirection", e.target.value)}
-        >
+        {/* MOUVEMENT AGGRAVANT */}
+        <h2>⚡ Mouvement aggravant principal</hh2>
+        <select onChange={(e) => updateField("painDirection", e.target.value)}>
           <option value="">--Choisir--</option>
-          <option value="flexion">Flexion</option>
-          <option value="extension">Extension</option>
+          <option value="flexion">Flexion (se pencher en avant)</option>
+          <option value="extension">Extension (se pencher en arrière)</option>
           <option value="rotation">Rotation</option>
-          <option value="load">Port de charge</option>
+          <option value="load">Port de charges</option>
+          <option value="prolonged">Positions prolongées</option>
         </select>
 
-        <label>Tolérance au mouvement?</label>
+        {/* TOLÉRANCE AU MOUVEMENT */}
+        <h2>📈 Tolérance au mouvement</h2>
         <select
-          value={form.movementTolerance}
           onChange={(e) => updateField("movementTolerance", e.target.value)}
         >
           <option value="">--Choisir--</option>
@@ -91,19 +83,65 @@ export default function Home() {
           <option value="high">Bonne</option>
         </select>
 
-        <label>Niveau d’activité?</label>
-        <select
-          value={form.activityLevel}
-          onChange={(e) => updateField("activityLevel", e.target.value)}
-        >
+        {/* FEAR AVOIDANCE */}
+        <h2>😣 Niveau d'appréhension</h2>
+        <select onChange={(e) => updateField("fearLevel", e.target.value)}>
           <option value="">--Choisir--</option>
-          <option value="sedentary">Sédentaire</option>
-          <option value="light">Actif léger</option>
-          <option value="sport">Actif sportif</option>
+          <option value="low">Faible</option>
+          <option value="moderate">Modéré</option>
+          <option value="high">Élevé</option>
         </select>
 
+        {/* DURÉE */}
+        <h2>🕒 Depuis combien de temps?</h2>
+        <select onChange={(e) => updateField("duration", e.target.value)}>
+          <option value="">--Choisir--</option>
+          <option value="acute">Moins de 6 semaines</option>
+          <option value="subacute">6 à 12 semaines</option>
+          <option value="chronic">Plus de 3 mois</option>
+        </select>
+
+        {/* DRAPEAUX ROUGES */}
+        <h2>🚨 Sécurité — Drapeaux rouges</h2>
+
+        <label>Faiblesse dans une jambe?</label>
+        <select onChange={(e) => updateField("legWeakness", e.target.value)}>
+          <option value="">--Choisir--</option>
+          <option value="yes">Oui</option>
+          <option value="no">Non</option>
+        </select>
+
+        <label>Engourdissements persistants?</label>
+        <select onChange={(e) => updateField("numbness", e.target.value)}>
+          <option value="">--Choisir--</option>
+          <option value="yes">Oui</option>
+          <option value="no">Non</option>
+        </select>
+
+        <label>Douleur nocturne qui réveille?</label>
+        <select onChange={(e) => updateField("nightPain", e.target.value)}>
+          <option value="">--Choisir--</option>
+          <option value="yes">Oui</option>
+          <option value="no">Non</option>
+        </select>
+
+        <label>Fièvre récente?</label>
+        <select onChange={(e) => updateField("fever", e.target.value)}>
+          <option value="">--Choisir--</option>
+          <option value="yes">Oui</option>
+          <option value="no">Non</option>
+        </select>
+
+        <label>Trauma récent important?</label>
+        <select onChange={(e) => updateField("trauma", e.target.value)}>
+          <option value="">--Choisir--</option>
+          <option value="yes">Oui</option>
+          <option value="no">Non</option>
+        </select>
+
+        {/* SUBMIT */}
         <button type="submit" disabled={loading}>
-          {loading ? "Génération..." : "Générer le programme"}
+          {loading ? "Génération..." : "Générer mon programme"}
         </button>
       </form>
     </Layout>
