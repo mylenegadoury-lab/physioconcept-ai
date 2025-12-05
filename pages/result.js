@@ -11,6 +11,38 @@ export default function Result() {
     <Layout>
       <h1>Votre programme personnalisé</h1>
 
+      {/* ---- SECTION DRAPEAUX ROUGES ---- */}
+      {data.redFlags && (
+        <>
+          <h2>⚠️ Drapeaux rouges</h2>
+
+          {data.redFlags.present ? (
+            <>
+              <ul>
+                {data.redFlags.items.map((f, i) => (
+                  <li key={i}>{f}</li>
+                ))}
+              </ul>
+              <p><strong>Recommandation :</strong> {data.redFlags.recommendation}</p>
+            </>
+          ) : (
+            <p>Aucun drapeau rouge détecté.</p>
+          )}
+        </>
+      )}
+
+      {/* ---- SECTION ÉDUCATION ---- */}
+      {data.education && (
+        <>
+          <h2>📘 Éducation</h2>
+          <p><strong>Comprendre ce que vous vivez :</strong> {data.education.understanding}</p>
+          <p><strong>Ce que cela signifie :</strong> {data.education.meaning}</p>
+          <p><strong>Ce qui aide :</strong> {data.education.helpful}</p>
+          <p><strong>À éviter :</strong> {data.education.avoid}</p>
+          <p><strong>Progression attendue :</strong> {data.education.progression}</p>
+        </>
+      )}
+
       {/* ---- SECTION EXERCICES ---- */}
       <h2>📌 Exercices recommandés</h2>
       {data.exercises?.length > 0 ? (
@@ -18,61 +50,18 @@ export default function Result() {
           <div key={i} className="exercise-card">
             <h3>{ex.name}</h3>
             <p>{ex.description}</p>
-            {ex.image && <img src={ex.image} alt={ex.name} />}
-            {ex.video && (
-              <p>
-                <a href={ex.video} target="_blank">Voir la vidéo</a>
-              </p>
-            )}
+
+            {/* affichage prompts pour images/vidéos IA */}
+            <p><strong>Image suggérée :</strong> {ex.imagePrompt}</p>
+            <p><strong>Vidéo suggérée :</strong> {ex.videoPrompt}</p>
+
             <p><strong>Dosage :</strong> {ex.dosage}</p>
-            <p><strong>Pourquoi :</strong> {ex.justification}</p>
+            <p><strong>Justification :</strong> {ex.justification}</p>
           </div>
         ))
       ) : (
-        <p>Aucun exercice sélectionné.</p>
+        <p>Aucun exercice généré.</p>
       )}
-
-      {/* ---- SECTION ÉDUCATION ---- */}
-      {data.education && (
-        <>
-          <h2>📘 Éducation</h2>
-          <p>{data.education}</p>
-        </>
-      )}
-
-      {/* ---- SECTION CONSEILS ---- */}
-      {data.advice && (
-        <>
-          <h2>🎯 Conseils personnalisés</h2>
-          <p>{data.advice}</p>
-        </>
-      )}
-
-      {/* ---- SECTION DRAPEAUX ROUGES ---- */}
-      {(data.flags?.redFlags?.length > 0 || data.flags?.yellowFlags?.length > 0) && (
-        <>
-          <h2>⚠️ Points de vigilance</h2>
-
-          {data.flags.redFlags?.length > 0 && (
-            <>
-              <h3 style={{ color: "red" }}>Drapeaux rouges</h3>
-              <ul>
-                {data.flags.redFlags.map((flag, i) => <li key={i}>{flag}</li>)}
-              </ul>
-            </>
-          )}
-
-          {data.flags.yellowFlags?.length > 0 && (
-            <>
-              <h3 style={{ color: "#c5a000" }}>Drapeaux jaunes</h3>
-              <ul>
-                {data.flags.yellowFlags.map((flag, i) => <li key={i}>{flag}</li>)}
-              </ul>
-            </>
-          )}
-        </>
-      )}
-
     </Layout>
   );
 }
