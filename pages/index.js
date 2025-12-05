@@ -62,7 +62,7 @@ export default function Home() {
         </select>
 
         {/* MOUVEMENT AGGRAVANT */}
-        <h2>⚡ Mouvement aggravant principal</hh2>
+        <h2>⚡ Mouvement aggravant principal</h2>
         <select onChange={(e) => updateField("painDirection", e.target.value)}>
           <option value="">--Choisir--</option>
           <option value="flexion">Flexion (se pencher en avant)</option>
