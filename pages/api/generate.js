@@ -1,77 +1,85 @@
 import client from "../../lib/openai.js";
-import { lumbarExercises } from "../../data/lumbarExercises.js";
-
-function selectExercises(form) {
-  let selected = [];
-
-  if (form.painDirection === "flexion") {
-    selected.push(lumbarExercises.find(e => e.tags.includes("extension")));
-  }
-
-  if (form.painDirection === "extension") {
-    selected.push(lumbarExercises.find(e => e.id === "lumbar-rotation"));
-  }
-
-  const unique = [...new Set(selected)].filter(Boolean);
-  return unique.slice(0, 6);
-}
 
 export default async function handler(req, res) {
   try {
-    console.log("---- API CALLED ----");
-    console.log("Received body:", req.body);
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Méthode non autorisée" });
+    }
 
     const form = req.body;
-    const chosen = selectExercises(form);
 
-    console.log("Exercises:", chosen);
+    const systemPrompt = `
+Tu es une IA clinicienne experte en physiothérapie lombaire.
+Tu vas CRÉER toi-même des exercices personnalisés pour ce patient.
 
-    const prompt = `
-Réponds strictement en JSON valide.
+RÈGLES IMPORTANTES :
+- Les exercices doivent être sécuritaires, evidence-based, adaptés à la lombalgie.
+- Maximum 5 exercices, minimum 3.
+- Aucun vocabulaire alarmiste.
+- Toujours inclure :
+  * un exercice de mobilité douce
+  * un exercice de stabilisation/contrôle moteur
+  * un exercice de renforcement ou d'exposition graduée
+- Adapter pour :
+  * douleur en flexion → favoriser extension / dérotation / décompression
+  * douleur en extension → favoriser flexion douce / ouverture postérieure
+  * radiculopathie → mouvements de glissement neural doux + positions permissives
+  * faible tolérance → amplitudes limitées + consignes rassurantes
+  * sportif → variations plus stimulantes mais contrôlées
 
-Voici les exercices :
-${JSON.stringify(chosen, null, 2)}
+FORMAT STRICT À RESPECTER :
+Réponds UNIQUEMENT en JSON, jamais en texte libre.
+Un tableau "exercises" contenant :
+- name
+- description
+- dosage
+- justification
+- imagePrompt (description textuelle pour générer plus tard une image)
+- videoPrompt (description textuelle pour générer plus tard une animation)
 
-Format attendu :
+EXEMPLE DU FORMAT (ne pas réutiliser ces exercices) :
+
 {
   "exercises": [
     {
-      "id": "",
-      "name": "",
-      "description": "",
-      "image": "",
-      "video": "",
-      "dosage": "",
-      "justification": ""
+      "name": "Mobilité pelvienne douce",
+      "description": "Allongé sur le dos, basculez lentement le bassin...",
+      "dosage": "2 séries de 15 mouvements",
+      "justification": "Améliore la mobilité sans provocation.",
+      "imagePrompt": "vue latérale, personne allongée, bassin en bascule douce",
+      "videoPrompt": "animation simple montrant la bascule du bassin"
     }
   ]
 }
-`;
+    `;
+
+    const userPrompt = `
+Données du patient :
+${JSON.stringify(form, null, 2)}
+
+Crée 3 à 5 exercices UNIQUES, adaptés au profil ci-dessus.
+    `;
 
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.4,
+      response_format: { type: "json_object" }
     });
 
-    const output = completion.choices[0].message.content;
-    console.log("Raw output:", output);
-
-    let parsed;
-    try {
-      parsed = JSON.parse(output);
-    } catch (err) {
-      console.log("⚠️ JSON Parse error:", err);
-      return res.status(500).json({
-        error: "Réponse non-JSON",
-        raw: output,
-      });
-    }
+    const raw = completion.choices[0].message.content;
+    const parsed = JSON.parse(raw);
 
     return res.status(200).json(parsed);
 
-  } catch (error) {
-    console.error("Erreur API lombalgie:", error);
-    return res.status(500).json({ error: "Erreur interne API" });
+  } catch (err) {
+    console.error("Erreur génération programme:", err);
+    return res.status(500).json({
+      error: "Erreur interne API",
+      details: err.message
+    });
   }
 }
