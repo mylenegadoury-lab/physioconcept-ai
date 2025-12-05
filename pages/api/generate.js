@@ -9,65 +9,78 @@ export default async function handler(req, res) {
     const form = req.body;
 
     const systemPrompt = `
-Tu es une IA clinicienne experte en physiothérapie lombaire.
-Tu vas CRÉER toi-même des exercices personnalisés pour ce patient.
+Tu es une IA clinicienne experte en physiothérapie musculosquelettique.
+Tu dois produire un JSON contenant :
+1) Une section D'ÉDUCATION personnalisée
+2) Une section OPTIONNELLE de DRAPEAUX ROUGES
+3) Un programme de 3 à 5 exercices CRÉÉS par toi-même
 
-RÈGLES IMPORTANTES :
-- Les exercices doivent être sécuritaires, evidence-based, adaptés à la lombalgie.
-- Maximum 5 exercices, minimum 3.
-- Aucun vocabulaire alarmiste.
-- Toujours inclure :
-  * un exercice de mobilité douce
-  * un exercice de stabilisation/contrôle moteur
-  * un exercice de renforcement ou d'exposition graduée
-- Adapter pour :
-  * douleur en flexion → favoriser extension / dérotation / décompression
-  * douleur en extension → favoriser flexion douce / ouverture postérieure
-  * radiculopathie → mouvements de glissement neural doux + positions permissives
-  * faible tolérance → amplitudes limitées + consignes rassurantes
-  * sportif → variations plus stimulantes mais contrôlées
+🧠 RÈGLES POUR LES DRAPEAUX ROUGES :
+- Générer uniquement SI le formulaire du patient contient des éléments compatibles.
+- Le ton doit être rassurant : jamais alarmiste, jamais dramatique.
+- Toujours proposer une vérification médicale simple, jamais urgente sauf si très clair.
+- Le format doit être :
 
-FORMAT STRICT À RESPECTER :
-Réponds UNIQUEMENT en JSON, jamais en texte libre.
-Un tableau "exercises" contenant :
-- name
-- description
-- dosage
-- justification
-- imagePrompt (description textuelle pour générer plus tard une image)
-- videoPrompt (description textuelle pour générer plus tard une animation)
-
-EXEMPLE DU FORMAT (ne pas réutiliser ces exercices) :
-
-{
-  "exercises": [
-    {
-      "name": "Mobilité pelvienne douce",
-      "description": "Allongé sur le dos, basculez lentement le bassin...",
-      "dosage": "2 séries de 15 mouvements",
-      "justification": "Améliore la mobilité sans provocation.",
-      "imagePrompt": "vue latérale, personne allongée, bassin en bascule douce",
-      "videoPrompt": "animation simple montrant la bascule du bassin"
-    }
-  ]
+"redFlags": {
+  "present": true/false,
+  "items": [
+    "Faiblesse inhabituelle dans la jambe...",
+    "Douleur qui descend sous le genou...",
+    ...
+  ],
+  "recommendation": "..."
 }
-    `;
+
+Si aucun drapeau → 
+"redFlags": { "present": false }
+
+🧠 RÈGLES POUR L'ÉDUCATION :
+Structure obligatoire :
+"education": {
+  "understanding": "",
+  "meaning": "",
+  "helpful": "",
+  "avoid": "",
+  "progression": ""
+}
+
+🧠 RÈGLES POUR LES EXERCICES :
+Chaque exercice :
+{
+  "name": "",
+  "description": "",
+  "dosage": "",
+  "justification": "",
+  "imagePrompt": "",
+  "videoPrompt": ""
+}
+
+🧠 FORMAT FINAL STRICT :
+{
+  "redFlags": { ... },
+  "education": { ... },
+  "exercises": [ ... ]
+}
+
+Tu dois répondre en JSON 100% valide.
+`;
 
     const userPrompt = `
 Données du patient :
 ${JSON.stringify(form, null, 2)}
 
-Crée 3 à 5 exercices UNIQUES, adaptés au profil ci-dessus.
-    `;
+Crée : drapeaux rouges (si présents), éducation personnalisée, et 3-5 exercices adaptés.
+Répond STRICTEMENT en JSON.
+`;
 
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
+      response_format: { type: "json_object" },
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.4,
-      response_format: { type: "json_object" }
+      temperature: 0.3
     });
 
     const raw = completion.choices[0].message.content;
