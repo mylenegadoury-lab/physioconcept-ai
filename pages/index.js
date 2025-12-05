@@ -10,46 +10,57 @@ export default function Home() {
     painDirection: "",
     movementTolerance: "",
     activityLevel: "",
-    language: "fr"
+    language: "fr",
   });
 
   const [loading, setLoading] = useState(false);
 
   function updateField(field, value) {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
 
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    router.push({
-      pathname: "/result",
-      query: { data: JSON.stringify(data) }
-    });
+      router.push({
+        pathname: "/result",
+        query: { data: JSON.stringify(data) },
+      });
+    } catch (err) {
+      console.error("Erreur lors de la génération :", err);
+      setLoading(false);
+      alert("Erreur lors de la génération du programme.");
+    }
   }
 
   return (
     <Layout>
       <h1>Programme intelligent – Lombalgie</h1>
       <form onSubmit={handleSubmit}>
-
         <label>Langue du programme</label>
-        <select onChange={(e) => updateField("language", e.target.value)}>
+        <select
+          value={form.language}
+          onChange={(e) => updateField("language", e.target.value)}
+        >
           <option value="fr">Français</option>
           <option value="en">Anglais</option>
         </select>
 
         <label>Où est la douleur?</label>
-        <select onChange={(e) => updateField("painLocation", e.target.value)}>
+        <select
+          value={form.painLocation}
+          onChange={(e) => updateField("painLocation", e.target.value)}
+        >
           <option value="">--Choisir--</option>
           <option value="local">Locale au bas du dos</option>
           <option value="glute">Vers la fesse</option>
@@ -58,7 +69,10 @@ export default function Home() {
         </select>
 
         <label>Quel mouvement aggrave le plus?</label>
-        <select onChange={(e) => updateField("painDirection", e.target.value)}>
+        <select
+          value={form.painDirection}
+          onChange={(e) => updateField("painDirection", e.target.value)}
+        >
           <option value="">--Choisir--</option>
           <option value="flexion">Flexion</option>
           <option value="extension">Extension</option>
@@ -67,7 +81,10 @@ export default function Home() {
         </select>
 
         <label>Tolérance au mouvement?</label>
-        <select onChange={(e) => updateField("movementTolerance", e.target.value)}>
+        <select
+          value={form.movementTolerance}
+          onChange={(e) => updateField("movementTolerance", e.target.value)}
+        >
           <option value="">--Choisir--</option>
           <option value="low">Faible</option>
           <option value="moderate">Modérée</option>
@@ -75,7 +92,10 @@ export default function Home() {
         </select>
 
         <label>Niveau d’activité?</label>
-        <select onChange={(e) => updateField("activityLevel", e.target.value)}>
+        <select
+          value={form.activityLevel}
+          onChange={(e) => updateField("activityLevel", e.target.value)}
+        >
           <option value="">--Choisir--</option>
           <option value="sedentary">Sédentaire</option>
           <option value="light">Actif léger</option>
