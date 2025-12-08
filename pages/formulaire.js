@@ -3,6 +3,48 @@ import { useRouter } from "next/router";
 import Layout from "../components/Layout";
 import { problematiques } from "../data/problematiques";
 
+// Top-level presentational components to avoid remounting on each render
+export const Section = ({ id, icon, title, children, expandedSection, setExpandedSection }) => (
+  <div style={{ marginBottom: "24px", border: "1px solid #e5e7eb", borderRadius: "8px", overflow: "hidden" }}>
+    <button
+      type="button"
+      onClick={() => setExpandedSection(expandedSection === id ? null : id)}
+      style={{
+        width: "100%",
+        padding: "16px",
+        backgroundColor: expandedSection === id ? "#eff6ff" : "#f9fafb",
+        border: "none",
+        borderBottom: expandedSection === id ? "2px solid #3b82f6" : "none",
+        textAlign: "left",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        fontSize: "16px",
+        fontWeight: "600",
+        color: "#1f2937",
+      }}
+    >
+      <span>{icon}</span>
+      {title}
+      <span style={{ marginLeft: "auto" }}>{expandedSection === id ? "▼" : "▶"}</span>
+    </button>
+    {expandedSection === id && (
+      <div style={{ padding: "20px", borderTop: "1px solid #e5e7eb" }}>{children}</div>
+    )}
+  </div>
+);
+
+export const FieldGroup = ({ label, help, children }) => (
+  <div style={{ marginBottom: "16px" }}>
+    <label style={{ display: "block", fontWeight: "500", marginBottom: "6px" }}>{label}</label>
+    {help && (
+      <p style={{ fontSize: "12px", color: "#666", marginBottom: "8px", fontStyle: "italic" }}>{help}</p>
+    )}
+    {children}
+  </div>
+);
+
 export default function Formulaire() {
   const router = useRouter();
   const { problematique: probId } = router.query;
@@ -109,48 +151,7 @@ export default function Formulaire() {
     );
   }
 
-  const Section = ({ id, icon, title, children }) => (
-    <div style={{ marginBottom: "24px", border: "1px solid #e5e7eb", borderRadius: "8px", overflow: "hidden" }}>
-      <button
-        type="button"
-        onClick={() => setExpandedSection(expandedSection === id ? null : id)}
-        style={{
-          width: "100%",
-          padding: "16px",
-          backgroundColor: expandedSection === id ? "#eff6ff" : "#f9fafb",
-          border: "none",
-          borderBottom: expandedSection === id ? "2px solid #3b82f6" : "none",
-          textAlign: "left",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          fontSize: "16px",
-          fontWeight: "600",
-          color: "#1f2937",
-        }}
-      >
-        <span>{icon}</span>
-        {title}
-        <span style={{ marginLeft: "auto" }}>{expandedSection === id ? "▼" : "▶"}</span>
-      </button>
-      {expandedSection === id && (
-        <div style={{ padding: "20px", borderTop: "1px solid #e5e7eb" }}>
-          {children}
-        </div>
-      )}
-    </div>
-  );
-
-  const FieldGroup = ({ label, help, children }) => (
-    <div style={{ marginBottom: "16px" }}>
-      <label style={{ display: "block", fontWeight: "500", marginBottom: "6px" }}>
-        {label}
-      </label>
-      {help && <p style={{ fontSize: "12px", color: "#666", marginBottom: "8px", fontStyle: "italic" }}>{help}</p>}
-      {children}
-    </div>
-  );
+  // Section and FieldGroup are defined at module top-level to avoid remounts
 
   return (
     <Layout>
@@ -178,7 +179,7 @@ export default function Formulaire() {
 
       <form onSubmit={handleSubmit} className="form">
         {/* PATIENT */}
-        <Section id="patient" icon="👤" title="Informations du patient">
+        <Section id="patient" icon="👤" title="Informations du patient" expandedSection={expandedSection} setExpandedSection={setExpandedSection}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <FieldGroup label="Nom" help="Optionnel">
               <input
@@ -223,7 +224,7 @@ export default function Formulaire() {
         </Section>
 
         {/* PAIN */}
-        <Section id="pain" icon="🔴" title="Évaluation de la douleur">
+        <Section id="pain" icon="🔴" title="Évaluation de la douleur" expandedSection={expandedSection} setExpandedSection={setExpandedSection}>
           <FieldGroup label="Intensité actuelle" help="0 = Pas de douleur | 10 = Insupportable">
             <input
               type="range"
@@ -298,7 +299,7 @@ export default function Formulaire() {
         </Section>
 
         {/* FUNCTIONAL */}
-        <Section id="functional" icon="🚫" title="Limitations fonctionnelles">
+        <Section id="functional" icon="🚫" title="Limitations fonctionnelles" expandedSection={expandedSection} setExpandedSection={setExpandedSection}>
           <FieldGroup label="Restriction de mouvement" help="Étendue générale">
             <select
               value={form.movementRestriction}
@@ -358,7 +359,7 @@ export default function Formulaire() {
         </Section>
 
         {/* MEDICAL HISTORY */}
-        <Section id="history" icon="📋" title="Antécédents médicaux">
+        <Section id="history" icon="📋" title="Antécédents médicaux" expandedSection={expandedSection} setExpandedSection={setExpandedSection}>
           <FieldGroup label="Traitements antérieurs" help="Physio, infiltrations, chirurgies, etc.">
             <textarea
               value={form.treatmentHistory}
@@ -400,7 +401,7 @@ export default function Formulaire() {
         </Section>
 
         {/* CLINICAL */}
-        <Section id="clinical" icon="🔬" title="Observations cliniques">
+        <Section id="clinical" icon="🔬" title="Observations cliniques" expandedSection={expandedSection} setExpandedSection={setExpandedSection}>
           <FieldGroup label="Palpation/Signes physiques" help="Douleur, spasmes, crépitements">
             <textarea
               value={form.palpationFindings}
@@ -431,7 +432,7 @@ export default function Formulaire() {
         </Section>
 
         {/* OBJECTIVES */}
-        <Section id="objectives" icon="🎯" title="Objectifs du traitement">
+        <Section id="objectives" icon="🎯" title="Objectifs du traitement" expandedSection={expandedSection} setExpandedSection={setExpandedSection}>
           <FieldGroup label="Objectif(s) principal(aux)" help="Ce que le patient veut atteindre">
             <textarea
               value={form.objectif}
