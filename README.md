@@ -1,50 +1,78 @@
-# 🏥 PhysioConcept-AI
+# 🏥 PhysioConcept Pro - Plateforme de Génération d'Exercices
 
-Programme intelligent de génération d'exercices de physiothérapie pour la lombalgie, alimenté par l'IA OpenAI.
+**L'IA au service de la physiothérapie** - Générez des programmes d'exercices personnalisés en secondes, peu importe la problématique de votre patient.
+
+## 🎯 Ce que vous pouvez faire
+
+Générez des exercices personnalisés pour:
+
+- 🔴 **Colonne vertébrale:** Lombalgie, Cervicalgie, Dorsalgie
+- 💪 **Membre supérieur:** Épaule, Coude, Poignet
+- 🦵 **Membre inférieur:** Hanche, Genou, Cheville, Pied
 
 ## 🚀 Démarrage rapide
 
-### Installation
+### 1. Installation
 
 ```bash
-# Installer les dépendances
+git clone <votre-repo>
+cd physioconcept-ai
 npm install
-
-# Créer un fichier .env.local avec votre clé OpenAI
-echo "OPENAI_API_KEY=sk-your-key" > .env.local
 ```
 
-### Développement
+### 2. Configuration
+
+Créez `.env.local`:
+```env
+OPENAI_API_KEY=sk-xxxxxxxxxxxxx
+```
+
+### 3. Lancer
 
 ```bash
 npm run dev
+# Accès: http://localhost:3000
 ```
 
-L'app est accessible à `http://localhost:3000`
-
-### Production
-
-```bash
-npm run build
-npm start
-```
-
-## 📋 Structure du projet
+## 📊 Flux d'utilisation
 
 ```
+1. Dashboard (/dashboard)
+   ↓ Sélectionner une problématique
+2. Formulaire (/formulaire)
+   ↓ Remplir l'évaluation patient
+3. API (/api/generate)
+   ↓ OpenAI génère le programme
+4. Résultats (/result)
+   ↓ Affichage + Impression + Export
+```
+
+## ✨ Fonctionnalités principales
+
+✅ **10 domaines de rééducation**
+✅ **Formulaires dynamiques** adaptés à chaque problématique
+✅ **Évaluation complète** du patient (douleur, limitation, antécédents)
+✅ **Exercices spécifiques** contextualisés
+✅ **Plan de traitement** phasé
+✅ **Impression PDF** intégrée
+✅ **Interface moderne** et responsive
+✅ **API robuste** avec gestion d'erreurs complète
+
+## 📁 Structure du projet
+
+```
+physioconcept-ai/
 ├── pages/
-│   ├── index.js              # Formulaire d'entrée
-│   ├── result.js             # Page de résultats
-│   └── api/
-│       └── generate.js       # API qui appelle OpenAI
-├── components/
-│   └── Layout.js             # Composant de mise en page
-├── lib/
-│   └── openai.js             # Configuration OpenAI
+│   ├── index.js              # Redirect → dashboard
+│   ├── dashboard.js          # Sélection problématiques
+│   ├── formulaire.js         # Formulaire d'évaluation
+│   ├── result.js             # Affichage résultats
+│   └── api/generate.js       # API OpenAI
+├── components/Layout.js      # Layout + CSS
 ├── data/
-│   └── lumbarExercises.js    # Base de données d'exercices
-├── styles/
-│   └── globals.css           # Styles globaux
+│   ├── problematiques.js     # 10 domaines
+│   └── exercices.js          # Exercices par domaine
+├── styles/globals.css        # Styles CSS
 └── package.json
 ```
 
@@ -52,85 +80,180 @@ npm start
 
 ### Variables d'environnement
 
-Créez un fichier `.env.local`:
-
 ```env
-OPENAI_API_KEY=sk-xxxxx
+OPENAI_API_KEY=sk-...          # Clé API OpenAI (OBLIGATOIRE)
 ```
 
-## 📖 Utilisation
+### package.json
 
-1. **Remplir le formulaire** avec les informations du patient:
-   - Localisation de la douleur
-   - Mouvement aggravant
-   - Tolérance au mouvement
-   - Drapeaux rouges (sécurité)
-   - Durée des symptômes
-
-2. **Soumettre** → L'API OpenAI génère un programme personnalisé
-
-3. **Consulter le programme** avec:
-   - ⚠️ Drapeaux rouges (si applicables)
-   - 📘 Éducation du patient
-   - 📌 Exercices recommandés avec dosage
-
-## 🎯 Fonctionnalités
-
-- ✅ Analyse des drapeaux rouges (sécurité médicale)
-- 📚 Éducation personnalisée du patient
-- 🏋️ Recommandations d'exercices adaptées
-- 🌐 Support multilingue (français/anglais)
-- 📱 Interface responsive
-- ⚡ Génération rapide via OpenAI
-
-## 🛡️ Sécurité
-
-- Les clés API ne sont pas exposées côté client
-- Validation des données sur le serveur
-- Gestion d'erreur robuste
-
-## 📝 Notes de développement
-
-### Corrections apportées:
-
-1. ✅ **API generate.js** - Convertie en API route authentique
-2. ✅ **Error handling** - Gestion complète des erreurs
-3. ✅ **Styling** - Layout amélioré avec CSS moderne
-4. ✅ **Validation** - Vérification des données incomplètes
-5. ✅ **JSON parsing** - Support pour JSON encadré en markdown
-
-## 🔄 Flux d'application
-
-```
-Home Page (index.js)
-    ↓ (POST /api/generate)
-API OpenAI (generate.js)
-    ↓
-Result Page (result.js)
-    ↓
-Display Program
+```json
+{
+  "dependencies": {
+    "next": "14.0.4",
+    "react": "18.2.0",
+    "openai": "^4.0.0"
+  }
+}
 ```
 
-## 📦 Dépendances principales
+## 🏗️ Build & Production
 
-- **Next.js 14** - Framework React
-- **OpenAI v4** - API IA générative
+### Développement
 
-## 🐛 Dépannage
+```bash
+npm run dev      # Hot-reload local
+```
 
-### "Impossible de lire les données du programme"
-→ Vérifiez que le JSON est valide
+### Production
 
-### "Erreur serveur"
-→ Vérifiez votre clé API OpenAI dans `.env.local`
+```bash
+npm run build    # Build optimisé
+npm start        # Serveur production
+npm run lint     # Vérifier erreurs
+```
 
-### "Données incomplètes"
-→ Remplissez tous les champs obligatoires
+## 📱 Utilisation
+
+### Pour les physios en clinique:
+1. Accédez à `/dashboard`
+2. Sélectionnez la problématique du patient
+3. Remplissez le formulaire d'évaluation
+4. Cliquez "Générer le programme"
+5. Imprimez et donnez au patient
+
+### Pour le suivi à distance:
+1. Envoyez le lien du dashboard
+2. Patient remplit le formulaire
+3. Reçoit le programme automatiquement
+4. Export possible en PDF
+
+## 🔒 Sécurité
+
+- ✅ Clés API **côté serveur uniquement**
+- ✅ Validation complète des données
+- ✅ Pas d'exposition de secrets en production
+- ✅ Gestion d'erreurs robuste
+- ✅ HTTPS recommandé en production
+
+## 📊 API Endpoint
+
+### POST /api/generate
+
+**Payload:**
+```json
+{
+  "problematique": "genou",
+  "patientName": "Jean",
+  "patientAge": "35",
+  "painIntensity": "7",
+  "painDuration": "subacute",
+  "painLocation": "Antérieur",
+  "movementRestriction": "moderate",
+  "fearLevel": "low",
+  "treatmentHistory": "Aucun",
+  "comorbidities": "Aucun",
+  "objectif": "Reprendre le sport"
+}
+```
+
+**Réponse:**
+```json
+{
+  "redFlags": { "present": false, "items": [] },
+  "education": { "understanding": "...", "meaning": "..." },
+  "exercises": [ { "name": "...", "dosage": "..." } ],
+  "plan": { "phase": "Phase 1", "duration": "4 semaines" }
+}
+```
+
+## 🛠️ Dépannage
+
+### Erreur: "OPENAI_API_KEY is not defined"
+→ Vérifiez que `.env.local` existe avec votre clé API
+
+### Erreur: "Impossible de charger le programme"
+→ Vérifiez les logs: `npm run dev` affiche les erreurs
+
+### Page blanche ou chargement infini
+→ Ouvrez la console (F12) et cherchez les erreurs rouges
+
+Voir `TROUBLESHOOTING.md` pour plus de solutions.
+
+## 📚 Documentation
+
+- `README.md` - Ce fichier
+- `FEATURES.md` - Nouvelles fonctionnalités détaillées
+- `CORRECTIONS.md` - Corrections et améliorations apportées
+- `TROUBLESHOOTING.md` - Guide de dépannage complet
+- `PROJECT_STATUS.md` - État du projet
+
+## 🎯 Cas d'usage
+
+### Clinique physio
+- Générez des programmes en 30 secondes
+- Adaptez à chaque patient
+- Imprimez facilement
+- Améliorez votre efficacité
+
+### Télé-rééducation
+- Envoyez le lien au patient
+- Il remplit le questionnaire
+- Reçoit son programme automatiquement
+
+### Enseignement
+- Montrez aux étudiants comment utiliser l'IA
+- Générez des cas d'étude
+- Adaptez l'apprentissage
+
+## 🚀 Prochaines étapes
+
+- [ ] Authentification utilisateur
+- [ ] Historique des programmes
+- [ ] Téléchargement PDF
+- [ ] Vidéos d'exercices
+- [ ] App mobile
+
+## 📦 Déploiement
+
+### Vercel (Recommandé)
+```bash
+vercel deploy
+```
+
+### Docker
+```dockerfile
+FROM node:18
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+CMD ["npm", "start"]
+```
+
+## 💡 Tips
+
+- Utilisez des **navigateurs modernes** (Chrome, Firefox, Safari, Edge)
+- **Testez sur mobile** avec F12 → Device mode
+- **Imprimez en PDF** avec Ctrl+P
+- **Exportez les données** depuis l'API
+
+## 🤝 Contribution
+
+Des idées pour améliorer? N'hésitez pas à contribuer!
 
 ## 📄 Licence
 
 MIT
 
+## 📞 Support
+
+- Consultez la documentation d'abord
+- Vérifiez `TROUBLESHOOTING.md`
+- Vérifiez votre clé OpenAI
+
 ---
 
-**Développé pour améliorer l'accès aux programmes de physiothérapie personnalisés** 🏥💪
+**PhysioConcept Pro** - Transformez votre pratique physio avec l'IA 🚀
+
+**Version:** 2.0.0
+**Status:** Production Ready ✅
+**Dernière mise à jour:** 2025-12-08
