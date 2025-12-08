@@ -1,5 +1,5 @@
 import client from "../../lib/openai";
-import { getExercisesByProblematique, getExerciseById } from "../../data/exercisesMedia";
+import { getExercisesByProblematique } from "../../data/exercisesMedia";
 
 export default async function handler(req, res) {
   // API pour générer des programmes de physiothérapie personnalisés
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     }
 
     // Récupérer les exercices disponibles pour cette problématique
-    const exercicesDisponibles = exercicesByProblematique[problematique] || [];
+    const exercicesDisponibles = getExercisesByProblematique(problematique);
 
     const prompt = `Tu es un physiothérapeute expert. Génère un programme personnalisé pour ce patient.
 

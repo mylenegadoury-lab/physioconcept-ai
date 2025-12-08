@@ -80,43 +80,40 @@ export default function Dashboard() {
           <Link
             key={problematique.id}
             href={`/formulaire?problematique=${problematique.id}`}
+            style={{
+              display: "block",
+              padding: "20px",
+              border: "2px solid #e5e7eb",
+              borderRadius: "12px",
+              backgroundColor: "#f9fafb",
+              textDecoration: "none",
+              transition: "all 0.3s",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#eff6ff";
+              e.currentTarget.style.borderColor = "#3b82f6";
+              e.currentTarget.style.boxShadow =
+                "0 4px 12px rgba(59, 130, 246, 0.1)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#f9fafb";
+              e.currentTarget.style.borderColor = "#e5e7eb";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           >
-            <a
-              style={{
-                display: "block",
-                padding: "20px",
-                border: "2px solid #e5e7eb",
-                borderRadius: "12px",
-                backgroundColor: "#f9fafb",
-                textDecoration: "none",
-                transition: "all 0.3s",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#eff6ff";
-                e.currentTarget.style.borderColor = "#3b82f6";
-                e.currentTarget.style.boxShadow =
-                  "0 4px 12px rgba(59, 130, 246, 0.1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#f9fafb";
-                e.currentTarget.style.borderColor = "#e5e7eb";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            >
-              <div style={{ fontSize: "40px", marginBottom: "10px" }}>
-                {problematique.icon}
-              </div>
-              <h3 style={{ margin: "10px 0", fontSize: "18px" }}>
-                {problematique.name}
-              </h3>
-              <p style={{ margin: "10px 0", color: "#666", fontSize: "14px" }}>
-                {problematique.description}
-              </p>
-              <div style={{ marginTop: "12px", fontSize: "12px", color: "#999" }}>
-                {problematique.commonCauses.join(" • ")}
-              </div>
-            </a>
+            <div style={{ fontSize: "40px", marginBottom: "10px" }}>
+              {problematique.icon}
+            </div>
+            <h3 style={{ margin: "10px 0", fontSize: "18px" }}>
+              {problematique.name}
+            </h3>
+            <p style={{ margin: "10px 0", color: "#666", fontSize: "14px" }}>
+              {problematique.description}
+            </p>
+            <div style={{ marginTop: "12px", fontSize: "12px", color: "#999" }}>
+              {problematique.commonCauses.join(" • ")}
+            </div>
           </Link>
         ))}
       </div>
