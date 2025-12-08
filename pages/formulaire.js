@@ -56,6 +56,7 @@ export default function Formulaire() {
     patientAge: "",
     patientSex: "",
     patientActivities: "",
+    patientFolderText: "",
     painIntensity: 5,
     painDuration: "",
     painLocation: "",
@@ -77,6 +78,7 @@ export default function Formulaire() {
   });
   const [loading, setLoading] = useState(false);
   const [expandedSection, setExpandedSection] = useState("patient");
+  const [inputMode, setInputMode] = useState("structured"); // 'structured' | 'paste'
 
   // Charger la problématique sélectionnée
   useEffect(() => {
@@ -97,6 +99,7 @@ export default function Formulaire() {
     // Forcer le type string pour les champs texte
     const textFields = [
       "patientName", "patientSex", "patientActivities", "painDuration", "painLocation", "painType", "painTriggers", "painRelief", "movementRestriction", "functionalLevel", "treatmentHistory", "comorbidities", "surgicalHistory", "medications", "palpationFindings", "rangeOfMotion", "strength", "objectif"
+      , "patientFolderText"
     ];
     if (textFields.includes(field)) {
       setForm((prev) => ({ ...prev, [field]: value.toString() }));
@@ -143,7 +146,7 @@ export default function Formulaire() {
     }
   }
 
-  if (!selectedProblematique) {
+  if (inputMode === "structured" && !selectedProblematique) {
     return (
       <Layout>
         <p>Chargement...</p>
@@ -171,13 +174,28 @@ export default function Formulaire() {
       </button>
 
       <h1 style={{ marginBottom: "8px" }}>
-        {selectedProblematique.icon} {selectedProblematique.name}
+        {inputMode === "structured" ? (
+          <>
+            {selectedProblematique?.icon} {selectedProblematique?.name}
+          </>
+        ) : (
+          <>🗂️ Dossier patient collé</>
+        )}
       </h1>
       <p style={{ color: "#666", marginBottom: "24px", fontSize: "14px" }}>
         {selectedProblematique.description}
       </p>
 
       <form onSubmit={handleSubmit} className="form">
+        {/* INPUT MODE TOGGLE */}
+        <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
+          <label style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <input type="radio" checked={inputMode === "structured"} onChange={() => setInputMode("structured")} /> Structured
+          </label>
+          <label style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <input type="radio" checked={inputMode === "paste"} onChange={() => setInputMode("paste")} /> Coller le dossier (SOAP/éval)
+          </label>
+        </div>
         {/* PATIENT */}
         <Section id="patient" icon="👤" title="Informations du patient" expandedSection={expandedSection} setExpandedSection={setExpandedSection}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
@@ -222,6 +240,20 @@ export default function Formulaire() {
             />
           </FieldGroup>
         </Section>
+
+        {/* PASTED PATIENT FOLDER */}
+        {inputMode === "paste" && (
+          <Section id="pasted" icon="📋" title="Dossier patient (coller)" expandedSection={expandedSection} setExpandedSection={setExpandedSection}>
+            <FieldGroup label="Coller le dossier du patient (éval ou SOAP)" help="Vous pouvez coller l'évaluation ou le SOAP ici ; le générateur l'utilisera en priorité.">
+              <textarea
+                value={form.patientFolderText}
+                onChange={(e) => updateField("patientFolderText", e.target.value)}
+                placeholder="Copier-coller l'éval ou SOAP du patient"
+                style={{ width: "100%", padding: "10px", border: "2px solid #e5e7eb", borderRadius: "6px", minHeight: "140px", fontFamily: "inherit" }}
+              />
+            </FieldGroup>
+          </Section>
+        )}
 
         {/* PAIN */}
         <Section id="pain" icon="🔴" title="Évaluation de la douleur" expandedSection={expandedSection} setExpandedSection={setExpandedSection}>

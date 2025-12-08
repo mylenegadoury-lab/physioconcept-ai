@@ -6,6 +6,7 @@ export default function Result() {
   const router = useRouter();
   const [data, setData] = useState(null);
   const [parseError, setParseError] = useState(null);
+  const [view, setView] = useState('patient');
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -49,6 +50,14 @@ export default function Result() {
   return (
     <Layout>
       <h1>Votre programme personnalisé</h1>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input type="radio" name="view" defaultChecked onChange={() => setView('patient')} /> Version patient
+        </label>
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input type="radio" name="view" onChange={() => setView('clinician')} /> Version physiothérapeute
+        </label>
+      </div>
 
       {/* ---- SECTION DRAPEAUX ROUGES ---- */}
       {data.redFlags && (
@@ -153,6 +162,35 @@ export default function Result() {
               </p>
             )}
 
+            {/* Try common image fields returned by the generator */}
+            {(ex.image || ex.imageUrl || ex.mediaUrl || (ex.media && ex.media.image)) && (
+              <div style={{ marginTop: "12px" }}>
+                <img
+                  src={ex.image || ex.imageUrl || ex.mediaUrl || (ex.media && ex.media.image)}
+                  alt={ex.name}
+                  style={{ maxWidth: "320px", width: "100%", borderRadius: "8px", display: "block", marginTop: "8px" }}
+                />
+                  {/* Source badge */}
+                  <div style={{ marginTop: "8px", display: "flex", gap: "8px", alignItems: "center" }}>
+                    {ex.media?.source === "dalle" && (
+                      <span style={{ backgroundColor: "#fde68a", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image générée par IA</span>
+                    )}
+                    {ex.media?.source === "pexels" && (
+                      <span style={{ backgroundColor: "#d1fae5", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image libre (Pexels)</span>
+                    )}
+                    {ex.media?.source === "unsplash" && (
+                      <span style={{ backgroundColor: "#eef2ff", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image libre (Unsplash)</span>
+                    )}
+                    {ex.media?.source === "cache" && (
+                      <span style={{ backgroundColor: "#eef2ff", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image mise en cache</span>
+                    )}
+                    {ex.media?.source === "provided" && (
+                      <span style={{ backgroundColor: "#f3f4f6", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image fournie</span>
+                    )}
+                  </div>
+              </div>
+            )}
+
             {ex.imagePrompt && (
               <p>
                 <strong>Idée d’illustration :</strong> {ex.imagePrompt}
@@ -163,6 +201,72 @@ export default function Result() {
                 <strong>Idée de vidéo :</strong> {ex.videoPrompt}
               </p>
             )}
+
+            {/* Evidence display: local evidence first, then generated citations */}
+            {(ex.evidence || ex.generatedEvidence) && (
+              <div style={{ marginTop: "12px", backgroundColor: "#f9fafb", padding: "12px", borderRadius: "8px" }}>
+                <strong>Preuves / Références :</strong>
+                {ex.evidence && (
+                  <div style={{ marginTop: 8 }}>
+                    <p style={{ margin: 0 }}><em>Niveau local:</em> {ex.evidence.evidence || ex.evidence.evidenceLevel || ex.evidence.evidenceLevelScore || "N/A"}</p>
+                    {ex.evidence.recommendation && <p style={{ margin: 0 }}><strong>Recommandation:</strong> {ex.evidence.recommendation}</p>}
+                  </div>
+                )}
+
+                {ex.generatedEvidence && ex.generatedEvidence.length > 0 ? (
+                  <ul style={{ marginTop: 8 }}>
+                    {ex.generatedEvidence.map((c, idx) => (
+                      <li key={idx} style={{ marginBottom: 6 }}>
+                        <div style={{ fontSize: "14px", fontWeight: 600 }}>{c.title || (c.doi || c.pmid) || "Étude"} <span style={{ fontWeight: 400, marginLeft: 8 }}>({c.year || "n/a"})</span></div>
+                        <div style={{ fontSize: "13px", color: "#374151" }}>{c.authors || ""}</div>
+                        {c.summary && <div style={{ marginTop: 4 }}>{c.summary}</div>}
+                        <div style={{ marginTop: 4 }}>
+                          {c.doi && (
+                            <a href={`https://doi.org/${c.doi}`} target="_blank" rel="noreferrer">DOI: {c.doi}</a>
+                          )}
+                          {c.pmid && (
+                            <span style={{ marginLeft: 8 }}>
+                              <a href={`https://pubmed.ncbi.nlm.nih.gov/${c.pmid}/`} target="_blank" rel="noreferrer">PMID: {c.pmid}</a>
+                            </span>
+                          )}
+                          {c.level && <span style={{ marginLeft: 8, fontStyle: "italic" }}>{c.level}</span>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  ex.generatedEvidence && ex.generatedEvidence.length === 0 && (
+                    <p style={{ marginTop: 8, fontStyle: "italic" }}>Aucune étude spécifique trouvée par l'assistant IA pour cet exercice.</p>
+                  )
+                )}
+              </div>
+            )}
+
+            {/* Instructions: patient or clinician */}
+            <div style={{ marginTop: 12 }}>
+              {view === 'patient' ? (
+                ex.patientInstructions ? (
+                  <div style={{ backgroundColor: '#f0fdf4', padding: 12, borderRadius: 8 }}>
+                    <strong>Instructions pour le patient :</strong>
+                    <div style={{ marginTop: 8 }}>{ex.patientInstructions}</div>
+                  </div>
+                ) : (
+                  <p style={{ fontStyle: 'italic' }}>Pas d'instructions patient disponibles.</p>
+                )
+              ) : (
+                ex.clinicianChecklist ? (
+                  <div style={{ backgroundColor: '#f8fafc', padding: 12, borderRadius: 8 }}>
+                    <strong>Checklist pour le physiothérapeute :</strong>
+                    <ul style={{ marginTop: 8 }}>
+                      {Array.isArray(ex.clinicianChecklist) ? ex.clinicianChecklist.map((c, ci) => (
+                        <li key={ci}>{c}</li>
+                      )) : <li>{ex.clinicianChecklist}</li>}
+                    </ul>
+                  </div>
+                ) : (
+                  <p style={{ fontStyle: 'italic' }}>Pas de checklist clinicien disponible.</p>
+                )}
+            </div>
           </div>
         ))
       ) : (
