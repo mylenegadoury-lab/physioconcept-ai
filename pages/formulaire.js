@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import Layout from "../components/Layout";
 import { problematiques } from "../data/problematiques";
@@ -51,7 +51,7 @@ export default function Formulaire() {
     }
   }, [selectedProblematique]);
 
-  function updateField(field, value) {
+  const updateField = useCallback((field, value) => {
     // Forcer le type string pour les champs texte
     const textFields = [
       "patientName", "patientSex", "patientActivities", "painDuration", "painLocation", "painType", "painTriggers", "painRelief", "movementRestriction", "functionalLevel", "treatmentHistory", "comorbidities", "surgicalHistory", "medications", "palpationFindings", "rangeOfMotion", "strength", "objectif"
@@ -61,14 +61,16 @@ export default function Formulaire() {
     } else {
       setForm((prev) => ({ ...prev, [field]: value }));
     }
-  }
+  }, []);
 
-  function toggleActivity(activity) {
-    const newActivities = form.affectedActivities.includes(activity)
-      ? form.affectedActivities.filter((a) => a !== activity)
-      : [...form.affectedActivities, activity];
-    setForm((prev) => ({ ...prev, affectedActivities: newActivities }));
-  }
+  const toggleActivity = useCallback((activity) => {
+    setForm((prev) => ({
+      ...prev,
+      affectedActivities: prev.affectedActivities.includes(activity)
+        ? prev.affectedActivities.filter((a) => a !== activity)
+        : [...prev.affectedActivities, activity],
+    }));
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -190,8 +192,8 @@ export default function Formulaire() {
             <FieldGroup label="Âge" help="En années">
               <input
                 type="number"
-                value={form.patientAge === null ? "" : form.patientAge}
-                onChange={(e) => updateField("patientAge", e.target.value === "" ? "" : e.target.value.replace(/[^0-9]/g, ""))}
+                value={form.patientAge}
+                onChange={(e) => updateField("patientAge", e.target.value.replace(/[^0-9]/g, ""))}
                 placeholder="Âge"
                 style={{ width: "100%", padding: "10px", border: "2px solid #e5e7eb", borderRadius: "6px" }}
               />
