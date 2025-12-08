@@ -1,5 +1,5 @@
 import client from "../../lib/openai";
-import { exercicesByProblematique } from "../../data/exercices";
+import { getExercisesByProblematique, getExerciseById } from "../../data/exercisesMedia";
 
 export default async function handler(req, res) {
   // API pour générer des programmes de physiothérapie personnalisés

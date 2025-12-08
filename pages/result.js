@@ -192,20 +192,43 @@ export default function Result() {
         >
           🖨️ Imprimer
         </button>
-        <button
-          onClick={() => window.history.back()}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#e5e7eb",
-            color: "#1f2937",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "14px",
-          }}
-        >
-          ← Retour
-        </button>
+        <div className="action-buttons">
+          <button
+            onClick={() =>
+              window.location.href = `/library?exercises=${encodeURIComponent(
+                JSON.stringify(data.exercises)
+              )}`
+            }
+            style={{
+              padding: "12px 24px",
+              backgroundColor: "#10b981",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "16px",
+              fontWeight: "600",
+              marginRight: "12px",
+            }}
+          >
+            📚 Voir la bibliothèque
+          </button>
+          <button
+            onClick={() => window.history.back()}
+            style={{
+              padding: "12px 24px",
+              backgroundColor: "#6b7280",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "16px",
+              fontWeight: "600",
+            }}
+          >
+            ← Retour
+          </button>
+        </div>
       </div>
     </Layout>
   );
