@@ -1,4 +1,5 @@
 import client from "../../lib/openai";
+import { exercicesByProblematique } from "../../data/exercices";
 
 export default async function handler(req, res) {
   // API pour générer des programmes de physiothérapie personnalisés
@@ -8,69 +9,73 @@ export default async function handler(req, res) {
 
   try {
     const {
-      language,
+      problematique,
+      patientName,
+      patientAge,
+      painIntensity,
+      painDuration,
       painLocation,
-      painDirection,
-      movementTolerance,
+      movementRestriction,
       fearLevel,
-      duration,
-      legWeakness,
-      numbness,
-      nightPain,
-      fever,
-      trauma,
+      treatmentHistory,
+      comorbidities,
+      objectif,
+      language = "fr",
     } = req.body;
 
-    // Validation basique
-    if (
-      !painLocation ||
-      !painDirection ||
-      !movementTolerance ||
-      !fearLevel ||
-      !duration
-    ) {
+    // Validation
+    if (!problematique || !painIntensity || !painDuration) {
       return res.status(400).json({ error: "Données incomplètes" });
     }
 
-    const prompt = `Tu es un physiothérapeute expert en lombalgie. Analyse les informations du patient et génère un programme d'exercices personnalisé.
+    // Récupérer les exercices disponibles pour cette problématique
+    const exercicesDisponibles = exercicesByProblematique[problematique] || [];
+
+    const prompt = `Tu es un physiothérapeute expert. Génère un programme personnalisé pour ce patient.
 
 DONNÉES DU PATIENT:
-- Langue: ${language}
-- Localisation douleur: ${painLocation}
-- Mouvement aggravant: ${painDirection}
-- Tolérance au mouvement: ${movementTolerance}
-- Niveau d'appréhension: ${fearLevel}
-- Durée: ${duration}
-- Faiblesse jambe: ${legWeakness}
-- Engourdissements: ${numbness}
-- Douleur nocturne: ${nightPain}
-- Fièvre: ${fever}
-- Trauma récent: ${trauma}
+- Problématique: ${problematique}
+- Nom: ${patientName || "Non spécifié"}
+- Âge: ${patientAge || "Non spécifié"}
+- Intensité douleur: ${painIntensity}/10
+- Durée: ${painDuration}
+- Localisation: ${painLocation || "Non spécifié"}
+- Restriction mouvement: ${movementRestriction || "Non spécifié"}
+- Peur du mouvement: ${fearLevel || "Non spécifié"}
+- Traitements antérieurs: ${treatmentHistory || "Aucun"}
+- Comorbidités: ${comorbidities || "Aucune"}
+- Objectif: ${objectif || "Réduire la douleur"}
 
-RÉPONSE EN JSON VALIDE UNIQUEMENT (sans markdown):
+EXERCICES RECOMMANDÉS DISPONIBLES:
+${exercicesDisponibles.map((e) => `- ${e.name}: ${e.description}`).join("\n")}
+
+GÉNÉRER EN JSON VALIDE:
 {
   "redFlags": {
     "present": boolean,
-    "items": ["drapeau1", "drapeau2"],
-    "recommendation": "Recommandation médicale si drapeaux"
+    "items": ["drapeau1"],
+    "recommendation": "Recommandation si drapeaux"
   },
   "education": {
-    "understanding": "Explication simple de la condition",
-    "meaning": "Ce que signifient les symptômes",
-    "helpful": "Ce qui aide généralement",
-    "avoid": "Ce qu'il faut éviter",
+    "understanding": "Explication de la condition",
+    "meaning": "Signification des symptômes",
+    "helpful": "Ce qui aide",
+    "avoid": "À éviter",
     "progression": "Attentes de progression"
   },
   "exercises": [
     {
-      "name": "Nom exercice",
-      "description": "Description détaillée",
-      "dosage": "Répétitions/durée/fréquence",
-      "justification": "Pourquoi cet exercice",
-      "imagePrompt": "Description pour illustration",
-      "videoPrompt": "Description pour vidéo"
+      "name": "Nom de l'exercice",
+      "description": "Description",
+      "dosage": "Reps/durée/fréquence",
+      "justification": "Pourquoi cet exercice"
     }
-  ]
+  ],
+  "plan": {
+    "phase": "Phase 1/2/3",
+    "duration": "Durée en semaines",
+    "frequency": "Fréquence par semaine"
+  }
 }`;
 
     const response = await client.chat.completions.create({
@@ -78,8 +83,7 @@ RÉPONSE EN JSON VALIDE UNIQUEMENT (sans markdown):
       messages: [
         {
           role: "system",
-          content:
-            "Tu es un physiothérapeute spécialisé en lombalgie. Réponds TOUJOURS en JSON valide.",
+          content: "Tu es un physiothérapeute spécialisé. Réponds TOUJOURS en JSON valide.",
         },
         {
           role: "user",
@@ -87,18 +91,19 @@ RÉPONSE EN JSON VALIDE UNIQUEMENT (sans markdown):
         },
       ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 2500,
     });
 
     let programData;
     try {
       const content = response.choices[0].message.content;
-      // Nettoyer le JSON si encadré par des backticks
-      const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/({[\s\S]*})/);
+      const jsonMatch =
+        content.match(/```json\n?([\s\S]*?)\n?```/) ||
+        content.match(/({[\s\S]*})/);
       const jsonString = jsonMatch ? jsonMatch[1] : content;
       programData = JSON.parse(jsonString);
     } catch (parseError) {
-      console.error("Erreur parsing réponse OpenAI:", parseError);
+      console.error("Erreur parsing:", parseError);
       return res.status(500).json({
         error: "Erreur traitement réponse IA",
         details: parseError.message,

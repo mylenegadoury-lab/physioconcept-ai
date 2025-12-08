@@ -108,6 +108,28 @@ export default function Result() {
         </>
       )}
 
+      {/* SECTION PLAN */}
+      {data.plan && (
+        <>
+          <h2>📅 Plan de traitement</h2>
+          {data.plan.phase && (
+            <p>
+              <strong>Phase:</strong> {data.plan.phase}
+            </p>
+          )}
+          {data.plan.duration && (
+            <p>
+              <strong>Durée:</strong> {data.plan.duration}
+            </p>
+          )}
+          {data.plan.frequency && (
+            <p>
+              <strong>Fréquence:</strong> {data.plan.frequency}
+            </p>
+          )}
+        </>
+      )}
+
       {/* ---- SECTION EXERCICES ---- */}
       <h2>📌 Exercices recommandés</h2>
       {data.exercises?.length > 0 ? (
@@ -146,6 +168,45 @@ export default function Result() {
       ) : (
         <p>Aucun exercice généré.</p>
       )}
+
+      {/* BOUTONS D'ACTION */}
+      <div
+        style={{
+          marginTop: "40px",
+          display: "flex",
+          gap: "10px",
+          justifyContent: "center",
+        }}
+      >
+        <button
+          onClick={() => window.print()}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#3b82f6",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "14px",
+          }}
+        >
+          🖨️ Imprimer
+        </button>
+        <button
+          onClick={() => window.history.back()}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#e5e7eb",
+            color: "#1f2937",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "14px",
+          }}
+        >
+          ← Retour
+        </button>
+      </div>
     </Layout>
   );
 }
