@@ -26,16 +26,29 @@ export default function Home() {
     e.preventDefault();
     setLoading(true);
 
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    const data = await res.json();
-    window.location.href = `/result?data=${encodeURIComponent(
-      JSON.stringify(data)
-    )}`;
+      if (!res.ok) {
+        const error = await res.json();
+        alert(`Erreur: ${error.error || "Impossible de générer le programme"}`);
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      window.location.href = `/result?data=${encodeURIComponent(
+        JSON.stringify(data)
+      )}`;
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Erreur de connexion. Veuillez réessayer.");
+      setLoading(false);
+    }
   }
 
   return (
