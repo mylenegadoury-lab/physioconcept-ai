@@ -406,7 +406,28 @@ IMPORTANT: Si dossier patient complet fourni, privilégie ces données. Réponds
                 return out;
               }
 
-              // 1) Try mapping/local prompt -> look for stock image
+              // 1) PRIORITY: Check mediaLibrary for pre-generated professional images
+              try {
+                const { getExerciseMedia } = require("../../data/mediaLibrary");
+                const exerciseMedia = getExerciseMedia(local?.id || out.id);
+
+                if (exerciseMedia && exerciseMedia.images?.main?.url) {
+                  // Use pre-generated professional image from library
+                  out.media = {
+                    ...(out.media || {}),
+                    image: exerciseMedia.images.main.url,
+                    startingImage: exerciseMedia.images.starting?.url || null,
+                    errorImage: exerciseMedia.images.commonError?.url || null,
+                    source: "mediaLibrary",
+                  };
+                  console.log(`✓ Using pre-generated image for: ${local?.id || out.name}`);
+                  return out;
+                }
+              } catch (libErr) {
+                console.warn("Media library lookup failed:", libErr.message || libErr);
+              }
+
+              // 2) FALLBACK: Try stock images (Pexels/Unsplash) - lower quality
               const stockPrompt = out.imagePrompt || local?.imagePrompt || out.description || out.name;
               let imageUrl = null;
               try {
