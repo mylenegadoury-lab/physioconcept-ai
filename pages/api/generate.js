@@ -505,15 +505,20 @@ IMPORTANT: Si dossier patient complet fourni, privilégie ces données. Réponds
                 const cacheKey = stockPrompt;
                 const cached = getCachedImage(cacheKey);
                 if (cached) {
+                  console.log(`✅ Image depuis cache pour: ${out.name}`);
                   out.media = { ...(out.media || {}), image: cached, source: "cache" };
                   return out;
                 }
 
+                console.log(`🔍 Recherche image stock pour: ${out.name}`);
                 imageUrl = await findStockImage(out.name || local?.name || stockPrompt, stockPrompt);
                 if (imageUrl) {
+                  console.log(`✅ Image trouvée: ${imageUrl.substring(0, 60)}...`);
                   setCachedImage(cacheKey, imageUrl, process.env.PEXELS_API_KEY ? "pexels" : "unsplash");
                   out.media = { ...(out.media || {}), image: imageUrl, source: process.env.PEXELS_API_KEY ? "pexels" : "unsplash" };
                   return out;
+                } else {
+                  console.warn(`⚠️ Aucune image trouvée pour: ${out.name}`);
                 }
               } catch (stockErr) {
                 console.warn("Stock image lookup failed:", stockErr.message || stockErr);

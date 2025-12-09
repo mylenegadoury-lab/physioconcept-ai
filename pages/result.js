@@ -152,9 +152,21 @@ export default function Result() {
             <p>{ex.description}</p>
 
             {ex.dosage && (
-              <p>
-                <strong>Dosage :</strong> {ex.dosage}
-              </p>
+              <div style={{ marginTop: 12 }}>
+                <strong>Dosage :</strong>
+                {typeof ex.dosage === 'string' ? (
+                  <span> {ex.dosage}</span>
+                ) : (
+                  <ul style={{ marginTop: 8, marginBottom: 0 }}>
+                    {ex.dosage.reps && <li><strong>Répétitions:</strong> {ex.dosage.reps}</li>}
+                    {ex.dosage.sets && <li><strong>Sets:</strong> {ex.dosage.sets}</li>}
+                    {ex.dosage.frequency && <li><strong>Fréquence:</strong> {ex.dosage.frequency}</li>}
+                    {ex.dosage.tempo && <li><strong>Tempo:</strong> {ex.dosage.tempo}</li>}
+                    {ex.dosage.rest && <li><strong>Repos:</strong> {ex.dosage.rest}</li>}
+                    {ex.dosage.load && <li><strong>Charge:</strong> {ex.dosage.load}</li>}
+                  </ul>
+                )}
+              </div>
             )}
             {ex.justification && (
               <p>

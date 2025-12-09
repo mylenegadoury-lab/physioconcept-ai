@@ -1,32 +1,72 @@
 {
-	"person lying prone doing mckenzie extension exercise, elbows supporting upper body": {
-		"url": "https://source.unsplash.com/800x600/?physiotherapy,back,extension",
-		"source": "unsplash",
-		"createdAt": "2025-12-08T12:00:00.000Z"
-	},
-	"woman doing cat-cow stretch on yoga mat, showing both positions": {
-		"url": "https://source.unsplash.com/800x600/?yoga,cat-cow,stretch",
-		"source": "unsplash",
-		"createdAt": "2025-12-08T12:00:00.000Z"
-	},
-	"person lying on back performing dead bug exercise with alternating limbs": {
-		"url": "https://source.unsplash.com/800x600/?core,exercises,stability",
-		"source": "unsplash",
-		"createdAt": "2025-12-08T12:00:00.000Z"
-	},
-	"woman performing glute bridge exercise, hips raised": {
-		"url": "https://source.unsplash.com/800x600/?glute,bridge,exercise",
-		"source": "unsplash",
-		"createdAt": "2025-12-08T12:00:00.000Z"
-	},
-	"person lying on side doing clamshell hip abduction exercise": {
-		"url": "https://source.unsplash.com/800x600/?clamshells,hip,exercise",
-		"source": "unsplash",
-		"createdAt": "2025-12-08T12:00:00.000Z"
-	},
-	"person bent forward performing pendulum shoulder exercise circles": {
-		"url": "https://source.unsplash.com/800x600/?shoulder,pendulum,exercise",
-		"source": "unsplash",
-		"createdAt": "2025-12-08T12:00:00.000Z"
-	}
+  "person lying prone doing mckenzie extension exercise, elbows supporting upper body": {
+    "url": "https://source.unsplash.com/800x600/?physiotherapy,back,extension",
+    "source": "unsplash",
+    "createdAt": "2025-12-08T12:00:00.000Z"
+  },
+  "woman doing cat-cow stretch on yoga mat, showing both positions": {
+    "url": "https://source.unsplash.com/800x600/?yoga,cat-cow,stretch",
+    "source": "unsplash",
+    "createdAt": "2025-12-08T12:00:00.000Z"
+  },
+  "person lying on back performing dead bug exercise with alternating limbs": {
+    "url": "https://source.unsplash.com/800x600/?core,exercises,stability",
+    "source": "unsplash",
+    "createdAt": "2025-12-08T12:00:00.000Z"
+  },
+  "woman performing glute bridge exercise, hips raised": {
+    "url": "https://source.unsplash.com/800x600/?glute,bridge,exercise",
+    "source": "unsplash",
+    "createdAt": "2025-12-08T12:00:00.000Z"
+  },
+  "person lying on side doing clamshell hip abduction exercise": {
+    "url": "https://source.unsplash.com/800x600/?clamshells,hip,exercise",
+    "source": "unsplash",
+    "createdAt": "2025-12-08T12:00:00.000Z"
+  },
+  "person bent forward performing pendulum shoulder exercise circles": {
+    "url": "https://source.unsplash.com/800x600/?shoulder,pendulum,exercise",
+    "source": "unsplash",
+    "createdAt": "2025-12-08T12:00:00.000Z"
+  },
+  "en position assise, avec une bande de résistance autour de votre poignet, gardez votre coude à vos côtés et tournez lentement votre poignet vers l'extérieur. revenez lentement à la position de départ.": {
+    "url": "https://source.unsplash.com/800x600/?En%2Bposition%2Bassise%2C%2Bavec%2Bune%2Bbande%2Bde%2Br%C3%A9sistance%2Bautour%2Bde%2Bvotre%2Bpoignet%2C%2Bgardez%2Bvotre%2Bcoude%2B%C3%A0%2Bvos%2Bc%C3%B4t%C3%A9s%2Bet%2Btournez%2Blentement%2Bvotre%2Bpoignet%2Bvers%2Bl'ext%C3%A9rieur.%2BRevenez%2Blentement%2B%C3%A0%2Bla%2Bposition%2Bde%2Bd%C3%A9part.",
+    "source": "unsplash",
+    "createdAt": "2025-12-09T22:55:27.473Z"
+  },
+  "debout, avec une bande de résistance attachée à une poignée de porte à hauteur d'épaule, tenez la bande avec votre bras droit étendu. tirez lentement la bande vers le bas et vers votre corps, en gardant votre bras droit. revenez lentement à la position de départ.": {
+    "url": "https://source.unsplash.com/800x600/?Debout%2C%2Bavec%2Bune%2Bbande%2Bde%2Br%C3%A9sistance%2Battach%C3%A9e%2B%C3%A0%2Bune%2Bpoign%C3%A9e%2Bde%2Bporte%2B%C3%A0%2Bhauteur%2Bd'%C3%A9paule%2C%2Btenez%2Bla%2Bbande%2Bavec%2Bvotre%2Bbras%2Bdroit%2B%C3%A9tendu.%2BTirez%2Blentement%2Bla%2Bbande%2Bvers%2Ble%2Bbas%2Bet%2Bvers%2Bvotre%2Bcorps%2C%2Ben%2Bgardant%2Bvotre%2Bbras%2Bdroit.%2BRevenez%2Blentement%2B%C3%A0%2Bla%2Bposition%2Bde%2Bd%C3%A9part.",
+    "source": "unsplash",
+    "createdAt": "2025-12-09T22:55:27.473Z"
+  },
+  "allongé sur le dos avec un poids léger dans votre main droite, étendez votre bras droit vers le plafond. poussez lentement votre bras vers le plafond tout en gardant votre coude droit. revenez lentement à la position de départ.": {
+    "url": "https://source.unsplash.com/800x600/?Allong%C3%A9%2Bsur%2Ble%2Bdos%2Bavec%2Bun%2Bpoids%2Bl%C3%A9ger%2Bdans%2Bvotre%2Bmain%2Bdroite%2C%2B%C3%A9tendez%2Bvotre%2Bbras%2Bdroit%2Bvers%2Ble%2Bplafond.%2BPoussez%2Blentement%2Bvotre%2Bbras%2Bvers%2Ble%2Bplafond%2Btout%2Ben%2Bgardant%2Bvotre%2Bcoude%2Bdroit.%2BRevenez%2Blentement%2B%C3%A0%2Bla%2Bposition%2Bde%2Bd%C3%A9part.",
+    "source": "unsplash",
+    "createdAt": "2025-12-09T22:55:27.474Z"
+  },
+  "patient seated with elbow at waist and bent 90 degrees, holding resistance band": {
+    "url": "https://source.unsplash.com/800x600/?Patient%2Bseated%2Bwith%2Belbow%2Bat%2Bwaist%2Band%2Bbent%2B90%2Bdegrees%2C%2Bholding%2Bresistance%2Bband",
+    "source": "unsplash",
+    "createdAt": "2025-12-09T22:57:50.842Z"
+  },
+  "patient standing on resistance band, raising shoulders towards ears": {
+    "url": "https://source.unsplash.com/800x600/?Patient%2Bstanding%2Bon%2Bresistance%2Bband%2C%2Braising%2Bshoulders%2Btowards%2Bears",
+    "source": "unsplash",
+    "createdAt": "2025-12-09T22:57:50.842Z"
+  },
+  "patient in push-up position against wall, pushing arms to round back": {
+    "url": "https://source.unsplash.com/800x600/?Patient%2Bin%2Bpush-up%2Bposition%2Bagainst%2Bwall%2C%2Bpushing%2Barms%2Bto%2Bround%2Bback",
+    "source": "unsplash",
+    "createdAt": "2025-12-09T22:57:50.843Z"
+  },
+  "lying on side with right arm extended, elbow bent at 90 degrees. perform external rotation while keeping elbow close to body. return to starting position.": {
+    "url": "https://source.unsplash.com/800x600/?Lying%2Bon%2Bside%2Bwith%2Bright%2Barm%2Bextended%2C%2Belbow%2Bbent%2Bat%2B90%2Bdegrees.%2BPerform%2Bexternal%2Brotation%2Bwhile%2Bkeeping%2Belbow%2Bclose%2Bto%2Bbody.%2BReturn%2Bto%2Bstarting%2Bposition.",
+    "source": "unsplash",
+    "createdAt": "2025-12-09T23:09:44.434Z"
+  },
+  "standing upright with right arm close to body, elbow bent at 90 degrees, perform external rotation of right arm against elastic resistance. return to starting position.": {
+    "url": "https://source.unsplash.com/800x600/?Standing%2Bupright%2Bwith%2Bright%2Barm%2Bclose%2Bto%2Bbody%2C%2Belbow%2Bbent%2Bat%2B90%2Bdegrees%2C%2Bperform%2Bexternal%2Brotation%2Bof%2Bright%2Barm%2Bagainst%2Belastic%2Bresistance.%2BReturn%2Bto%2Bstarting%2Bposition.",
+    "source": "unsplash",
+    "createdAt": "2025-12-09T23:09:44.435Z"
+  }
 }
