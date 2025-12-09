@@ -265,7 +265,8 @@ export default function Result() {
                   </div>
                 ) : (
                   <p style={{ fontStyle: 'italic' }}>Pas de checklist clinicien disponible.</p>
-                )}
+                )
+              )}
             </div>
           </div>
         ))
