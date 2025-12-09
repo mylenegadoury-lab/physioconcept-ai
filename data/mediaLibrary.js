@@ -22,19 +22,19 @@ export const mediaLibrary = {
     images: {
       main: {
         url: null, // À générer: DALL-E 3 prompt below
-        prompt: "Professional physiotherapy illustration showing a person lying prone on a mat, supporting upper body on forearms with elbows directly under shoulders, gentle spinal extension, neutral pelvis, clean white background, anatomically accurate, side view, demonstrating proper McKenzie extension form",
+        prompt: "Simple minimalist illustration: person lying on stomach, upper body propped on forearms, elbows directly under shoulders, gentle back extension, side view, clean line art style, pure white background, no text or labels",
         alt: "McKenzie extension en appui sur les coudes - Position correcte",
         generated: false,
       },
       starting: {
         url: null,
-        prompt: "Professional physiotherapy illustration showing a person lying flat on stomach in prone position before McKenzie extension, arms at sides, relaxed position, clean white background, side view",
+        prompt: "Simple minimalist illustration: person lying flat on stomach, arms relaxed at sides, side view, clean line art style, pure white background, no text",
         alt: "McKenzie extension - Position de départ",
         generated: false,
       },
       commonError: {
         url: null,
-        prompt: "Professional physiotherapy illustration showing INCORRECT McKenzie extension with red X overlay - person hyperextending neck, lifting pelvis off mat, shoulders shrugged, demonstrating improper form to avoid, clean white background",
+        prompt: "Simple minimalist illustration: person doing McKenzie extension incorrectly with head tilted back too far and hips lifted off ground, large red X symbol overlay, side view, clean line art style, pure white background",
         alt: "Erreur à éviter: Hyperextension du cou et bassin décollé",
         generated: false,
       },
@@ -108,19 +108,19 @@ export const mediaLibrary = {
     images: {
       main: {
         url: null,
-        prompt: "Professional physiotherapy illustration showing dead bug exercise, person lying supine with lower back pressed to mat, right arm extended overhead while left knee bent at 90°, opposite arm and leg extended, clean white background, demonstrating core stabilization technique",
+        prompt: "Simple minimalist illustration: person lying on back, one arm extended overhead with opposite knee bent at 90 degrees, other arm and leg extended, side view, clean line art style, pure white background, no text",
         alt: "Dead Bug - Bras et jambe opposés",
         generated: false,
       },
       starting: {
         url: null,
-        prompt: "Professional physiotherapy illustration showing dead bug starting position, person lying supine with both knees bent at 90° (tabletop position), both arms extended toward ceiling, neutral spine, clean white background",
+        prompt: "Simple minimalist illustration: person lying on back, both knees bent at 90 degrees above hips, both arms extended toward ceiling, side view, clean line art style, pure white background, no text",
         alt: "Dead Bug - Position de départ",
         generated: false,
       },
       commonError: {
         url: null,
-        prompt: "Professional physiotherapy illustration showing INCORRECT dead bug with red X overlay - person with arched lower back (space under lumbar spine visible), rib cage flaring, demonstrating loss of core stability to avoid",
+        prompt: "Simple minimalist illustration: person doing dead bug with lower back arched off ground, large red X symbol overlay, side view, clean line art style, pure white background",
         alt: "Erreur: Perte de contact lombaire et flaring des côtes",
         generated: false,
       },
@@ -154,19 +154,19 @@ export const mediaLibrary = {
     images: {
       main: {
         url: null,
-        prompt: "Professional physiotherapy illustration showing glute bridge exercise, person lying supine with knees bent, feet flat on mat, hips lifted to create straight line from knees to shoulders, glutes engaged, clean white background, side view, anatomically accurate",
+        prompt: "Simple minimalist illustration: person lying on back with knees bent, hips lifted to create straight line from knees to shoulders, side view, clean line art style, pure white background, no text",
         alt: "Pont - Position haute avec activation fessiers",
         generated: false,
       },
       starting: {
         url: null,
-        prompt: "Professional physiotherapy illustration showing bridge starting position, person lying supine with knees bent at 90°, feet flat on floor hip-width apart, arms at sides, clean white background, side view",
+        prompt: "Simple minimalist illustration: person lying on back with knees bent, feet flat on ground, hips on ground, arms at sides, side view, clean line art style, pure white background, no text",
         alt: "Pont - Position de départ au sol",
         generated: false,
       },
       commonError: {
         url: null,
-        prompt: "Professional physiotherapy illustration showing INCORRECT bridge with red X overlay - person hyperextending lower back, rib cage flaring, using back instead of glutes, pelvis tilted anteriorly, demonstrating improper form to avoid",
+        prompt: "Simple minimalist illustration: person doing bridge with lower back excessively arched, large red X symbol overlay, side view, clean line art style, pure white background",
         alt: "Erreur: Hyperextension lombaire et manque d'activation fessiers",
         generated: false,
       },

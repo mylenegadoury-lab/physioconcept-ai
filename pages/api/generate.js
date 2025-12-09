@@ -10,6 +10,59 @@ import { validateGenerateRequest } from "../../lib/validation";
 import { asyncHandler, ValidationError, logError } from "../../lib/errors";
 import { OPENAI_CONFIG, EXERCISE_LIMITS, PAIN_INTENSITY_THRESHOLDS } from "../../lib/constants";
 
+/**
+ * Résume automatiquement les notes trop longues (> 3000 caractères)
+ * pour éviter les erreurs de token limit
+ */
+async function summarizePatientNotes(patientFolderText) {
+  if (!patientFolderText || patientFolderText.length < 3000) {
+    return patientFolderText; // Pas besoin de résumer
+  }
+
+  console.log(`📝 Notes trop longues (${patientFolderText.length} chars), résumé en cours...`);
+
+  try {
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini", // Modèle rapide et économique pour résumé
+      temperature: 0,
+      max_tokens: 800,
+      messages: [
+        {
+          role: "system",
+          content: "Tu es un assistant médical qui résume des notes cliniques en gardant UNIQUEMENT les informations essentielles pour créer un programme de réadaptation.",
+        },
+        {
+          role: "user",
+          content: `Résume ces notes de patient en gardant SEULEMENT:
+- Diagnostic principal et sous-types
+- Douleur: intensité, localisation, pattern (mécanique/inflammatoire/neuropathique)
+- Limitations fonctionnelles principales (ROM, force, activités vie quotidienne)
+- Facteurs aggravants/soulageants
+- Comorbidités pertinentes
+- Objectifs thérapeutiques
+- Red flags SI PRÉSENTS
+
+Supprime: historique détaillé, conversations, informations non-pertinentes.
+
+NOTES ORIGINALES:
+${patientFolderText}
+
+RÉSUMÉ CLINIQUE (maximum 500 mots):`,
+        },
+      ],
+    });
+
+    const summary = response.choices[0].message.content;
+    console.log(`✅ Résumé créé: ${summary.length} chars (réduction ${Math.round((1 - summary.length / patientFolderText.length) * 100)}%)`);
+    return summary;
+  } catch (error) {
+    console.error("❌ Erreur résumé notes:", error.message);
+    // En cas d'erreur, tronquer simplement à 3000 caractères
+    return patientFolderText.substring(0, 3000) + "\n\n[... notes tronquées pour longueur ...]";
+  }
+}
+
+
 // choose queue implementation: bull (redis) or file-backed
 let enqueueJobFile = null;
 try {
@@ -55,12 +108,15 @@ export default asyncHandler(async function handler(req, res) {
     throw new ValidationError('Invalid request data', validation.errors);
   }
 
+    // Résumer automatiquement les notes trop longues pour éviter token limit
+    const summarizedPatientFolder = await summarizePatientNotes(patientFolderText);
+
     // Récupérer les exercices disponibles pour cette problématique (si fournie)
     const exercicesDisponibles = problematique ? getExercisesByProblematique(problematique) : [];
 
     // Construire le prompt en privilégiant le dossier patient collé si présent
-    const dossierSection = patientFolderText
-      ? `DOSSIER PATIENT (COPIER-COLLER):\n${patientFolderText}\n\nUtilise ce dossier comme source principale d'information clinique — privilégie ces données plutôt que les champs structurés ci-dessous.`
+    const dossierSection = summarizedPatientFolder
+      ? `DOSSIER PATIENT (COPIER-COLLER):\n${summarizedPatientFolder}\n\nUtilise ce dossier comme source principale d'information clinique — privilégie ces données plutôt que les champs structurés ci-dessous.`
       : "";
 
     const structuredSection = `CHAMPS STRUCTURÉS:\n- Problématique: ${problematique || "Non spécifié"}\n- Nom: ${patientName || "Non spécifié"}\n- Âge: ${patientAge || "Non spécifié"}\n- Intensité douleur: ${painIntensity || "Non spécifié"}\n- Durée: ${painDuration || "Non spécifié"}\n- Localisation: ${painLocation || "Non spécifié"}\n- Restriction mouvement: ${movementRestriction || "Non spécifié"}\n- Peur du mouvement: ${fearLevel || "Non spécifié"}\n- Traitements antérieurs: ${treatmentHistory || "Aucun"}\n- Comorbidités: ${comorbidities || "Aucune"}\n- Objectif: ${objectif || "Réduire la douleur"}`;
@@ -349,11 +405,45 @@ IMPORTANT: Si dossier patient complet fourni, privilégie ces données. Réponds
       const jsonMatch =
         content.match(/```json\n?([\s\S]*?)\n?```/) ||
         content.match(/({[\s\S]*})/);
-      const jsonString = jsonMatch ? jsonMatch[1] : content;
+      let jsonString = jsonMatch ? jsonMatch[1] : content;
+      
+      // Tentative de nettoyage du JSON mal formaté
+      jsonString = jsonString
+        .replace(/,(\s*[}\]])/g, '$1') // Enlever virgules avant } ou ]
+        .replace(/([}\]])(\s*)([{[])/g, '$1,$2$3') // Ajouter virgules entre objets/arrays
+        .replace(/\n\s*\n/g, '\n') // Enlever lignes vides
+        .trim();
+      
       programData = JSON.parse(jsonString);
     } catch (parseError) {
-      logError(parseError, { context: 'Parsing OpenAI response' });
-      throw new Error("Impossible de traiter la réponse de l'IA");
+      console.error("JSON parsing error:", parseError.message);
+      console.error("Problematic JSON:", response.choices[0].message.content.substring(0, 500));
+      
+      // Dernière tentative: demander à GPT-4 de corriger le JSON
+      try {
+        const fixResponse = await client.chat.completions.create({
+          model: "gpt-4o-mini",
+          temperature: 0,
+          max_tokens: 2000,
+          messages: [
+            {
+              role: "system",
+              content: "Tu corriges le JSON mal formaté en réparant les virgules, guillemets et accolades. Retourne UNIQUEMENT le JSON corrigé, sans explications.",
+            },
+            {
+              role: "user",
+              content: `Corrige ce JSON:\n${response.choices[0].message.content}`,
+            },
+          ],
+        });
+        
+        const fixedJson = fixResponse.choices[0].message.content.match(/({[\s\S]*})/)[1];
+        programData = JSON.parse(fixedJson);
+        console.log("✅ JSON réparé automatiquement");
+      } catch (fixError) {
+        logError(parseError, { context: 'Parsing OpenAI response' });
+        throw new Error("Impossible de traiter la réponse de l'IA");
+      }
     }
 
     // If the model returned exercises with imagePrompts but no image URLs,
@@ -406,28 +496,8 @@ IMPORTANT: Si dossier patient complet fourni, privilégie ces données. Réponds
                 return out;
               }
 
-              // 1) PRIORITY: Check mediaLibrary for pre-generated professional images
-              try {
-                const { getExerciseMedia } = require("../../data/mediaLibrary");
-                const exerciseMedia = getExerciseMedia(local?.id || out.id);
-
-                if (exerciseMedia && exerciseMedia.images?.main?.url) {
-                  // Use pre-generated professional image from library
-                  out.media = {
-                    ...(out.media || {}),
-                    image: exerciseMedia.images.main.url,
-                    startingImage: exerciseMedia.images.starting?.url || null,
-                    errorImage: exerciseMedia.images.commonError?.url || null,
-                    source: "mediaLibrary",
-                  };
-                  console.log(`✓ Using pre-generated image for: ${local?.id || out.name}`);
-                  return out;
-                }
-              } catch (libErr) {
-                console.warn("Media library lookup failed:", libErr.message || libErr);
-              }
-
-              // 2) FALLBACK: Try stock images (Pexels/Unsplash) - lower quality
+              // Media library disabled - using stock photos only (Pexels/Unsplash)
+              // Try stock images
               const stockPrompt = out.imagePrompt || local?.imagePrompt || out.description || out.name;
               let imageUrl = null;
               try {
