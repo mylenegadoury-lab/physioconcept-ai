@@ -458,10 +458,12 @@ IMPORTANT: Si dossier patient complet fourni, privilégie ces données. Réponds
 
         // If running in async mode, skip heavy media generation here and let the worker handle it.
         if (!process.env.ASYNC_JOBS || process.env.ASYNC_JOBS !== 'true') {
+          console.log(`🖼️ Début génération images pour ${programData.exercises.length} exercices`);
           const exercisesWithMedia = await Promise.all(
             programData.exercises.map(async (ex) => {
               // Preserve existing fields
               const out = { ...ex };
+              console.log(`📋 Traitement exercice: ${ex.name}`);
 
               // Try to find a matching local exercise by id or name
               let local = null;
