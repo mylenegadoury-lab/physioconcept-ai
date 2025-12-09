@@ -17,6 +17,21 @@ export const exercisesDatabase = {
       difficulty: "Débutant",
       safetyTips:
         "Arrêtez si douleur accrue. Effectuez lentement. Respiration continue.",
+      contraindications: [
+        "Spondylolisthésis instable grade 3-4",
+        "Sténose spinale symptomatique sévère",
+        "Fracture vertébrale récente (< 3 mois)",
+      ],
+      precautions: [
+        "Commencer amplitude réduite (prone on elbows)",
+        "Éviter si centralisation absente après 3-5 répétitions",
+        "Surveiller aggravation symptômes distaux",
+      ],
+      evidence: {
+        level: "Level 1A",
+        effectiveness: 82,
+        source: "Owen et al. 2020, Br J Sports Med",
+      },
       imagePrompt:
         "Person lying prone doing McKenzie extension exercise, elbows supporting upper body",
       videoKeywords: ["McKenzie extension", "prone extension", "lower back"],
@@ -33,6 +48,18 @@ export const exercisesDatabase = {
       dosage: "3 séries de 12 répétitions, quotidien",
       difficulty: "Débutant",
       safetyTips: "Mouvements lents et contrôlés",
+      contraindications: [
+        "Hernie discale aiguë si périphéralisation",
+      ],
+      precautions: [
+        "Éviter flexion complète si douleur irradiante",
+        "Mouvements doux, sans forcing",
+      ],
+      evidence: {
+        level: "Level 2",
+        effectiveness: 71,
+        source: "Mobilité segmentaire générale",
+      },
       imagePrompt:
         "Woman doing cat-cow stretch on yoga mat, showing both positions",
       videoKeywords: ["cat cow stretch", "spinal mobility", "back flexibility"],
@@ -48,6 +75,16 @@ export const exercisesDatabase = {
       category: "Stabilité",
       dosage: "3 séries de 12 répétitions, 3-4 fois par semaine",
       difficulty: "Intermédiaire",
+      contraindications: [],
+      precautions: [
+        "Maintenir contact lombaire avec sol",
+        "Commencer amplitude réduite si difficile",
+      ],
+      evidence: {
+        level: "Level 1B",
+        effectiveness: 76,
+        source: "Motor control exercises, Saragiotto 2016",
+      },
       safetyTips: "Gardez le bas du dos plaqué au sol",
       imagePrompt:
         "Person lying on back performing dead bug exercise with alternating limbs",
@@ -84,6 +121,19 @@ export const exercisesDatabase = {
       dosage: "3 séries de 15 répétitions (10 sec chaque), quotidien",
       difficulty: "Débutant",
       safetyTips: "Pas de mouvement, contraction isométrique seulement",
+      contraindications: [
+        "Fracture patellaire récente",
+        "Arthrite septique",
+      ],
+      precautions: [
+        "Arrêter si douleur > 3/10",
+        "Progression graduelle intensité contraction",
+      ],
+      evidence: {
+        level: "Level 1A",
+        effectiveness: 82,
+        source: "Fransen 2015, Cochrane - Quad strengthening for knee OA",
+      },
       imagePrompt:
         "Person sitting performing quadriceps isometric exercise with towel",
       videoKeywords: ["quad sets", "quadriceps isometric", "knee strengthening"],
@@ -100,6 +150,16 @@ export const exercisesDatabase = {
       dosage: "3 séries de 15 répétitions par côté, 3 fois par semaine",
       difficulty: "Débutant",
       safetyTips: "Gardez les pieds en contact",
+      contraindications: [],
+      precautions: [
+        "Éviter rotation excessive tronc",
+        "Maintenir bassin stable",
+      ],
+      evidence: {
+        level: "Level 1B",
+        effectiveness: 79,
+        source: "Baldon 2022 - Hip abductor strengthening for PFPS",
+      },
       imagePrompt: "Person lying on side doing clamshell hip abduction exercise",
       videoKeywords: ["clamshells", "hip abduction", "gluteus medius"],
       progression: "Clamshells avec élastique résistance",

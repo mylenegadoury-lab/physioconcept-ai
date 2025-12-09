@@ -69,20 +69,129 @@ export default asyncHandler(async function handler(req, res) {
       ? `EXERCICES RECOMMANDÉS DISPONIBLES:\n${exercicesDisponibles.map((e) => `- ${e.name}: ${e.description}`).join("\n")}`
       : "";
 
-    const prompt = `Tu es un physiothérapeute expert. Génère un programme personnalisé pour ce patient en fonction des informations cliniques fournies.
+    const prompt = `Tu es un physiothérapeute expert spécialisé en réadaptation musculosquelettique basée sur les données probantes. 
+    
+MISSION: Génère un programme de réadaptation personnalisé, cliniquement rigoureux et sécuritaire.
+
 ${dossierSection}
 ${structuredSection}
 ${availableExercisesText}
 
-IMPORTANT: Si un dossier patient complet est fourni, utilise-le comme source principale. Si des informations manquent, fais ton jugement clinique.
+MÉTHODOLOGIE CLINIQUE:
+1. RED FLAGS (PRIORITÉ #1):
+   - Évalue SYSTÉMATIQUEMENT les drapeaux rouges selon la condition
+   - Lombalgie: Syndrome queue cheval, fracture, cancer, infection, radiculopathie sévère
+   - Genou: Fracture, arthrite septique, déchirure ligamentaire majeure
+   - Épaule: Rupture massive coiffe, luxation non stabilisée
+   - Cou: Myélopathie, instabilité atlanto-axiale
+   - Si présent: Recommande référence médicale URGENTE avec délai (immédiat/24-48h/1 semaine)
 
-GÉNÈRE EN JSON VALIDE. Inclue pour chaque exercice si possible les champs optionnels "imagePrompt" (brief pour générer une illustration) et "imageUrl" (URL d'une image existante ou générée). Réponds STRICTEMENT en JSON.
+2. ÉVALUATION CLINIQUE:
+   - Analyse patterns douleur (mécanique vs inflammatoire vs neuropathique)
+   - Identifie facteurs aggravants/soulagants
+   - Évalue niveau fonctionnel et objectifs réalistes
+   - Considère comorbidités et traitements antérieurs
+   - Identifie déficits spécifiques (force, mobilité, contrôle moteur)
+
+3. SÉLECTION D'EXERCICES (BASÉE SUR ÉVIDENCE):
+   - TOUJOURS privilégier exercices avec évidence Level 1A/1B quand disponibles
+   - Pour lombalgie: McKenzie (Level 1A, 82% efficacité) si flexion-intolerant, Motor control (Level 1A, 73%) si instabilité
+   - Pour genou OA: Renforcement quadriceps (Level 1A, 87% efficacité)
+   - Pour SDFP: Hip + knee strengthening (Level 1A, 84% efficacité)
+   - Pour épaule RC: Progressive loading + scapular stabilization (Level 1A, 88%)
+   - Pour cheville: Balance training + strengthening (Level 1A, 86%)
+   - Dosage selon intensité douleur:
+     * Douleur 7-10/10: Exercices isométriques sous-douloureux, éducation, modalités
+     * Douleur 4-6/10: Exercices actifs amplitude limitée, progression graduelle
+     * Douleur 0-3/10: Exercices fonctionnels, charge progressive
+
+4. CONTRE-INDICATIONS ET PRÉCAUTIONS:
+   - Vérifie contre-indications ABSOLUES et RELATIVES pour chaque exercice
+   - Liste précautions spécifiques (amplitude, charge, position)
+   - Adapte exercices selon âge, comorbidités, médication
+
+5. ÉDUCATION THÉRAPEUTIQUE (ESSENTIEL):
+   - Explication claire condition (langage vulgarisé, pas jargon médical)
+   - Signification symptômes (rassurant si bénin, alarmant si red flags)
+   - Facteurs aggravants/soulagants concrets
+   - Attentes réalistes progression (timelines basés sur littérature)
+   - Stratégies auto-gestion douleur
+
+6. PLAN DE PROGRESSION (4-6 SEMAINES):
+   - Phase 1 (Semaines 1-2): Réduction douleur, éducation, exercices sous-douloureux
+   - Phase 2 (Semaines 3-4): Progression charge/amplitude, exercices fonctionnels
+   - Phase 3 (Semaines 5-6): Optimisation fonction, prévention récidive, retour activités
+   - Critères objectifs d'avancement entre phases
+
+FORMAT JSON REQUIS (STRICT):
 {
-  "redFlags": { "present": boolean, "items": ["drapeau1"], "recommendation": "Recommandation si drapeaux" },
-  "education": { "understanding": "Explication", "meaning": "Signification", "helpful": "Ce qui aide", "avoid": "À éviter", "progression": "Attentes" },
-  "exercises": [ { "name": "Nom", "description": "Description", "dosage": "Reps/durée/fréquence", "justification": "Raison", "imagePrompt": "(optionnel)", "imageUrl": "(optionnel)" } ],
-  "plan": { "phase": "Phase 1/2/3", "duration": "Durée en semaines", "frequency": "Fréquence par semaine" }
-}`;
+  "redFlags": {
+    "present": boolean,
+    "items": ["Description drapeaux identifiés"],
+    "priority": "CRITIQUE|HAUTE|MODÉRÉE|AUCUNE",
+    "action": "Référence urgente + délai si applicable",
+    "recommendation": "Détails référence ou 'Pas de drapeaux identifiés - traitement conservateur approprié'"
+  },
+  "clinicalReasoning": {
+    "painPattern": "Mécanique/inflammatoire/neuropathique + justification",
+    "primaryDeficits": ["Déficit 1", "Déficit 2"],
+    "prognosticFactors": "Favorable/défavorable + raisons"
+  },
+  "education": {
+    "understanding": "Explication condition (langage simple)",
+    "meaning": "Signification symptômes (rassurant si bénin)",
+    "helpful": "Stratégies aidantes concrètes",
+    "avoid": "Activités/positions à éviter temporairement",
+    "timeline": "Attentes réalistes progression (ex: 4-6 sem amélioration, 12 sem résolution)",
+    "selfManagement": "Stratégies auto-gestion douleur"
+  },
+  "exercises": [
+    {
+      "name": "Nom exercice français",
+      "description": "Instructions détaillées position + mouvement",
+      "dosage": "Reps x Sets x Fréquence (ex: 10 reps x 3 sets x 2x/jour)",
+      "justification": "Raison clinique basée sur déficit + évidence",
+      "evidence": "Level 1A/1B/2A + % efficacité si disponible",
+      "contraindications": ["Contre-indication absolue 1"],
+      "precautions": ["Précaution 1: amplitude/charge/position"],
+      "progressionCriteria": "Critères objectifs pour progresser (ex: douleur < 3/10, ROM complète)",
+      "imagePrompt": "Brief english description for illustration (optional)",
+      "imageUrl": "URL si disponible (optional)"
+    }
+  ],
+  "weeklyProgression": [
+    {
+      "phase": "Phase 1: Réduction douleur et éducation",
+      "weeks": "Semaines 1-2",
+      "goals": ["Objectif 1", "Objectif 2"],
+      "exercises": ["Liste exercices phase 1"],
+      "frequency": "Fréquence/semaine",
+      "progressionCriteria": "Critères pour passer phase 2"
+    },
+    {
+      "phase": "Phase 2: Progression fonction",
+      "weeks": "Semaines 3-4",
+      "goals": ["Objectif 1"],
+      "exercises": ["Liste exercices phase 2"],
+      "frequency": "Fréquence/semaine",
+      "progressionCriteria": "Critères pour passer phase 3"
+    },
+    {
+      "phase": "Phase 3: Optimisation et prévention",
+      "weeks": "Semaines 5-6",
+      "goals": ["Retour activités", "Prévention récidive"],
+      "exercises": ["Liste exercices phase 3"],
+      "frequency": "Fréquence/semaine + maintenance long-terme"
+    }
+  ],
+  "plan": {
+    "totalDuration": "6 semaines",
+    "followUp": "Réévaluation recommandée à 2 semaines, 4 semaines, 6 semaines",
+    "medicalReferral": "Si pas amélioration 4 semaines ou aggravation symptômes"
+  }
+}
+
+IMPORTANT: Si dossier patient complet fourni, privilégie ces données. Réponds STRICTEMENT en JSON valide.`;
 
     const response = await client.chat.completions.create({
       model: OPENAI_CONFIG.PROGRAM_GENERATION.model,
