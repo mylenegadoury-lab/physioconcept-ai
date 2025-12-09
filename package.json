@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "worker:file": "node workers/evidenceWorker.js",
+    "worker:bull": "node workers/bullWorker.js",
+    "migrate:to-bull": "node scripts/migrate-to-bull.js"
   },
   "dependencies": {
     "next": "14.0.4",

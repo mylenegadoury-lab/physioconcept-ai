@@ -6,6 +6,22 @@ import {
   calculateExerciseEfficacy,
 } from "../../data/evidence";
 import { verifyCitationsList } from "../../lib/evidence";
+// choose queue implementation: bull (redis) or file-backed
+let enqueueJobFile = null;
+try {
+  enqueueJobFile = require("../../lib/jobQueue").enqueueJob;
+} catch (e) {
+  // ignore
+}
+let bullEnqueue = null;
+if (process.env.USE_BULL === 'true') {
+  try {
+    bullEnqueue = require("../../lib/bullQueue").enqueueJob;
+  } catch (e) {
+    console.warn('Bull queue not available, falling back to file queue');
+    bullEnqueue = null;
+  }
+}
 
 export default async function handler(req, res) {
   // API pour générer des programmes de physiothérapie personnalisés
@@ -106,86 +122,89 @@ GÉNÈRE EN JSON VALIDE. Inclue pour chaque exercice si possible les champs opti
           : null;
         if (conditionEvidence) programData.evidence = conditionEvidence;
 
-        const exercisesWithMedia = await Promise.all(
-          programData.exercises.map(async (ex) => {
-            // Preserve existing fields
-            const out = { ...ex };
+        // If running in async mode, skip heavy media generation here and let the worker handle it.
+        if (!process.env.ASYNC_JOBS || process.env.ASYNC_JOBS !== 'true') {
+          const exercisesWithMedia = await Promise.all(
+            programData.exercises.map(async (ex) => {
+              // Preserve existing fields
+              const out = { ...ex };
 
-            // Try to find a matching local exercise by id or name
-            let local = null;
-            if (ex.id) local = getExerciseById(ex.id);
-            if (!local && ex.name) {
-              // try to find by name (case-insensitive)
-              // iterate categories
-              const allKeys = Object.keys(require("../../data/exercisesMedia").default);
-              for (const k of allKeys) {
-                const list = require("../../data/exercisesMedia").default[k];
-                const found = list.find((it) => it.name && it.name.toLowerCase() === ex.name.toLowerCase());
-                if (found) {
-                  local = found;
-                  break;
+              // Try to find a matching local exercise by id or name
+              let local = null;
+              if (ex.id) local = getExerciseById(ex.id);
+              if (!local && ex.name) {
+                // try to find by name (case-insensitive)
+                // iterate categories
+                const allKeys = Object.keys(require("../../data/exercisesMedia").default);
+                for (const k of allKeys) {
+                  const list = require("../../data/exercisesMedia").default[k];
+                  const found = list.find((it) => it.name && it.name.toLowerCase() === ex.name.toLowerCase());
+                  if (found) {
+                    local = found;
+                    break;
+                  }
                 }
               }
-            }
 
-            // Attach evidence from local DB when possible
-            try {
-              if (local) {
-                const ev = calculateExerciseEfficacy(local.id, req.body.problematique || local.problematique || "");
-                if (ev) out.evidence = ev;
-              }
-            } catch (evErr) {
-              console.warn("Evidence lookup failed:", evErr.message || evErr);
-            }
-
-            // If an image already present, mark source
-            if (out.image || out.imageUrl || out.media?.image) {
-              out.media = { ...(out.media || {}), image: out.image || out.imageUrl || out.media?.image, source: "provided" };
-              return out;
-            }
-
-            // 1) Try mapping/local prompt -> look for stock image
-            const stockPrompt = out.imagePrompt || local?.imagePrompt || out.description || out.name;
-            let imageUrl = null;
-            try {
-              // Check cache first
-              const cacheKey = stockPrompt;
-              const cached = getCachedImage(cacheKey);
-              if (cached) {
-                out.media = { ...(out.media || {}), image: cached, source: "cache" };
-                return out;
-              }
-
-              imageUrl = await findStockImage(out.name || local?.name || stockPrompt, stockPrompt);
-              if (imageUrl) {
-                setCachedImage(cacheKey, imageUrl, process.env.PEXELS_API_KEY ? "pexels" : "unsplash");
-                out.media = { ...(out.media || {}), image: imageUrl, source: process.env.PEXELS_API_KEY ? "pexels" : "unsplash" };
-                return out;
-              }
-            } catch (stockErr) {
-              console.warn("Stock image lookup failed:", stockErr.message || stockErr);
-            }
-
-            // 2) Fall back to DALL·E if allowed
-            if (process.env.GENERATE_IMAGES === "true") {
+              // Attach evidence from local DB when possible
               try {
-                const promptForImage = out.imagePrompt || out.description || out.name || stockPrompt;
-                const dalleUrl = await generateExerciseImage(out.name || "exercise", promptForImage);
-                if (dalleUrl) {
-                  const cacheKey = promptForImage;
-                  setCachedImage(cacheKey, dalleUrl, "dalle");
-                  out.media = { ...(out.media || {}), image: dalleUrl, source: "dalle" };
+                if (local) {
+                  const ev = calculateExerciseEfficacy(local.id, req.body.problematique || local.problematique || "");
+                  if (ev) out.evidence = ev;
                 }
-              } catch (dalleErr) {
-                console.error(`DALL·E generation failed for ${out.name}:`, dalleErr.message || dalleErr);
+              } catch (evErr) {
+                console.warn("Evidence lookup failed:", evErr.message || evErr);
               }
-            }
 
-            return out;
-          })
-        );
+              // If an image already present, mark source
+              if (out.image || out.imageUrl || out.media?.image) {
+                out.media = { ...(out.media || {}), image: out.image || out.imageUrl || out.media?.image, source: "provided" };
+                return out;
+              }
 
-        programData.exercises = exercisesWithMedia;
+              // 1) Try mapping/local prompt -> look for stock image
+              const stockPrompt = out.imagePrompt || local?.imagePrompt || out.description || out.name;
+              let imageUrl = null;
+              try {
+                // Check cache first
+                const cacheKey = stockPrompt;
+                const cached = getCachedImage(cacheKey);
+                if (cached) {
+                  out.media = { ...(out.media || {}), image: cached, source: "cache" };
+                  return out;
+                }
+
+                imageUrl = await findStockImage(out.name || local?.name || stockPrompt, stockPrompt);
+                if (imageUrl) {
+                  setCachedImage(cacheKey, imageUrl, process.env.PEXELS_API_KEY ? "pexels" : "unsplash");
+                  out.media = { ...(out.media || {}), image: imageUrl, source: process.env.PEXELS_API_KEY ? "pexels" : "unsplash" };
+                  return out;
+                }
+              } catch (stockErr) {
+                console.warn("Stock image lookup failed:", stockErr.message || stockErr);
+              }
+
+              // 2) Fall back to DALL·E if allowed
+              if (process.env.GENERATE_IMAGES === "true") {
+                try {
+                  const promptForImage = out.imagePrompt || out.description || out.name || stockPrompt;
+                  const dalleUrl = await generateExerciseImage(out.name || "exercise", promptForImage);
+                  if (dalleUrl) {
+                    const cacheKey = promptForImage;
+                    setCachedImage(cacheKey, dalleUrl, "dalle");
+                    out.media = { ...(out.media || {}), image: dalleUrl, source: "dalle" };
+                  }
+                } catch (dalleErr) {
+                  console.error(`DALL·E generation failed for ${out.name}:`, dalleErr.message || dalleErr);
+                }
+              }
+
+              return out;
+            })
+          );
+
+          programData.exercises = exercisesWithMedia;
+        }
       }
     } catch (mediaError) {
       console.error("Erreur lors de l'ajout des médias:", mediaError);
@@ -199,7 +218,7 @@ GÉNÈRE EN JSON VALIDE. Inclue pour chaque exercice si possible les champs opti
           .map((ex, idx) => ({ ex, idx }))
           .filter(({ ex }) => !ex.evidence || !ex.evidence.effectiveness);
 
-        if (needsEvidence.length > 0) {
+        if (needsEvidence.length > 0 && !(process.env.ASYNC_JOBS === 'true')) {
           // Build a single prompt asking for citations per exercise
           const exerciseList = needsEvidence.map((n) => `- ${n.ex.name}`).join("\n");
           const evidencePrompt = `Vous êtes un assistant expert en recherche médicale. Pour la liste d'exercices suivante liée à la problématique '${req.body.problematique || "général"}', fournissez, pour chaque exercice, un tableau (peut être vide) d'études pertinentes sous forme JSON. Chaque étude doit avoir les champs: {"title","authors","year","doi","pmid","summary","level"}. Si possible, fournissez DOI ou PMID. Si aucune étude de qualité n'existe, renvoyez un tableau vide pour cet exercice. Répondez STRICTEMENT en JSON. Liste des exercices:\n${exerciseList}`;
@@ -318,6 +337,24 @@ GÉNÈRE EN JSON VALIDE. Inclue pour chaque exercice si possible les champs opti
     } catch (instrErr) {
       console.error('Instruction generation error', instrErr?.message || instrErr);
     }
+
+    // If async processing is enabled, enqueue the program for background processing
+      if (process.env.ASYNC_JOBS === 'true') {
+        try {
+          let jobId = null;
+          if (process.env.USE_BULL === 'true' && bullEnqueue) {
+            jobId = await bullEnqueue('processProgram', { programData, context: { problematique: req.body.problematique } });
+          } else if (enqueueJobFile) {
+            jobId = enqueueJobFile('processProgram', { programData, context: { problematique: req.body.problematique } });
+          } else {
+            console.warn('No enqueue implementation available');
+          }
+          return res.status(200).json({ jobId, status: 'queued' });
+        } catch (e) {
+          console.error('Failed to enqueue job', e);
+          // fall through to return programData partially processed
+        }
+      }
 
     return res.status(200).json(programData);
   } catch (error) {
