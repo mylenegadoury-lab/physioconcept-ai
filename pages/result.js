@@ -49,72 +49,176 @@ export default function Result() {
 
   return (
     <Layout>
-      <h1>Votre programme personnalisé</h1>
-      <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-        <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <input type="radio" name="view" defaultChecked onChange={() => setView('patient')} /> Version patient
+      {/* PROFESSIONAL HEADER */}
+      <div style={{ 
+        background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+        color: 'white',
+        padding: '32px 24px',
+        borderRadius: '12px',
+        marginBottom: '32px',
+        boxShadow: '0 4px 20px rgba(14, 165, 233, 0.2)'
+      }}>
+        <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px', color: 'white' }}>
+          Programme de Réadaptation Personnalisé
+        </h1>
+        <p style={{ fontSize: '15px', opacity: 0.95, margin: 0 }}>
+          Généré par PhysioConcept Pro - Basé sur l'évidence scientifique
+        </p>
+      </div>
+
+      {/* VIEW TOGGLE */}
+      <div style={{ 
+        display: 'flex', 
+        gap: 12, 
+        marginBottom: 24,
+        padding: '16px',
+        backgroundColor: '#f8fafc',
+        borderRadius: '8px',
+        border: '1px solid #e2e8f0'
+      }}>
+        <label style={{ 
+          display: 'flex', 
+          gap: 8, 
+          alignItems: 'center',
+          cursor: 'pointer',
+          fontWeight: '500'
+        }}>
+          <input 
+            type="radio" 
+            name="view" 
+            defaultChecked 
+            onChange={() => setView('patient')}
+            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+          /> 
+          👤 Version Patient
         </label>
-        <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <input type="radio" name="view" onChange={() => setView('clinician')} /> Version physiothérapeute
+        <label style={{ 
+          display: 'flex', 
+          gap: 8, 
+          alignItems: 'center',
+          cursor: 'pointer',
+          fontWeight: '500'
+        }}>
+          <input 
+            type="radio" 
+            name="view" 
+            onChange={() => setView('clinician')}
+            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+          /> 
+          🩺 Version Physiothérapeute
         </label>
       </div>
 
       {/* ---- SECTION DRAPEAUX ROUGES ---- */}
       {data.redFlags && (
-        <>
-          <h2>⚠️ Drapeaux rouges</h2>
+        <div style={{
+          backgroundColor: hasRedFlags ? '#fef2f2' : '#f0fdf4',
+          border: `2px solid ${hasRedFlags ? '#ef4444' : '#10b981'}`,
+          borderRadius: '12px',
+          padding: '24px',
+          marginBottom: '24px'
+        }}>
+          <h2 style={{ 
+            color: hasRedFlags ? '#dc2626' : '#059669',
+            borderBottom: 'none',
+            marginTop: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            {hasRedFlags ? '⚠️ Drapeaux Rouges Détectés' : '✅ Aucun Drapeau Rouge'}
+          </h2>
 
           {hasRedFlags ? (
             <>
-              <ul>
+              <ul style={{ marginTop: 16, marginBottom: 16 }}>
                 {data.redFlags.items.map((f, i) => (
-                  <li key={i}>{f}</li>
+                  <li key={i} style={{ marginBottom: '8px', color: '#991b1b' }}>{f}</li>
                 ))}
               </ul>
               {data.redFlags.recommendation && (
-                <p>
-                  <strong>Recommandation :</strong> {data.redFlags.recommendation}
-                </p>
+                <div style={{ 
+                  backgroundColor: 'white',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  borderLeft: '4px solid #dc2626'
+                }}>
+                  <strong style={{ color: '#dc2626' }}>⚕️ Recommandation:</strong>
+                  <p style={{ marginTop: '8px', marginBottom: 0 }}>{data.redFlags.recommendation}</p>
+                </div>
               )}
             </>
           ) : (
-            <p>Aucun drapeau rouge inquiétant détecté selon vos réponses.</p>
+            <p style={{ margin: '12px 0 0 0', color: '#065f46' }}>
+              Aucun signe inquiétant détecté. Traitement conservateur approprié.
+            </p>
           )}
-        </>
+        </div>
       )}
 
       {/* ---- SECTION ÉDUCATION ---- */}
       {data.education && (
-        <>
-          <h2>📘 Éducation</h2>
+        <div style={{
+          backgroundColor: '#eff6ff',
+          border: '2px solid #3b82f6',
+          borderRadius: '12px',
+          padding: '24px',
+          marginBottom: '24px'
+        }}>
+          <h2 style={{ marginTop: 0, color: '#1e40af', borderBottom: 'none' }}>
+            📘 Éducation Thérapeutique
+          </h2>
+          
           {data.education.understanding && (
-            <p>
-              <strong>Comprendre ce que vous vivez :</strong>{" "}
-              {data.education.understanding}
-            </p>
+            <div style={{ marginBottom: 16 }}>
+              <strong style={{ color: '#1e40af', display: 'block', marginBottom: '8px' }}>
+                💡 Comprendre votre condition:
+              </strong>
+              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.understanding}</p>
+            </div>
           )}
+          
           {data.education.meaning && (
-            <p>
-              <strong>Ce que cela signifie :</strong> {data.education.meaning}
-            </p>
+            <div style={{ marginBottom: 16 }}>
+              <strong style={{ color: '#1e40af', display: 'block', marginBottom: '8px' }}>
+                🔍 Ce que cela signifie:
+              </strong>
+              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.meaning}</p>
+            </div>
           )}
+          
           {data.education.helpful && (
-            <p>
-              <strong>Ce qui aide :</strong> {data.education.helpful}
-            </p>
+            <div style={{ marginBottom: 16 }}>
+              <strong style={{ color: '#059669', display: 'block', marginBottom: '8px' }}>
+                ✅ Ce qui aide:
+              </strong>
+              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.helpful}</p>
+            </div>
           )}
+          
           {data.education.avoid && (
-            <p>
-              <strong>À éviter :</strong> {data.education.avoid}
-            </p>
+            <div style={{ marginBottom: 16 }}>
+              <strong style={{ color: '#dc2626', display: 'block', marginBottom: '8px' }}>
+                ⛔ À éviter:
+              </strong>
+              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.avoid}</p>
+            </div>
           )}
+          
           {data.education.progression && (
-            <p>
-              <strong>Progression attendue :</strong>{" "}
-              {data.education.progression}
-            </p>
+            <div style={{ 
+              backgroundColor: 'white',
+              padding: '16px',
+              borderRadius: '8px',
+              marginTop: '16px'
+            }}>
+              <strong style={{ color: '#1e40af', display: 'block', marginBottom: '8px' }}>
+                📈 Progression attendue:
+              </strong>
+              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.progression}</p>
+            </div>
           )}
-        </>
+        </div>
       )}
 
       {/* SECTION PLAN */}

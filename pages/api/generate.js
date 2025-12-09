@@ -446,8 +446,7 @@ IMPORTANT: Si dossier patient complet fourni, privilégie ces données. Réponds
       }
     }
 
-    // If the model returned exercises with imagePrompts but no image URLs,
-    // attach evidence and generate/lookup images server-side when enabled.
+    // Attach evidence only (images disabled for performance)
     try {
       if (programData && Array.isArray(programData.exercises)) {
         // Attach condition-level evidence if available
@@ -456,8 +455,8 @@ IMPORTANT: Si dossier patient complet fourni, privilégie ces données. Réponds
           : null;
         if (conditionEvidence) programData.evidence = conditionEvidence;
 
-        // If running in async mode, skip heavy media generation here and let the worker handle it.
-        if (!process.env.ASYNC_JOBS || process.env.ASYNC_JOBS !== 'true') {
+        // Images disabled for performance - skip media generation completely
+        if (false) { // DISABLED FOR SPEED
           console.log(`🖼️ Début génération images pour ${programData.exercises.length} exercices`);
           const exercisesWithMedia = await Promise.all(
             programData.exercises.map(async (ex) => {
@@ -553,9 +552,9 @@ IMPORTANT: Si dossier patient complet fourni, privilégie ces données. Réponds
       // don't fail the whole response if media generation failed
     }
 
-    // NEXT: enrich exercises with evidence citations when missing
+    // Evidence citation generation disabled for performance (was adding 20-40s)
     try {
-      if (programData && Array.isArray(programData.exercises)) {
+      if (false && programData && Array.isArray(programData.exercises)) { // DISABLED FOR SPEED
         const needsEvidence = programData.exercises
           .map((ex, idx) => ({ ex, idx }))
           .filter(({ ex }) => !ex.evidence || !ex.evidence.effectiveness);
