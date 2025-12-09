@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 
+function getAuthHeaders() {
+  const secret = typeof window !== 'undefined' ? localStorage.getItem('admin_secret') : null;
+  return secret ? { 'x-admin-auth': secret } : {};
+}
+
 export default function ImageCacheAdmin() {
   const [cache, setCache] = useState(null);
   const [loading, setLoading] = useState(false);

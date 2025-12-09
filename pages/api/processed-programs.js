@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import { requireAdmin } from '../../lib/auth';
+import { asyncHandler, ValidationError } from '../../lib/errors';
 
-export default function handler(req, res) {
+export default requireAdmin(asyncHandler(async function handler(req, res) {
   const dir = path.resolve(process.cwd(), 'data', 'processedPrograms');
   if (req.method === 'GET') {
     if (!fs.existsSync(dir)) return res.status(200).json([]);
@@ -12,7 +14,7 @@ export default function handler(req, res) {
 
   if (req.method === 'DELETE') {
     const { id } = req.body || {};
-    if (!id) return res.status(400).json({ error: 'Missing id' });
+    if (!id) throw new ValidationError('Missing id');
     const p = path.join(dir, `${id}.json`);
     if (fs.existsSync(p)) {
       fs.unlinkSync(p);
@@ -22,4 +24,4 @@ export default function handler(req, res) {
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
-}
+}));

@@ -1,8 +1,10 @@
 import { readJobs, enqueueJob } from '../../lib/jobQueue';
 import fs from 'fs';
 import path from 'path';
+import { requireAdmin } from '../../lib/auth';
+import { asyncHandler, ValidationError } from '../../lib/errors';
 
-export default function handler(req, res) {
+export default requireAdmin(asyncHandler(async function handler(req, res) {
   if (req.method === 'GET') {
     const jobs = readJobs();
     return res.status(200).json(jobs);
@@ -31,4 +33,4 @@ export default function handler(req, res) {
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
-}
+}));

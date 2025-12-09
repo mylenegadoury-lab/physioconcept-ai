@@ -6,6 +6,10 @@ import {
   calculateExerciseEfficacy,
 } from "../../data/evidence";
 import { verifyCitationsList } from "../../lib/evidence";
+import { validateGenerateRequest } from "../../lib/validation";
+import { asyncHandler, ValidationError, logError } from "../../lib/errors";
+import { OPENAI_CONFIG, EXERCISE_LIMITS, PAIN_INTENSITY_THRESHOLDS } from "../../lib/constants";
+
 // choose queue implementation: bull (redis) or file-backed
 let enqueueJobFile = null;
 try {
@@ -23,33 +27,33 @@ if (process.env.USE_BULL === 'true') {
   }
 }
 
-export default async function handler(req, res) {
+export default asyncHandler(async function handler(req, res) {
   // API pour générer des programmes de physiothérapie personnalisés
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  try {
-    const {
-      problematique,
-      patientName,
-      patientAge,
-      painIntensity,
-      painDuration,
-      painLocation,
-      movementRestriction,
-      fearLevel,
-      treatmentHistory,
-      comorbidities,
-      objectif,
-      patientFolderText,
-      language = "fr",
-    } = req.body;
+  const {
+    problematique,
+    patientName,
+    patientAge,
+    painIntensity,
+    painDuration,
+    painLocation,
+    movementRestriction,
+    fearLevel,
+    treatmentHistory,
+    comorbidities,
+    objectif,
+    patientFolderText,
+    language = "fr",
+  } = req.body;
 
-    // Accept either a pasted full patient dossier OR structured fields.
-    if (!patientFolderText && (!problematique || !painIntensity || !painDuration)) {
-      return res.status(400).json({ error: "Données incomplètes : fournir la fiche patient ou les champs requis" });
-    }
+  // Validate request
+  const validation = validateGenerateRequest(req.body);
+  if (!validation.valid) {
+    throw new ValidationError('Invalid request data', validation.errors);
+  }
 
     // Récupérer les exercices disponibles pour cette problématique (si fournie)
     const exercicesDisponibles = problematique ? getExercisesByProblematique(problematique) : [];
@@ -81,7 +85,7 @@ GÉNÈRE EN JSON VALIDE. Inclue pour chaque exercice si possible les champs opti
 }`;
 
     const response = await client.chat.completions.create({
-      model: "gpt-4",
+      model: OPENAI_CONFIG.PROGRAM_GENERATION.model,
       messages: [
         {
           role: "system",
@@ -92,8 +96,8 @@ GÉNÈRE EN JSON VALIDE. Inclue pour chaque exercice si possible les champs opti
           content: prompt,
         },
       ],
-      temperature: 0.7,
-      max_tokens: 2500,
+      temperature: OPENAI_CONFIG.PROGRAM_GENERATION.temperature,
+      max_tokens: OPENAI_CONFIG.PROGRAM_GENERATION.maxTokens,
     });
 
     let programData;
@@ -105,11 +109,8 @@ GÉNÈRE EN JSON VALIDE. Inclue pour chaque exercice si possible les champs opti
       const jsonString = jsonMatch ? jsonMatch[1] : content;
       programData = JSON.parse(jsonString);
     } catch (parseError) {
-      console.error("Erreur parsing:", parseError);
-      return res.status(500).json({
-        error: "Erreur traitement réponse IA",
-        details: parseError.message,
-      });
+      logError(parseError, { context: 'Parsing OpenAI response' });
+      throw new Error("Impossible de traiter la réponse de l'IA");
     }
 
     // If the model returned exercises with imagePrompts but no image URLs,
@@ -265,15 +266,15 @@ GÉNÈRE EN JSON VALIDE. Inclue pour chaque exercice si possible les champs opti
     // Decide final number of exercises (2-10) based on clinical inputs
     try {
       if (programData && Array.isArray(programData.exercises)) {
-        // simple heuristic
-        const intensity = Number(req.body.painIntensity) || 0;
-        let target = 5;
-        if (intensity >= 8) target = 2;
-        else if (intensity >= 6) target = 3;
-        else if (intensity >= 4) target = 5;
+        // simple heuristic using constants
+        const intensity = Number(painIntensity) || 0;
+        let target = EXERCISE_LIMITS.DEFAULT;
+        if (intensity >= PAIN_INTENSITY_THRESHOLDS.HIGH) target = EXERCISE_LIMITS.MIN;
+        else if (intensity >= PAIN_INTENSITY_THRESHOLDS.MEDIUM) target = 3;
+        else if (intensity >= PAIN_INTENSITY_THRESHOLDS.LOW) target = EXERCISE_LIMITS.DEFAULT;
         else target = 8;
         // clamp
-        target = Math.max(2, Math.min(10, target));
+        target = Math.max(EXERCISE_LIMITS.MIN, Math.min(EXERCISE_LIMITS.MAX, target));
 
         const current = programData.exercises;
         // sort by evidence strength (prefer local evidence, then number of generatedEvidence)
@@ -339,29 +340,22 @@ GÉNÈRE EN JSON VALIDE. Inclue pour chaque exercice si possible les champs opti
     }
 
     // If async processing is enabled, enqueue the program for background processing
-      if (process.env.ASYNC_JOBS === 'true') {
-        try {
-          let jobId = null;
-          if (process.env.USE_BULL === 'true' && bullEnqueue) {
-            jobId = await bullEnqueue('processProgram', { programData, context: { problematique: req.body.problematique } });
-          } else if (enqueueJobFile) {
-            jobId = enqueueJobFile('processProgram', { programData, context: { problematique: req.body.problematique } });
-          } else {
-            console.warn('No enqueue implementation available');
-          }
-          return res.status(200).json({ jobId, status: 'queued' });
-        } catch (e) {
-          console.error('Failed to enqueue job', e);
-          // fall through to return programData partially processed
+    if (process.env.ASYNC_JOBS === 'true') {
+      try {
+        let jobId = null;
+        if (process.env.USE_BULL === 'true' && bullEnqueue) {
+          jobId = await bullEnqueue('processProgram', { programData, context: { problematique } });
+        } else if (enqueueJobFile) {
+          jobId = enqueueJobFile('processProgram', { programData, context: { problematique } });
+        } else {
+          logError(new Error('No enqueue implementation available'));
         }
+        return res.status(200).json({ jobId, status: 'queued' });
+      } catch (e) {
+        logError(e, { context: 'Job enqueue failed' });
+        // fall through to return programData partially processed
       }
+    }
 
     return res.status(200).json(programData);
-  } catch (error) {
-    console.error("Erreur API:", error);
-    return res.status(500).json({
-      error: "Erreur serveur",
-      details: error.message,
-    });
-  }
-}
+});

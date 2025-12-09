@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import { requireAdmin } from '../../lib/auth';
+import { asyncHandler, ValidationError } from '../../lib/errors';
 
-export default async function handler(req, res) {
+export default requireAdmin(asyncHandler(async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   // Only allow migrate when USE_BULL is enabled
@@ -31,4 +33,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(200).json({ migrated: migrated.length, details: migrated });
-}
+}));
