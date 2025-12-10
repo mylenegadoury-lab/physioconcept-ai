@@ -1,5 +1,6 @@
-/* PROFESSIONAL MEDICAL DESIGN - PhysioConcept Pro */
-/* RESET & BASE STYLES */
+/* PHYSIOCONCEPT PRO - INSPIRED BY PHYSIOCONCEPT.CA */
+/* Unique, Modern, Professional Design */
+
 * {
   margin: 0;
   padding: 0;
@@ -11,37 +12,39 @@ html {
 }
 
 body {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fb 100%);
   min-height: 100vh;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #1e293b;
-  line-height: 1.7;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  color: #2c3e50;
+  line-height: 1.8;
   font-size: 16px;
 }
 
-/* PROFESSIONAL HEADINGS */
+/* PROFESSIONAL MEDICAL TYPOGRAPHY */
 h1, h2, h3, h4 {
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+  font-weight: 600;
+  color: #1a2332;
+  letter-spacing: -0.02em;
 }
 
 h1 {
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
 }
 
 h2 {
-  font-size: 1.5rem;
-  margin: 2rem 0 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #0ea5e9;
+  font-size: 1.75rem;
+  margin: 2.5rem 0 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid #2f5ae6;
+  color: #2f5ae6;
 }
 
 h3 {
-  font-size: 1.25rem;
-  margin: 1.5rem 0 0.75rem;
-  color: #0369a1;
+  font-size: 1.35rem;
+  margin: 1.75rem 0 1rem;
+  color: #1a2332;
 }
 
 /* FORM STYLES */
