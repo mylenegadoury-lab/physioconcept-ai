@@ -49,65 +49,63 @@ export default function Result() {
 
   return (
     <Layout>
-      {/* HERO HEADER - Inspired by PhysioConcept.ca */}
+      {/* ULTRA MINIMALIST HEADER */}
       <div style={{ 
-        background: 'linear-gradient(135deg, #2f5ae6 0%, #1a3ba8 100%)',
-        color: 'white',
-        padding: '48px 32px',
-        borderRadius: '16px',
-        marginBottom: '40px',
-        boxShadow: '0 8px 32px rgba(47, 90, 230, 0.25)',
-        position: 'relative',
-        overflow: 'hidden'
+        marginBottom: '56px',
+        paddingBottom: '24px',
+        borderBottom: '1px solid #e5e5e5'
       }}>
-        {/* Decorative accent */}
-        <div style={{
-          position: 'absolute',
-          top: -50,
-          right: -50,
-          width: 200,
-          height: 200,
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: '50%',
-          filter: 'blur(40px)'
-        }}></div>
-        
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ fontSize: '14px', fontWeight: '600', letterSpacing: '0.1em', opacity: 0.9, marginBottom: '12px' }}>
-            PHYSIOCONCEPT PRO
-          </div>
-          <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '12px', color: 'white', lineHeight: 1.2 }}>
-            Programme de Réadaptation Personnalisé
-          </h1>
-          <p style={{ fontSize: '16px', opacity: 0.95, margin: 0, maxWidth: '600px' }}>
-            Basé sur l'évidence scientifique et adapté à vos besoins spécifiques
-          </p>
+        <div style={{ 
+          fontSize: '11px', 
+          fontWeight: '600', 
+          letterSpacing: '0.05em', 
+          color: '#6b6b6b',
+          marginBottom: '12px',
+          textTransform: 'uppercase'
+        }}>
+          PhysioConcept Pro
         </div>
+        <h1 style={{ 
+          fontSize: '28px', 
+          fontWeight: '700', 
+          marginBottom: '8px', 
+          color: '#000000',
+          letterSpacing: '-0.03em',
+          lineHeight: 1.2
+        }}>
+          Programme de Réadaptation
+        </h1>
+        <p style={{ 
+          fontSize: '14px', 
+          color: '#6b6b6b', 
+          margin: 0,
+          fontWeight: '400'
+        }}>
+          Personnalisé · Basé sur l'évidence scientifique
+        </p>
       </div>
 
-      {/* VIEW TOGGLE - Clean & Minimal */}
+      {/* MINIMALIST VIEW TOGGLE */}
       <div style={{ 
-        display: 'flex', 
-        gap: 8, 
-        marginBottom: 32,
-        padding: '8px',
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        border: '2px solid #e5e7eb',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-        width: 'fit-content'
+        display: 'inline-flex', 
+        gap: 4, 
+        marginBottom: 48,
+        backgroundColor: '#f5f5f5',
+        borderRadius: '8px',
+        padding: '4px'
       }}>
         <label style={{ 
           display: 'flex', 
-          gap: 10, 
           alignItems: 'center',
           cursor: 'pointer',
-          padding: '10px 20px',
-          borderRadius: '8px',
+          padding: '7px 14px',
+          borderRadius: '6px',
+          fontSize: '13px',
           fontWeight: '500',
-          transition: 'all 0.2s',
-          backgroundColor: view === 'patient' ? '#2f5ae6' : 'transparent',
-          color: view === 'patient' ? 'white' : '#64748b'
+          transition: 'all 0.2s ease',
+          backgroundColor: view === 'patient' ? 'white' : 'transparent',
+          color: view === 'patient' ? '#000000' : '#6b6b6b',
+          boxShadow: view === 'patient' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
         }}>
           <input 
             type="radio" 
@@ -116,19 +114,20 @@ export default function Result() {
             onChange={() => setView('patient')}
             style={{ display: 'none' }}
           /> 
-          <span style={{ fontSize: '18px' }}>👤</span> Version Patient
+          Patient
         </label>
         <label style={{ 
           display: 'flex', 
-          gap: 10, 
           alignItems: 'center',
           cursor: 'pointer',
-          padding: '10px 20px',
-          borderRadius: '8px',
+          padding: '7px 14px',
+          borderRadius: '6px',
+          fontSize: '13px',
           fontWeight: '500',
-          transition: 'all 0.2s',
-          backgroundColor: view === 'clinician' ? '#2f5ae6' : 'transparent',
-          color: view === 'clinician' ? 'white' : '#64748b'
+          transition: 'all 0.2s ease',
+          backgroundColor: view === 'clinician' ? 'white' : 'transparent',
+          color: view === 'clinician' ? '#000000' : '#6b6b6b',
+          boxShadow: view === 'clinician' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
         }}>
           <input 
             type="radio" 
@@ -137,77 +136,77 @@ export default function Result() {
             onChange={() => setView('clinician')}
             style={{ display: 'none' }}
           /> 
-          <span style={{ fontSize: '18px' }}>🩺</span> Version Physiothérapeute
+          Professionnel
         </label>
       </div>
 
-      {/* RED FLAGS - Modern Alert Design */}
+      {/* RED FLAGS - ULTRA CLEAN */}
       {data.redFlags && (
         <div style={{
-          backgroundColor: hasRedFlags ? '#fef2f2' : '#ecfdf5',
-          border: `3px solid ${hasRedFlags ? '#f87171' : '#34d399'}`,
-          borderRadius: '16px',
-          padding: '28px',
-          marginBottom: '32px',
-          boxShadow: hasRedFlags ? '0 4px 16px rgba(248, 113, 113, 0.15)' : '0 4px 16px rgba(52, 211, 153, 0.15)'
+          backgroundColor: 'white',
+          border: hasRedFlags ? '2px solid #dc2626' : '2px solid #10b981',
+          borderRadius: '12px',
+          padding: '24px',
+          marginBottom: '40px'
         }}>
           <div style={{
             display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: hasRedFlags ? '20px' : '12px'
+            alignItems: 'flex-start',
+            gap: '16px'
           }}>
             <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              backgroundColor: hasRedFlags ? '#fee2e2' : '#d1fae5',
+              minWidth: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              backgroundColor: hasRedFlags ? '#fef2f2' : '#ecfdf5',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px'
+              fontSize: '20px'
             }}>
               {hasRedFlags ? '⚠️' : '✅'}
             </div>
-            <h2 style={{ 
-              color: hasRedFlags ? '#dc2626' : '#059669',
-              borderBottom: 'none',
-              margin: 0,
-              fontSize: '24px',
-              fontWeight: '700'
-            }}>
-              {hasRedFlags ? 'Drapeaux Rouges Détectés' : 'Aucun Drapeau Rouge'}
-            </h2>
-          </div>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ 
+                color: hasRedFlags ? '#dc2626' : '#10b981',
+                borderBottom: 'none',
+                margin: '0 0 8px 0',
+                fontSize: '18px',
+                fontWeight: '600'
+              }}>
+                {hasRedFlags ? 'Signaux d\'Alerte' : 'Aucun Signal d\'Alerte'}
+              </h2>
 
-          {hasRedFlags ? (
-            <>
-              <ul style={{ marginTop: 16, marginBottom: 20, paddingLeft: '20px' }}>
-                {data.redFlags.items.map((f, i) => (
-                  <li key={i} style={{ marginBottom: '12px', color: '#991b1b', lineHeight: 1.7 }}>{f}</li>
-                ))}
-              </ul>
-              {data.redFlags.recommendation && (
-                <div style={{ 
-                  backgroundColor: 'white',
-                  padding: '20px',
-                  borderRadius: '12px',
-                  borderLeft: '5px solid #dc2626',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                    <span style={{ fontSize: '20px' }}>⚕️</span>
-                    <strong style={{ color: '#dc2626', fontSize: '16px' }}>Recommandation Médicale</strong>
-                  </div>
-                  <p style={{ margin: 0, lineHeight: 1.7, color: '#475569' }}>{data.redFlags.recommendation}</p>
-                </div>
+              {hasRedFlags ? (
+                <>
+                  <ul style={{ margin: '16px 0', paddingLeft: '20px', color: '#4a4a4a' }}>
+                    {data.redFlags.items.map((f, i) => (
+                      <li key={i} style={{ marginBottom: '8px', lineHeight: 1.6 }}>{f}</li>
+                    ))}
+                  </ul>
+                  {data.redFlags.recommendation && (
+                    <div style={{ 
+                      backgroundColor: '#fef2f2',
+                      padding: '16px',
+                      borderRadius: '8px',
+                      marginTop: '16px'
+                    }}>
+                      <div style={{ fontWeight: '600', color: '#dc2626', marginBottom: '8px', fontSize: '14px' }}>
+                        Recommandation
+                      </div>
+                      <p style={{ margin: 0, lineHeight: 1.6, color: '#4a4a4a', fontSize: '14px' }}>
+                        {data.redFlags.recommendation}
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p style={{ margin: '8px 0 0 0', color: '#065f46', fontSize: '14px', lineHeight: 1.6 }}>
+                  Aucun signe inquiétant détecté. Le traitement conservateur est approprié.
+                </p>
               )}
-            </>
-          ) : (
-            <p style={{ margin: '8px 0 0 0', color: '#065f46', fontSize: '16px', lineHeight: 1.7 }}>
-              Aucun signe inquiétant détecté. Le traitement conservateur par physiothérapie est approprié.
-            </p>
-          )}
+            </div>
+          </div>
         </div>
       )}
 
