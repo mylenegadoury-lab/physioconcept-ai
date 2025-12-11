@@ -49,175 +49,272 @@ export default function Result() {
 
   return (
     <Layout>
-      {/* PROFESSIONAL HEADER */}
+      {/* HERO HEADER - Inspired by PhysioConcept.ca */}
       <div style={{ 
-        background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+        background: 'linear-gradient(135deg, #2f5ae6 0%, #1a3ba8 100%)',
         color: 'white',
-        padding: '32px 24px',
-        borderRadius: '12px',
-        marginBottom: '32px',
-        boxShadow: '0 4px 20px rgba(14, 165, 233, 0.2)'
+        padding: '48px 32px',
+        borderRadius: '16px',
+        marginBottom: '40px',
+        boxShadow: '0 8px 32px rgba(47, 90, 230, 0.25)',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px', color: 'white' }}>
-          Programme de Réadaptation Personnalisé
-        </h1>
-        <p style={{ fontSize: '15px', opacity: 0.95, margin: 0 }}>
-          Généré par PhysioConcept Pro - Basé sur l'évidence scientifique
-        </p>
+        {/* Decorative accent */}
+        <div style={{
+          position: 'absolute',
+          top: -50,
+          right: -50,
+          width: 200,
+          height: 200,
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '50%',
+          filter: 'blur(40px)'
+        }}></div>
+        
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontSize: '14px', fontWeight: '600', letterSpacing: '0.1em', opacity: 0.9, marginBottom: '12px' }}>
+            PHYSIOCONCEPT PRO
+          </div>
+          <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '12px', color: 'white', lineHeight: 1.2 }}>
+            Programme de Réadaptation Personnalisé
+          </h1>
+          <p style={{ fontSize: '16px', opacity: 0.95, margin: 0, maxWidth: '600px' }}>
+            Basé sur l'évidence scientifique et adapté à vos besoins spécifiques
+          </p>
+        </div>
       </div>
 
-      {/* VIEW TOGGLE */}
+      {/* VIEW TOGGLE - Clean & Minimal */}
       <div style={{ 
         display: 'flex', 
-        gap: 12, 
-        marginBottom: 24,
-        padding: '16px',
-        backgroundColor: '#f8fafc',
-        borderRadius: '8px',
-        border: '1px solid #e2e8f0'
+        gap: 8, 
+        marginBottom: 32,
+        padding: '8px',
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        border: '2px solid #e5e7eb',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        width: 'fit-content'
       }}>
         <label style={{ 
           display: 'flex', 
-          gap: 8, 
+          gap: 10, 
           alignItems: 'center',
           cursor: 'pointer',
-          fontWeight: '500'
+          padding: '10px 20px',
+          borderRadius: '8px',
+          fontWeight: '500',
+          transition: 'all 0.2s',
+          backgroundColor: view === 'patient' ? '#2f5ae6' : 'transparent',
+          color: view === 'patient' ? 'white' : '#64748b'
         }}>
           <input 
             type="radio" 
             name="view" 
-            defaultChecked 
+            checked={view === 'patient'}
             onChange={() => setView('patient')}
-            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            style={{ display: 'none' }}
           /> 
-          👤 Version Patient
+          <span style={{ fontSize: '18px' }}>👤</span> Version Patient
         </label>
         <label style={{ 
           display: 'flex', 
-          gap: 8, 
+          gap: 10, 
           alignItems: 'center',
           cursor: 'pointer',
-          fontWeight: '500'
+          padding: '10px 20px',
+          borderRadius: '8px',
+          fontWeight: '500',
+          transition: 'all 0.2s',
+          backgroundColor: view === 'clinician' ? '#2f5ae6' : 'transparent',
+          color: view === 'clinician' ? 'white' : '#64748b'
         }}>
           <input 
             type="radio" 
-            name="view" 
+            name="view"
+            checked={view === 'clinician'}
             onChange={() => setView('clinician')}
-            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            style={{ display: 'none' }}
           /> 
-          🩺 Version Physiothérapeute
+          <span style={{ fontSize: '18px' }}>🩺</span> Version Physiothérapeute
         </label>
       </div>
 
-      {/* ---- SECTION DRAPEAUX ROUGES ---- */}
+      {/* RED FLAGS - Modern Alert Design */}
       {data.redFlags && (
         <div style={{
-          backgroundColor: hasRedFlags ? '#fef2f2' : '#f0fdf4',
-          border: `2px solid ${hasRedFlags ? '#ef4444' : '#10b981'}`,
-          borderRadius: '12px',
-          padding: '24px',
-          marginBottom: '24px'
+          backgroundColor: hasRedFlags ? '#fef2f2' : '#ecfdf5',
+          border: `3px solid ${hasRedFlags ? '#f87171' : '#34d399'}`,
+          borderRadius: '16px',
+          padding: '28px',
+          marginBottom: '32px',
+          boxShadow: hasRedFlags ? '0 4px 16px rgba(248, 113, 113, 0.15)' : '0 4px 16px rgba(52, 211, 153, 0.15)'
         }}>
-          <h2 style={{ 
-            color: hasRedFlags ? '#dc2626' : '#059669',
-            borderBottom: 'none',
-            marginTop: 0,
+          <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '12px',
+            marginBottom: hasRedFlags ? '20px' : '12px'
           }}>
-            {hasRedFlags ? '⚠️ Drapeaux Rouges Détectés' : '✅ Aucun Drapeau Rouge'}
-          </h2>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              backgroundColor: hasRedFlags ? '#fee2e2' : '#d1fae5',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px'
+            }}>
+              {hasRedFlags ? '⚠️' : '✅'}
+            </div>
+            <h2 style={{ 
+              color: hasRedFlags ? '#dc2626' : '#059669',
+              borderBottom: 'none',
+              margin: 0,
+              fontSize: '24px',
+              fontWeight: '700'
+            }}>
+              {hasRedFlags ? 'Drapeaux Rouges Détectés' : 'Aucun Drapeau Rouge'}
+            </h2>
+          </div>
 
           {hasRedFlags ? (
             <>
-              <ul style={{ marginTop: 16, marginBottom: 16 }}>
+              <ul style={{ marginTop: 16, marginBottom: 20, paddingLeft: '20px' }}>
                 {data.redFlags.items.map((f, i) => (
-                  <li key={i} style={{ marginBottom: '8px', color: '#991b1b' }}>{f}</li>
+                  <li key={i} style={{ marginBottom: '12px', color: '#991b1b', lineHeight: 1.7 }}>{f}</li>
                 ))}
               </ul>
               {data.redFlags.recommendation && (
                 <div style={{ 
                   backgroundColor: 'white',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  borderLeft: '4px solid #dc2626'
+                  padding: '20px',
+                  borderRadius: '12px',
+                  borderLeft: '5px solid #dc2626',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
                 }}>
-                  <strong style={{ color: '#dc2626' }}>⚕️ Recommandation:</strong>
-                  <p style={{ marginTop: '8px', marginBottom: 0 }}>{data.redFlags.recommendation}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '20px' }}>⚕️</span>
+                    <strong style={{ color: '#dc2626', fontSize: '16px' }}>Recommandation Médicale</strong>
+                  </div>
+                  <p style={{ margin: 0, lineHeight: 1.7, color: '#475569' }}>{data.redFlags.recommendation}</p>
                 </div>
               )}
             </>
           ) : (
-            <p style={{ margin: '12px 0 0 0', color: '#065f46' }}>
-              Aucun signe inquiétant détecté. Traitement conservateur approprié.
+            <p style={{ margin: '8px 0 0 0', color: '#065f46', fontSize: '16px', lineHeight: 1.7 }}>
+              Aucun signe inquiétant détecté. Le traitement conservateur par physiothérapie est approprié.
             </p>
           )}
         </div>
       )}
 
-      {/* ---- SECTION ÉDUCATION ---- */}
+      {/* EDUCATION - Clean Card Design */}
       {data.education && (
         <div style={{
-          backgroundColor: '#eff6ff',
-          border: '2px solid #3b82f6',
-          borderRadius: '12px',
-          padding: '24px',
-          marginBottom: '24px'
+          backgroundColor: 'white',
+          border: '2px solid #e5e7eb',
+          borderRadius: '16px',
+          padding: '32px',
+          marginBottom: '32px',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.06)'
         }}>
-          <h2 style={{ marginTop: 0, color: '#1e40af', borderBottom: 'none' }}>
-            📘 Éducation Thérapeutique
-          </h2>
-          
-          {data.education.understanding && (
-            <div style={{ marginBottom: 16 }}>
-              <strong style={{ color: '#1e40af', display: 'block', marginBottom: '8px' }}>
-                💡 Comprendre votre condition:
-              </strong>
-              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.understanding}</p>
-            </div>
-          )}
-          
-          {data.education.meaning && (
-            <div style={{ marginBottom: 16 }}>
-              <strong style={{ color: '#1e40af', display: 'block', marginBottom: '8px' }}>
-                🔍 Ce que cela signifie:
-              </strong>
-              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.meaning}</p>
-            </div>
-          )}
-          
-          {data.education.helpful && (
-            <div style={{ marginBottom: 16 }}>
-              <strong style={{ color: '#059669', display: 'block', marginBottom: '8px' }}>
-                ✅ Ce qui aide:
-              </strong>
-              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.helpful}</p>
-            </div>
-          )}
-          
-          {data.education.avoid && (
-            <div style={{ marginBottom: 16 }}>
-              <strong style={{ color: '#dc2626', display: 'block', marginBottom: '8px' }}>
-                ⛔ À éviter:
-              </strong>
-              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.avoid}</p>
-            </div>
-          )}
-          
-          {data.education.progression && (
-            <div style={{ 
-              backgroundColor: 'white',
-              padding: '16px',
-              borderRadius: '8px',
-              marginTop: '16px'
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              backgroundColor: '#eff6ff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px'
             }}>
-              <strong style={{ color: '#1e40af', display: 'block', marginBottom: '8px' }}>
-                📈 Progression attendue:
-              </strong>
-              <p style={{ margin: 0, lineHeight: '1.7' }}>{data.education.progression}</p>
+              📘
             </div>
-          )}
+            <h2 style={{ margin: 0, color: '#2f5ae6', borderBottom: 'none', fontSize: '24px' }}>
+              Éducation Thérapeutique
+            </h2>
+          </div>
+          
+          <div style={{ display: 'grid', gap: '24px' }}>
+            {data.education.understanding && (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '20px' }}>💡</span>
+                  <strong style={{ color: '#1a2332', fontSize: '16px' }}>Comprendre votre condition</strong>
+                </div>
+                <p style={{ margin: 0, lineHeight: '1.8', color: '#475569', paddingLeft: '28px' }}>
+                  {data.education.understanding}
+                </p>
+              </div>
+            )}
+            
+            {data.education.meaning && (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '20px' }}>🔍</span>
+                  <strong style={{ color: '#1a2332', fontSize: '16px' }}>Ce que cela signifie</strong>
+                </div>
+                <p style={{ margin: 0, lineHeight: '1.8', color: '#475569', paddingLeft: '28px' }}>
+                  {data.education.meaning}
+                </p>
+              </div>
+            )}
+            
+            {data.education.helpful && (
+              <div style={{ 
+                backgroundColor: '#ecfdf5',
+                padding: '20px',
+                borderRadius: '12px',
+                borderLeft: '4px solid #10b981'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '20px' }}>✅</span>
+                  <strong style={{ color: '#059669', fontSize: '16px' }}>Ce qui aide</strong>
+                </div>
+                <p style={{ margin: 0, lineHeight: '1.8', color: '#065f46' }}>
+                  {data.education.helpful}
+                </p>
+              </div>
+            )}
+            
+            {data.education.avoid && (
+              <div style={{ 
+                backgroundColor: '#fef2f2',
+                padding: '20px',
+                borderRadius: '12px',
+                borderLeft: '4px solid #f87171'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '20px' }}>⛔</span>
+                  <strong style={{ color: '#dc2626', fontSize: '16px' }}>À éviter temporairement</strong>
+                </div>
+                <p style={{ margin: 0, lineHeight: '1.8', color: '#991b1b' }}>
+                  {data.education.avoid}
+                </p>
+              </div>
+            )}
+            
+            {data.education.progression && (
+              <div style={{ 
+                backgroundColor: '#f8fafc',
+                padding: '20px',
+                borderRadius: '12px',
+                border: '2px solid #cbd5e1'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '20px' }}>📈</span>
+                  <strong style={{ color: '#1a2332', fontSize: '16px' }}>Progression attendue</strong>
+                </div>
+                <p style={{ margin: 0, lineHeight: '1.8', color: '#475569' }}>
+                  {data.education.progression}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -243,213 +340,331 @@ export default function Result() {
         </>
       )}
 
-      {/* ---- SECTION EXERCICES ---- */}
-      <h2>📌 Exercices recommandés</h2>
-      {data.exercises?.length > 0 ? (
-        data.exercises.map((ex, i) => (
-          <div
-            key={i}
-            className="exercise-card"
-            style={{ marginBottom: "24px" }}
-          >
-            <h3>{ex.name}</h3>
-            <p>{ex.description}</p>
-
-            {ex.dosage && (
-              <div style={{ marginTop: 12 }}>
-                <strong>Dosage :</strong>
-                {typeof ex.dosage === 'string' ? (
-                  <span> {ex.dosage}</span>
-                ) : (
-                  <ul style={{ marginTop: 8, marginBottom: 0 }}>
-                    {ex.dosage.reps && <li><strong>Répétitions:</strong> {ex.dosage.reps}</li>}
-                    {ex.dosage.sets && <li><strong>Sets:</strong> {ex.dosage.sets}</li>}
-                    {ex.dosage.frequency && <li><strong>Fréquence:</strong> {ex.dosage.frequency}</li>}
-                    {ex.dosage.tempo && <li><strong>Tempo:</strong> {ex.dosage.tempo}</li>}
-                    {ex.dosage.rest && <li><strong>Repos:</strong> {ex.dosage.rest}</li>}
-                    {ex.dosage.load && <li><strong>Charge:</strong> {ex.dosage.load}</li>}
-                  </ul>
-                )}
-              </div>
-            )}
-            {ex.justification && (
-              <p>
-                <strong>Pourquoi :</strong> {ex.justification}
-              </p>
-            )}
-
-            {/* Try common image fields returned by the generator */}
-            {(ex.image || ex.imageUrl || ex.mediaUrl || (ex.media && ex.media.image)) && (
-              <div style={{ marginTop: "12px" }}>
-                <img
-                  src={ex.image || ex.imageUrl || ex.mediaUrl || (ex.media && ex.media.image)}
-                  alt={ex.name}
-                  style={{ maxWidth: "320px", width: "100%", borderRadius: "8px", display: "block", marginTop: "8px" }}
-                />
-                  {/* Source badge */}
-                  <div style={{ marginTop: "8px", display: "flex", gap: "8px", alignItems: "center" }}>
-                    {ex.media?.source === "dalle" && (
-                      <span style={{ backgroundColor: "#fde68a", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image générée par IA</span>
-                    )}
-                    {ex.media?.source === "pexels" && (
-                      <span style={{ backgroundColor: "#d1fae5", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image libre (Pexels)</span>
-                    )}
-                    {ex.media?.source === "unsplash" && (
-                      <span style={{ backgroundColor: "#eef2ff", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image libre (Unsplash)</span>
-                    )}
-                    {ex.media?.source === "cache" && (
-                      <span style={{ backgroundColor: "#eef2ff", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image mise en cache</span>
-                    )}
-                    {ex.media?.source === "provided" && (
-                      <span style={{ backgroundColor: "#f3f4f6", padding: "4px 8px", borderRadius: "6px", fontSize: "12px" }}>Image fournie</span>
-                    )}
-                  </div>
-              </div>
-            )}
-
-            {ex.imagePrompt && (
-              <p>
-                <strong>Idée d’illustration :</strong> {ex.imagePrompt}
-              </p>
-            )}
-            {ex.videoPrompt && (
-              <p>
-                <strong>Idée de vidéo :</strong> {ex.videoPrompt}
-              </p>
-            )}
-
-            {/* Evidence display: local evidence first, then generated citations */}
-            {(ex.evidence || ex.generatedEvidence) && (
-              <div style={{ marginTop: "12px", backgroundColor: "#f9fafb", padding: "12px", borderRadius: "8px" }}>
-                <strong>Preuves / Références :</strong>
-                {ex.evidence && (
-                  <div style={{ marginTop: 8 }}>
-                    <p style={{ margin: 0 }}><em>Niveau local:</em> {ex.evidence.evidence || ex.evidence.evidenceLevel || ex.evidence.evidenceLevelScore || "N/A"}</p>
-                    {ex.evidence.recommendation && <p style={{ margin: 0 }}><strong>Recommandation:</strong> {ex.evidence.recommendation}</p>}
-                  </div>
-                )}
-
-                {ex.generatedEvidence && ex.generatedEvidence.length > 0 ? (
-                  <ul style={{ marginTop: 8 }}>
-                    {ex.generatedEvidence.map((c, idx) => (
-                      <li key={idx} style={{ marginBottom: 6 }}>
-                        <div style={{ fontSize: "14px", fontWeight: 600 }}>{c.title || (c.doi || c.pmid) || "Étude"} <span style={{ fontWeight: 400, marginLeft: 8 }}>({c.year || "n/a"})</span></div>
-                        <div style={{ fontSize: "13px", color: "#374151" }}>{c.authors || ""}</div>
-                        {c.summary && <div style={{ marginTop: 4 }}>{c.summary}</div>}
-                        <div style={{ marginTop: 4 }}>
-                          {c.doi && (
-                            <a href={`https://doi.org/${c.doi}`} target="_blank" rel="noreferrer">DOI: {c.doi}</a>
-                          )}
-                          {c.pmid && (
-                            <span style={{ marginLeft: 8 }}>
-                              <a href={`https://pubmed.ncbi.nlm.nih.gov/${c.pmid}/`} target="_blank" rel="noreferrer">PMID: {c.pmid}</a>
-                            </span>
-                          )}
-                          {c.level && <span style={{ marginLeft: 8, fontStyle: "italic" }}>{c.level}</span>}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  ex.generatedEvidence && ex.generatedEvidence.length === 0 && (
-                    <p style={{ marginTop: 8, fontStyle: "italic" }}>Aucune étude spécifique trouvée par l'assistant IA pour cet exercice.</p>
-                  )
-                )}
-              </div>
-            )}
-
-            {/* Instructions: patient or clinician */}
-            <div style={{ marginTop: 12 }}>
-              {view === 'patient' ? (
-                ex.patientInstructions ? (
-                  <div style={{ backgroundColor: '#f0fdf4', padding: 12, borderRadius: 8 }}>
-                    <strong>Instructions pour le patient :</strong>
-                    <div style={{ marginTop: 8 }}>{ex.patientInstructions}</div>
-                  </div>
-                ) : (
-                  <p style={{ fontStyle: 'italic' }}>Pas d'instructions patient disponibles.</p>
-                )
-              ) : (
-                ex.clinicianChecklist ? (
-                  <div style={{ backgroundColor: '#f8fafc', padding: 12, borderRadius: 8 }}>
-                    <strong>Checklist pour le physiothérapeute :</strong>
-                    <ul style={{ marginTop: 8 }}>
-                      {Array.isArray(ex.clinicianChecklist) ? ex.clinicianChecklist.map((c, ci) => (
-                        <li key={ci}>{c}</li>
-                      )) : <li>{ex.clinicianChecklist}</li>}
-                    </ul>
-                  </div>
-                ) : (
-                  <p style={{ fontStyle: 'italic' }}>Pas de checklist clinicien disponible.</p>
-                )
-              )}
-            </div>
+      {/* EXERCISES - Premium Card Design */}
+      <div style={{ marginTop: '48px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #2f5ae6 0%, #1a3ba8 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '24px'
+          }}>
+            💪
           </div>
-        ))
-      ) : (
-        <p>Aucun exercice généré.</p>
-      )}
+          <h2 style={{ margin: 0, color: '#1a2332', borderBottom: 'none', fontSize: '28px' }}>
+            Exercices Recommandés
+          </h2>
+        </div>
 
-      {/* BOUTONS D'ACTION */}
-      <div
-        style={{
-          marginTop: "40px",
-          display: "flex",
-          gap: "10px",
-          justifyContent: "center",
-        }}
-      >
+        {data.exercises?.length > 0 ? (
+          <div style={{ display: 'grid', gap: '24px' }}>
+            {data.exercises.map((ex, i) => (
+              <div
+                key={i}
+                style={{
+                  backgroundColor: 'white',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '16px',
+                  padding: '0',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#2f5ae6';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(47, 90, 230, 0.15)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#e5e7eb';
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                {/* Exercise Header */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #2f5ae6 0%, #1a3ba8 100%)',
+                  padding: '24px 28px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px'
+                }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '18px',
+                    fontWeight: '700',
+                    color: 'white'
+                  }}>
+                    {i + 1}
+                  </div>
+                  <h3 style={{ 
+                    margin: 0,
+                    fontSize: '22px',
+                    fontWeight: '600',
+                    color: 'white'
+                  }}>
+                    {ex.name}
+                  </h3>
+                </div>
+
+                {/* Exercise Content */}
+                <div style={{ padding: '28px' }}>
+                  <p style={{ 
+                    marginBottom: '24px',
+                    lineHeight: '1.8',
+                    color: '#475569',
+                    fontSize: '16px'
+                  }}>
+                    {ex.description}
+                  </p>
+
+                  {/* Dosage Grid */}
+                  {ex.dosage && (
+                    <div style={{ 
+                      backgroundColor: '#f8fafc',
+                      padding: '20px',
+                      borderRadius: '12px',
+                      marginBottom: '20px',
+                      border: '2px solid #e5e7eb'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                        <span style={{ fontSize: '18px' }}>📊</span>
+                        <strong style={{ color: '#1a2332', fontSize: '16px' }}>Dosage</strong>
+                      </div>
+                      {typeof ex.dosage === 'string' ? (
+                        <p style={{ margin: 0, color: '#475569' }}>{ex.dosage}</p>
+                      ) : (
+                        <div style={{ 
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                          gap: '12px'
+                        }}>
+                          {ex.dosage.reps && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ 
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: '#2f5ae6'
+                              }}></span>
+                              <span style={{ color: '#64748b', fontSize: '14px' }}>Répétitions:</span>
+                              <strong style={{ color: '#1a2332' }}>{ex.dosage.reps}</strong>
+                            </div>
+                          )}
+                          {ex.dosage.sets && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ 
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: '#2f5ae6'
+                              }}></span>
+                              <span style={{ color: '#64748b', fontSize: '14px' }}>Sets:</span>
+                              <strong style={{ color: '#1a2332' }}>{ex.dosage.sets}</strong>
+                            </div>
+                          )}
+                          {ex.dosage.frequency && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ 
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: '#2f5ae6'
+                              }}></span>
+                              <span style={{ color: '#64748b', fontSize: '14px' }}>Fréquence:</span>
+                              <strong style={{ color: '#1a2332' }}>{ex.dosage.frequency}</strong>
+                            </div>
+                          )}
+                          {ex.dosage.tempo && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ 
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: '#2f5ae6'
+                              }}></span>
+                              <span style={{ color: '#64748b', fontSize: '14px' }}>Tempo:</span>
+                              <strong style={{ color: '#1a2332' }}>{ex.dosage.tempo}</strong>
+                            </div>
+                          )}
+                          {ex.dosage.rest && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ 
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: '#2f5ae6'
+                              }}></span>
+                              <span style={{ color: '#64748b', fontSize: '14px' }}>Repos:</span>
+                              <strong style={{ color: '#1a2332' }}>{ex.dosage.rest}</strong>
+                            </div>
+                          )}
+                          {ex.dosage.load && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ 
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: '#2f5ae6'
+                              }}></span>
+                              <span style={{ color: '#64748b', fontSize: '14px' }}>Charge:</span>
+                              <strong style={{ color: '#1a2332' }}>{ex.dosage.load}</strong>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Justification */}
+                  {ex.justification && (
+                    <div style={{
+                      backgroundColor: '#ecfdf5',
+                      padding: '16px 20px',
+                      borderRadius: '12px',
+                      borderLeft: '4px solid #10b981',
+                      marginBottom: '20px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                        <span style={{ fontSize: '20px', marginTop: '2px' }}>💡</span>
+                        <div>
+                          <strong style={{ color: '#059669', display: 'block', marginBottom: '6px' }}>
+                            Pourquoi cet exercice
+                          </strong>
+                          <p style={{ margin: 0, lineHeight: '1.7', color: '#065f46' }}>
+                            {ex.justification}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Instructions */}
+                  {view === 'patient' ? (
+                    ex.patientInstructions && (
+                      <div style={{ 
+                        backgroundColor: '#eff6ff',
+                        padding: '16px 20px',
+                        borderRadius: '12px',
+                        border: '2px solid #bfdbfe'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                          <span style={{ fontSize: '20px', marginTop: '2px' }}>👤</span>
+                          <div>
+                            <strong style={{ color: '#2f5ae6', display: 'block', marginBottom: '6px' }}>
+                              Instructions
+                            </strong>
+                            <div style={{ lineHeight: '1.7', color: '#1e40af' }}>
+                              {ex.patientInstructions}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    ex.clinicianChecklist && (
+                      <div style={{ 
+                        backgroundColor: '#f8fafc',
+                        padding: '16px 20px',
+                        borderRadius: '12px',
+                        border: '2px solid #cbd5e1'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                          <span style={{ fontSize: '20px', marginTop: '2px' }}>🩺</span>
+                          <div style={{ width: '100%' }}>
+                            <strong style={{ color: '#1a2332', display: 'block', marginBottom: '8px' }}>
+                              Checklist Physiothérapeute
+                            </strong>
+                            <ul style={{ margin: 0, paddingLeft: '20px', color: '#475569' }}>
+                              {Array.isArray(ex.clinicianChecklist) ? ex.clinicianChecklist.map((c, ci) => (
+                                <li key={ci} style={{ marginBottom: '6px', lineHeight: '1.6' }}>{c}</li>
+                              )) : <li>{ex.clinicianChecklist}</li>}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ textAlign: 'center', color: '#64748b', padding: '40px' }}>
+            Aucun exercice généré.
+          </p>
+        )}
+      </div>
+
+      {/* ACTION BUTTONS */}
+      <div style={{
+        marginTop: '48px',
+        padding: '32px',
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        border: '2px solid #e5e7eb',
+        display: 'flex',
+        gap: '16px',
+        justifyContent: 'center',
+        flexWrap: 'wrap'
+      }}>
         <button
           onClick={() => window.print()}
           style={{
-            padding: "10px 20px",
-            backgroundColor: "#3b82f6",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "14px",
+            padding: '14px 28px',
+            backgroundColor: '#2f5ae6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: '600',
+            boxShadow: '0 4px 12px rgba(47, 90, 230, 0.25)',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.boxShadow = '0 6px 16px rgba(47, 90, 230, 0.35)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 4px 12px rgba(47, 90, 230, 0.25)';
           }}
         >
           🖨️ Imprimer
         </button>
-        <div className="action-buttons">
-          <button
-            onClick={() =>
-              window.location.href = `/library?exercises=${encodeURIComponent(
-                JSON.stringify(data.exercises)
-              )}`
-            }
-            style={{
-              padding: "12px 24px",
-              backgroundColor: "#10b981",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "600",
-              marginRight: "12px",
-            }}
-          >
-            📚 Voir la bibliothèque
-          </button>
-          <button
-            onClick={() => window.history.back()}
-            style={{
-              padding: "12px 24px",
-              backgroundColor: "#6b7280",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontWeight: "600",
-            }}
-          >
-            ← Retour
-          </button>
-        </div>
+        <button
+          onClick={() => window.history.back()}
+          style={{
+            padding: '14px 28px',
+            backgroundColor: '#64748b',
+            color: 'white',
+            border: 'none',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: '600',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = '#475569';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = '#64748b';
+          }}
+        >
+          ← Retour
+        </button>
       </div>
     </Layout>
   );
