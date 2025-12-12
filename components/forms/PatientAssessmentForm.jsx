@@ -501,7 +501,7 @@ export default function PatientAssessmentForm({ onComplete }) {
                 {opt.label}
               </button>
             ))
-          ) : (
+          ) : question.type === 'scale' ? (
             question.options.map(opt => (
               <button
                 key={opt.value}
