@@ -16,6 +16,9 @@ export default function ExerciseResults() {
   const [selectedExercise, setSelectedExercise] = useState(null);
 
   useEffect(() => {
+    // Only access sessionStorage on client side
+    if (typeof window === 'undefined') return;
+
     // Load data from session storage
     const exercisesData = sessionStorage.getItem('selectedExercises');
     const justificationsData = sessionStorage.getItem('justifications');
