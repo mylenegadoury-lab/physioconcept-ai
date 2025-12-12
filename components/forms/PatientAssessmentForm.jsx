@@ -700,9 +700,16 @@ export default function PatientAssessmentForm({ onComplete }) {
         }
 
         .option-button.selected {
-          border-color: #2ecc71;
-          background: #e8f8f5;
+          border-color: #2ecc71 !important;
+          background: #d5f4e6 !important;
           font-weight: 600;
+          box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2) !important;
+        }
+
+        .option-button.scale.selected {
+          border-color: #2ecc71 !important;
+          background: #d5f4e6 !important;
+          font-weight: 700;
         }
 
         .option-button.multiselect.selected {
