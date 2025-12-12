@@ -482,7 +482,8 @@ export default function PatientAssessmentForm({ onComplete }) {
                   borderColor: answer === 'yes' ? '#2ecc71' : '#e0e0e0',
                   background: answer === 'yes' ? '#d5f4e6' : 'white',
                   fontWeight: answer === 'yes' ? 700 : 400,
-                  boxShadow: answer === 'yes' ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none'
+                  boxShadow: answer === 'yes' ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none',
+                  color: '#2c3e50'
                 }}
                 onClick={() => handleAnswer(question.id, 'yes')}
               >
@@ -495,7 +496,8 @@ export default function PatientAssessmentForm({ onComplete }) {
                   borderColor: answer === 'no' ? '#2ecc71' : '#e0e0e0',
                   background: answer === 'no' ? '#d5f4e6' : 'white',
                   fontWeight: answer === 'no' ? 700 : 400,
-                  boxShadow: answer === 'no' ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none'
+                  boxShadow: answer === 'no' ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none',
+                  color: '#2c3e50'
                 }}
                 onClick={() => handleAnswer(question.id, 'no')}
               >
@@ -545,7 +547,8 @@ export default function PatientAssessmentForm({ onComplete }) {
                   borderColor: answer === opt.value ? '#2ecc71' : '#e0e0e0',
                   background: answer === opt.value ? '#d5f4e6' : 'white',
                   fontWeight: answer === opt.value ? 700 : 400,
-                  boxShadow: answer === opt.value ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none'
+                  boxShadow: answer === opt.value ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none',
+                  color: '#2c3e50'
                 }}
                 onClick={() => handleAnswer(question.id, opt.value)}
               >
@@ -563,7 +566,8 @@ export default function PatientAssessmentForm({ onComplete }) {
                   borderColor: answer === opt.value ? '#2ecc71' : '#e0e0e0',
                   background: answer === opt.value ? '#d5f4e6' : 'white',
                   fontWeight: answer === opt.value ? 700 : 400,
-                  boxShadow: answer === opt.value ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none'
+                  boxShadow: answer === opt.value ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none',
+                  color: '#2c3e50'
                 }}
                 onClick={() => handleAnswer(question.id, opt.value)}
               >
