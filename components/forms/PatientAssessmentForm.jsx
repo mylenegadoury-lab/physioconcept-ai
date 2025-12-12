@@ -497,10 +497,12 @@ export default function PatientAssessmentForm({ onComplete }) {
             question.options.map(opt => (
               <button
                 key={opt.value}
+                type="button"
                 className={`option-button scale ${answer === opt.value ? 'selected' : ''}`}
                 onClick={() => handleAnswer(question.id, opt.value)}
               >
-                {opt.label}
+                {opt.emoji && <span className="option-emoji">{opt.emoji}</span>}
+                <span className="option-label">{opt.label}</span>
               </button>
             ))
           ) : (
