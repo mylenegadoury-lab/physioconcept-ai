@@ -13,53 +13,6 @@ export default function Assessment() {
   const [mode, setMode] = useState(null); // 'patient' or 'professional'
   const router = useRouter();
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <h2>Sélection de vos exercices personnalisés...</h2>
-          <p>Analyse de votre profil clinique en cours</p>
-          
-          <style jsx>{`
-            .loading-container {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              justify-content: center;
-              min-height: 60vh;
-              text-align: center;
-            }
-            
-            .loading-spinner {
-              width: 60px;
-              height: 60px;
-              border: 5px solid #f3f3f3;
-              border-top: 5px solid #3498db;
-              border-radius: 50%;
-              animation: spin 1s linear infinite;
-              margin-bottom: 2rem;
-            }
-            
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-            
-            h2 {
-              color: #2c3e50;
-              margin-bottom: 0.5rem;
-            }
-            
-            p {
-              color: #7f8c8d;
-            }
-          `}</style>
-        </div>
-      </Layout>
-    );
-  }
-
   if (!mode) {
     return (
       <Layout>
