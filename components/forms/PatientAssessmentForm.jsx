@@ -8,6 +8,7 @@ import { useState } from 'react';
 export default function PatientAssessmentForm({ onComplete }) {
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState({});
+  const [loading, setLoading] = useState(false);
   
   // ODI Questions simplifiées pour patients
   const odiQuestions = [
@@ -417,7 +418,7 @@ export default function PatientAssessmentForm({ onComplete }) {
     };
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const profile = buildPatientProfile();
     
     // Check for red flags
@@ -426,7 +427,33 @@ export default function PatientAssessmentForm({ onComplete }) {
       return;
     }
     
-    onComplete(profile);
+    try {
+      setLoading(true);
+      
+      // Call exercise selection API
+      const response = await fetch('/api/select-exercises', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patientProfile: profile })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la sélection des exercices');
+      }
+      
+      const data = await response.json();
+      
+      // Store results with correct keys for exercise-results page
+      sessionStorage.setItem('selectedExercises', JSON.stringify(data.selectedExercises));
+      sessionStorage.setItem('justifications', JSON.stringify(data.justifications || []));
+      sessionStorage.setItem('patientProfile', JSON.stringify(profile));
+      window.location.href = '/exercise-results';
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Une erreur est survenue. Veuillez réessayer.');
+      setLoading(false);
+    }
   };
 
   const renderQuestion = (question, index) => {
@@ -450,19 +477,31 @@ export default function PatientAssessmentForm({ onComplete }) {
             <>
               <button
                 type="button"
-                className={`option-button ${answer === 'yes' ? 'selected' : ''}`}
+                className="option-button"
+                style={{
+                  borderColor: answer === 'yes' ? '#2ecc71' : '#e0e0e0',
+                  background: answer === 'yes' ? '#d5f4e6' : 'white',
+                  fontWeight: answer === 'yes' ? 700 : 400,
+                  boxShadow: answer === 'yes' ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none'
+                }}
                 onClick={() => handleAnswer(question.id, 'yes')}
               >
                 ✅ Oui
               </button>
               <button
                 type="button"
-                className={`option-button ${answer === 'no' ? 'selected' : ''}`}
+                className="option-button"
+                style={{
+                  borderColor: answer === 'no' ? '#2ecc71' : '#e0e0e0',
+                  background: answer === 'no' ? '#d5f4e6' : 'white',
+                  fontWeight: answer === 'no' ? 700 : 400,
+                  boxShadow: answer === 'no' ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none'
+                }}
                 onClick={() => handleAnswer(question.id, 'no')}
               >
                 ❌ Non
               </button>
-            </>
+            <>
           ) : question.type === 'select' ? (
             <select
               value={answer || ''}
@@ -501,7 +540,13 @@ export default function PatientAssessmentForm({ onComplete }) {
               <button
                 key={opt.value}
                 type="button"
-                className={`option-button scale ${answer === opt.value ? 'selected' : ''}`}
+                className="option-button scale"
+                style={{
+                  borderColor: answer === opt.value ? '#2ecc71' : '#e0e0e0',
+                  background: answer === opt.value ? '#d5f4e6' : 'white',
+                  fontWeight: answer === opt.value ? 700 : 400,
+                  boxShadow: answer === opt.value ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none'
+                }}
                 onClick={() => handleAnswer(question.id, opt.value)}
               >
                 {opt.emoji && <span className="option-emoji">{opt.emoji}</span>}
@@ -513,7 +558,13 @@ export default function PatientAssessmentForm({ onComplete }) {
               <button
                 key={opt.value}
                 type="button"
-                className={`option-button ${answer === opt.value ? 'selected' : ''}`}
+                className="option-button"
+                style={{
+                  borderColor: answer === opt.value ? '#2ecc71' : '#e0e0e0',
+                  background: answer === opt.value ? '#d5f4e6' : 'white',
+                  fontWeight: answer === opt.value ? 700 : 400,
+                  boxShadow: answer === opt.value ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none'
+                }}
                 onClick={() => handleAnswer(question.id, opt.value)}
               >
                 <span className="option-emoji">{opt.emoji}</span>
@@ -575,8 +626,9 @@ export default function PatientAssessmentForm({ onComplete }) {
           <button
             onClick={handleSubmit}
             className="nav-button submit"
+            disabled={loading}
           >
-            🎯 Obtenir mon programme
+            {loading ? '⏳ Génération en cours...' : '🎯 Obtenir mon programme'}
           </button>
         )}
       </div>

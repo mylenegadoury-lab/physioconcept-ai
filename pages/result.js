@@ -10,8 +10,20 @@ export default function Result() {
 
   useEffect(() => {
     if (!router.isReady) return;
+    
+    // Try sessionStorage first (new dual-form system)
+    const storedProfile = sessionStorage.getItem('patientProfile');
+    if (storedProfile) {
+      try {
+        setData(JSON.parse(storedProfile));
+        return;
+      } catch (e) {
+        console.error("Erreur de parsing sessionStorage:", e);
+      }
+    }
+    
+    // Fallback to URL query (old OpenAI system)
     const q = router.query.data;
-
     if (!q) return;
 
     try {
