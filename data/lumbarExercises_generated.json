@@ -1,0 +1,142 @@
+[
+  {
+    "name": "Pelvic Tilt",
+    "name_fr": "Bascule du bassin",
+    "body_region": "lumbar",
+    "exercise_type": "mobility",
+    "description": "A gentle exercise to improve lumbar mobility and engage core muscles.",
+    "instructions_patient": "Allongez-vous sur le dos, genoux fléchis, pieds à plat. Inclinez doucement le bassin pour aplatir le bas du dos contre le sol, puis relâchez.",
+    "instructions_professional": "Indiqué pour améliorer la mobilité lombaire et l'activation du tronc. Progression possible vers des exercices de stabilisation. Éviter en cas de douleur aiguë sévère.",
+    "dosage_reps": "8-12",
+    "dosage_sets": "3",
+    "dosage_frequency": "3x/semaine",
+    "reps_optimal": 10,
+    "sets_optimal": 3,
+    "difficulty_level": "beginner",
+    "evidence_level": "1A",
+    "effectiveness_score": 90,
+    "key_points": [
+      "Engage core",
+      "Gentle movement",
+      "Breathing"
+    ],
+    "contraindications": [
+      "acute_disc_herniation"
+    ],
+    "tags": {
+      "phase": [
+        "acute"
+      ],
+      "pattern": [
+        "non_specific"
+      ],
+      "mechanism": [
+        "mobility"
+      ],
+      "level": [
+        "beginner"
+      ],
+      "equipment": [
+        "none"
+      ]
+    },
+    "indications": {
+      "primary": [
+        "chronic_lbp"
+      ],
+      "secondary": [
+        "post_partum"
+      ],
+      "contraindications": [
+        "acute_disc_herniation",
+        "severe_radiculopathy"
+      ]
+    },
+    "clinical_reasoning": "Recommended by NICE guidelines for initial lumbar mobility improvement.",
+    "progression_levels": [
+      {
+        "level": 1,
+        "description": "Débutant",
+        "reps": "8-10",
+        "sets": "2"
+      },
+      {
+        "level": 2,
+        "description": "Intermédiaire",
+        "reps": "10-12",
+        "sets": "3"
+      }
+    ],
+    "status": "active"
+  },
+  {
+    "name": "Knee to Chest (single)",
+    "name_fr": "Genou à la poitrine (simple)",
+    "body_region": "lumbar",
+    "exercise_type": "flexibility",
+    "description": "Stretches the lower back and gluteal muscles to relieve tension.",
+    "instructions_patient": "Allongez-vous sur le dos, ramenez un genou vers la poitrine en gardant l'autre jambe pliée ou allongée. Maintenez la position, puis changez de côté.",
+    "instructions_professional": "Utilisé pour améliorer la flexibilité lombaire et soulager la tension. Progression vers des étirements bilatéraux. Éviter si douleur aiguë est présente.",
+    "dosage_reps": "8-12",
+    "dosage_sets": "3",
+    "dosage_frequency": "3x/semaine",
+    "reps_optimal": 10,
+    "sets_optimal": 3,
+    "difficulty_level": "beginner",
+    "evidence_level": "1B",
+    "effectiveness_score": 85,
+    "key_points": [
+      "Gentle stretch",
+      "Hold position",
+      "Breathing"
+    ],
+    "contraindications": [
+      "severe_radiculopathy"
+    ],
+    "tags": {
+      "phase": [
+        "acute"
+      ],
+      "pattern": [
+        "flexion_intolerant"
+      ],
+      "mechanism": [
+        "flexibility"
+      ],
+      "level": [
+        "beginner"
+      ],
+      "equipment": [
+        "none"
+      ]
+    },
+    "indications": {
+      "primary": [
+        "chronic_lbp"
+      ],
+      "secondary": [
+        "spondylolisthesis_grade1"
+      ],
+      "contraindications": [
+        "acute_disc_herniation",
+        "severe_radiculopathy"
+      ]
+    },
+    "clinical_reasoning": "Cochrane review supports use for flexibility improvement in low back pain.",
+    "progression_levels": [
+      {
+        "level": 1,
+        "description": "Débutant",
+        "reps": "8-10",
+        "sets": "2"
+      },
+      {
+        "level": 2,
+        "description": "Intermédiaire",
+        "reps": "10-12",
+        "sets": "3"
+      }
+    ],
+    "status": "active"
+  }
+]
