@@ -316,6 +316,10 @@ export default function PatientAssessmentForm({ onComplete }) {
   };
 
   const handleMultiSelectAnswer = (questionId, value) => {
+    // Existing multiselect logic if needed
+  };
+
+  const calculateODI = () => {
     const odiIds = odiQuestions.map(q => q.id);
     const odiAnswers = odiIds.filter(id => answers[id] !== undefined);
     if (odiAnswers.length === 0) return 0;
@@ -466,17 +470,35 @@ export default function PatientAssessmentForm({ onComplete }) {
       
       const data = await response.json();
       console.log('✅ Data received:', data);
+      console.log('✅ selectedExercises:', data.selectedExercises);
+      console.log('✅ Number of exercises:', data.selectedExercises?.length);
       alert('Data received, exercises: ' + (data.selectedExercises?.length || 0));
       
       // Store results with correct keys for exercise-results page
-      sessionStorage.setItem('selectedExercises', JSON.stringify(data.selectedExercises));
-      sessionStorage.setItem('justifications', JSON.stringify(data.justifications || []));
+      const exercisesToStore = data.selectedExercises || [];
+      const justificationsToStore = data.justifications || [];
+      
+      console.log('💾 Storing in sessionStorage:', {
+        exercises: exercisesToStore.length,
+        justifications: justificationsToStore.length
+      });
+      
+      sessionStorage.setItem('selectedExercises', JSON.stringify(exercisesToStore));
+      sessionStorage.setItem('justifications', JSON.stringify(justificationsToStore));
       sessionStorage.setItem('patientProfile', JSON.stringify(profile));
+      
+      // Verify storage
+      const stored = sessionStorage.getItem('selectedExercises');
+      console.log('✅ Verification - stored exercises:', stored ? JSON.parse(stored).length : 'NULL');
       console.log('💾 Data stored in sessionStorage');
       
       console.log('🔀 Redirecting to /exercise-results');
       alert('About to redirect...');
-      window.location.href = '/exercise-results';
+      
+      // Use router.push instead of window.location for Next.js
+      setTimeout(() => {
+        window.location.href = '/exercise-results';
+      }, 500);
       
     } catch (error) {
       console.error('❌ Error in handleSubmit:', error);
