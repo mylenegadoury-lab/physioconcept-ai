@@ -518,25 +518,33 @@ export default function PatientAssessmentForm({ onComplete }) {
               ))}
             </select>
           ) : question.type === 'multiselect' ? (
-            question.options.map(opt => (
-              <button
-                key={opt.value}
-                type="button"
-                className={`option-button multiselect ${
-                  (answer || []).includes(opt.value) ? 'selected' : ''
-                }`}
-                onClick={() => {
-                  const current = answer || [];
-                  const newValue = current.includes(opt.value)
-                    ? current.filter(v => v !== opt.value)
-                    : [...current, opt.value];
-                  handleAnswer(question.id, newValue);
-                }}
-              >
-                {opt.emoji && <span className="option-emoji">{opt.emoji}</span>}
-                {opt.label}
-              </button>
-            ))
+            question.options.map(opt => {
+              const isSelected = (answer || []).includes(opt.value);
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className="option-button multiselect"
+                  style={{
+                    borderColor: isSelected ? '#2ecc71' : '#3498db',
+                    background: isSelected ? '#d5f4e6' : '#3498db',
+                    fontWeight: isSelected ? 700 : 400,
+                    boxShadow: isSelected ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none',
+                    color: isSelected ? '#2c3e50' : 'white'
+                  }}
+                  onClick={() => {
+                    const current = answer || [];
+                    const newValue = current.includes(opt.value)
+                      ? current.filter(v => v !== opt.value)
+                      : [...current, opt.value];
+                    handleAnswer(question.id, newValue);
+                  }}
+                >
+                  {opt.emoji && <span className="option-emoji">{opt.emoji}</span>}
+                  {opt.label}
+                </button>
+              );
+            })
           ) : question.type === 'scale' ? (
             question.options.map(opt => (
               <button
@@ -628,9 +636,14 @@ export default function PatientAssessmentForm({ onComplete }) {
           </button>
         ) : (
           <button
-            onClick={handleSubmit}
+            onClick={(e) => {
+              console.log('🎯 SUBMIT CLICKED');
+              e.preventDefault();
+              handleSubmit();
+            }}
             className="nav-button submit"
             disabled={loading}
+            type="button"
           >
             {loading ? '⏳ Génération en cours...' : '🎯 Obtenir mon programme'}
           </button>
