@@ -423,34 +423,23 @@ export default function PatientAssessmentForm({ onComplete }) {
   };
 
   const handleSubmit = async () => {
-    console.log('🎯 handleSubmit called');
-    alert('handleSubmit STARTED');
-    
     let profile;
     try {
       profile = buildPatientProfile();
-      console.log('📋 Profile built:', profile);
-      alert('Profile built: ' + JSON.stringify(profile).substring(0, 100));
     } catch (error) {
-      console.error('❌ Error building profile:', error);
-      alert('ERROR building profile: ' + error.message);
+      console.error('Error building profile:', error);
+      alert('Une erreur est survenue lors de la création du profil.');
       return;
     }
     
     // Check for red flags
     if (profile.redFlags && profile.redFlags.length > 0) {
-      console.log('⚠️ Red flags detected:', profile.redFlags);
       alert('⚠️ ATTENTION: Vos symptômes nécessitent une consultation médicale urgente. Veuillez consulter un médecin avant de faire des exercices.');
       return;
     }
     
     try {
-      console.log('🔄 Setting loading to true');
       setLoading(true);
-      alert('Loading set to true');
-      
-      console.log('📡 Calling /api/select-exercises...');
-      alert('Calling API...');
       
       // Call exercise selection API
       const response = await fetch('/api/select-exercises', {
@@ -459,50 +448,25 @@ export default function PatientAssessmentForm({ onComplete }) {
         body: JSON.stringify({ patientProfile: profile })
       });
       
-      console.log('📡 Response received:', response.status);
-      alert('Response received: ' + response.status);
-      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ API Error:', errorText);
+        console.error('API Error:', errorText);
         throw new Error('Erreur lors de la sélection des exercices');
       }
       
       const data = await response.json();
-      console.log('✅ Data received:', data);
-      console.log('✅ selectedExercises:', data.selectedExercises);
-      console.log('✅ Number of exercises:', data.selectedExercises?.length);
-      alert('Data received, exercises: ' + (data.selectedExercises?.length || 0));
       
-      // Store results with correct keys for exercise-results page
-      const exercisesToStore = data.selectedExercises || [];
-      const justificationsToStore = data.justifications || [];
-      
-      console.log('💾 Storing in sessionStorage:', {
-        exercises: exercisesToStore.length,
-        justifications: justificationsToStore.length
-      });
-      
-      sessionStorage.setItem('selectedExercises', JSON.stringify(exercisesToStore));
-      sessionStorage.setItem('justifications', JSON.stringify(justificationsToStore));
+      // Store results in sessionStorage
+      sessionStorage.setItem('selectedExercises', JSON.stringify(data.selectedExercises || []));
+      sessionStorage.setItem('justifications', JSON.stringify(data.justifications || []));
       sessionStorage.setItem('patientProfile', JSON.stringify(profile));
       
-      // Verify storage
-      const stored = sessionStorage.getItem('selectedExercises');
-      console.log('✅ Verification - stored exercises:', stored ? JSON.parse(stored).length : 'NULL');
-      console.log('💾 Data stored in sessionStorage');
-      
-      console.log('🔀 Redirecting to /exercise-results');
-      alert('About to redirect...');
-      
-      // Use router.push instead of window.location for Next.js
-      setTimeout(() => {
-        window.location.href = '/exercise-results';
-      }, 500);
+      // Redirect to results page
+      window.location.href = '/exercise-results';
       
     } catch (error) {
-      console.error('❌ Error in handleSubmit:', error);
-      alert('ERROR: ' + error.message);
+      console.error('Error:', error);
+      alert('Une erreur est survenue. Veuillez réessayer.');
       setLoading(false);
     }
   };
@@ -648,14 +612,6 @@ export default function PatientAssessmentForm({ onComplete }) {
   const answeredCount = Object.keys(answers).length;
   const progress = (answeredCount / allQuestions.length) * 100;
 
-  console.log('📊 Form state:', { 
-    step, 
-    totalSteps, 
-    isLastStep: step === totalSteps,
-    answeredCount, 
-    totalQuestions: allQuestions.length 
-  });
-
   return (
     <div className="patient-assessment-form">
       <div className="form-header">
@@ -686,21 +642,6 @@ export default function PatientAssessmentForm({ onComplete }) {
           </button>
         )}
         
-        {/* BOUTON DE TEST - S'AFFICHE TOUJOURS */}
-        <button
-          onClick={() => alert('TEST BUTTON WORKS!')}
-          style={{ 
-            padding: '10px 20px', 
-            background: 'red', 
-            color: 'white', 
-            border: 'none',
-            cursor: 'pointer',
-            margin: '10px'
-          }}
-        >
-          TEST CLICK
-        </button>
-        
         {step < totalSteps ? (
           <button
             onClick={() => setStep(step + 1)}
@@ -710,16 +651,10 @@ export default function PatientAssessmentForm({ onComplete }) {
           </button>
         ) : (
           <button
-            onClick={(e) => {
-              alert('BOUTON CLIQUÉ!'); // Test simple
-              console.log('🎯 SUBMIT CLICKED');
-              e.preventDefault();
-              handleSubmit();
-            }}
+            onClick={handleSubmit}
             className="nav-button submit"
             disabled={loading}
             type="button"
-            style={{ cursor: 'pointer', pointerEvents: 'auto' }}
           >
             {loading ? '⏳ Génération en cours...' : '🎯 Obtenir mon programme'}
           </button>
