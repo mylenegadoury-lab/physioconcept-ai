@@ -5,8 +5,8 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Rediriger automatiquement vers le dashboard
-    router.push("/dashboard");
+    // Rediriger vers le nouveau système d'évaluation
+    router.push("/assessment");
   }, [router]);
 
   return null;
