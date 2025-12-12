@@ -135,6 +135,7 @@ export default asyncHandler(async function handler(req, res) {
     const bodyRegion = regionMap[problematique?.toLowerCase()] || 'lumbar';
     
     // Query Supabase for high-quality exercises
+    console.log(`🔍 [DEBUG] Querying Supabase for region: ${bodyRegion}`);
     const { data: supabaseExercises, error: exerciseError } = await getExercisesByRegion(bodyRegion, {
       minEffectiveness: 70,
       evidenceLevel: ['1A', '1B', '2A'],
@@ -146,11 +147,14 @@ export default asyncHandler(async function handler(req, res) {
     }
     
     console.log(`✅ Found ${supabaseExercises?.length || 0} evidence-based exercises in ${Date.now() - startQueryTime}ms`);
+    console.log(`🔍 [DEBUG] Supabase exercises:`, supabaseExercises?.length ? 'DATA FOUND' : 'EMPTY - will use fallback');
     
     // Fallback to old system if Supabase empty
     const exercicesDisponibles = (supabaseExercises && supabaseExercises.length > 0) 
       ? supabaseExercises 
       : (problematique ? getExercisesByProblematique(problematique) : []);
+    
+    console.log(`🔍 [DEBUG] Using ${exercicesDisponibles === supabaseExercises ? 'SUPABASE' : 'OLD SYSTEM'} - ${exercicesDisponibles.length} exercises`);
 
     // Construire le prompt en privilégiant le dossier patient collé si présent
     const dossierSection = summarizedPatientFolder
