@@ -15,6 +15,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'pain_intensity',
       question: 'Quelle est l\'intensité de votre douleur au dos en ce moment?',
       icon: '😣',
+      type: 'scale',
       options: [
         { value: 0, label: 'Aucune douleur', emoji: '😊' },
         { value: 1, label: 'Douleur légère', emoji: '🙂' },
@@ -28,6 +29,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'personal_care',
       question: 'Pouvez-vous vous laver et vous habiller seul(e)?',
       icon: '🚿',
+      type: 'scale',
       options: [
         { value: 0, label: 'Sans aucune difficulté', emoji: '✅' },
         { value: 1, label: 'Légère difficulté mais je me débrouille', emoji: '🙂' },
@@ -41,6 +43,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'lifting',
       question: 'Pouvez-vous soulever des objets (sac de courses, enfant)?',
       icon: '🛍️',
+      type: 'scale',
       options: [
         { value: 0, label: 'Je peux soulever des objets lourds sans problème', emoji: '💪' },
         { value: 1, label: 'Je peux soulever des objets lourds mais ça fait mal', emoji: '😐' },
@@ -54,6 +57,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'walking',
       question: 'Quelle distance pouvez-vous marcher?',
       icon: '🚶',
+      type: 'scale',
       options: [
         { value: 0, label: 'Je peux marcher sans limite', emoji: '🚶‍♂️' },
         { value: 1, label: 'Plus de 1km mais avec douleur', emoji: '😐' },
@@ -67,6 +71,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'sitting',
       question: 'Combien de temps pouvez-vous rester assis(e)?',
       icon: '🪑',
+      type: 'scale',
       options: [
         { value: 0, label: 'Aussi longtemps que je veux', emoji: '✅' },
         { value: 1, label: 'Aussi longtemps que je veux mais avec douleur', emoji: '😐' },
@@ -80,6 +85,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'standing',
       question: 'Combien de temps pouvez-vous rester debout?',
       icon: '🧍',
+      type: 'scale',
       options: [
         { value: 0, label: 'Aussi longtemps que je veux', emoji: '✅' },
         { value: 1, label: 'Aussi longtemps que je veux mais avec douleur', emoji: '😐' },
@@ -93,6 +99,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'sleeping',
       question: 'Comment dormez-vous avec votre douleur au dos?',
       icon: '😴',
+      type: 'scale',
       options: [
         { value: 0, label: 'Très bien, pas de problème', emoji: '😴' },
         { value: 1, label: 'Légère gêne mais je dors bien', emoji: '🙂' },
@@ -106,6 +113,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'social_life',
       question: 'Votre douleur affecte-t-elle votre vie sociale et familiale?',
       icon: '👨‍👩‍👧‍👦',
+      type: 'scale',
       options: [
         { value: 0, label: 'Pas du tout', emoji: '😊' },
         { value: 1, label: 'Légèrement, mais je fais mes activités', emoji: '🙂' },
@@ -119,6 +127,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'traveling',
       question: 'Pouvez-vous voyager (voiture, transport)?',
       icon: '🚗',
+      type: 'scale',
       options: [
         { value: 0, label: 'Oui, sans problème', emoji: '🚗' },
         { value: 1, label: 'Oui mais avec douleur', emoji: '😐' },
@@ -132,6 +141,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       id: 'work',
       question: 'Votre douleur affecte-t-elle votre travail ou vos tâches quotidiennes?',
       icon: '💼',
+      type: 'scale',
       options: [
         { value: 0, label: 'Pas du tout, je travaille normalement', emoji: '💪' },
         { value: 1, label: 'Travail normal mais avec douleur', emoji: '😐' },
