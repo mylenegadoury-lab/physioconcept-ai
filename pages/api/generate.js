@@ -136,15 +136,11 @@ export default asyncHandler(async function handler(req, res) {
     
     // Query Supabase for high-quality exercises
     console.log(`🔍 [DEBUG] Querying Supabase for region: ${bodyRegion}`);
-    const { data: supabaseExercises, error: exerciseError } = await getExercisesByRegion(bodyRegion, {
+    const supabaseExercises = await getExercisesByRegion(bodyRegion, {
       minEffectiveness: 70,
       evidenceLevel: ['1A', '1B', '2A'],
       status: 'active',
     });
-    
-    if (exerciseError) {
-      console.error('❌ Supabase query error:', exerciseError);
-    }
     
     console.log(`✅ Found ${supabaseExercises?.length || 0} evidence-based exercises in ${Date.now() - startQueryTime}ms`);
     console.log(`🔍 [DEBUG] Supabase exercises:`, supabaseExercises?.length ? 'DATA FOUND' : 'EMPTY - will use fallback');
