@@ -12,6 +12,8 @@ export default function ProfessionalAssessmentForm() {
   const [scores, setScores] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
+  const [showReferralModal, setShowReferralModal] = useState(false);
+  const [referralData, setReferralData] = useState(null);
 
   // ============================================
   // SECTION 1: DONNÉES DÉMOGRAPHIQUES
@@ -562,16 +564,75 @@ export default function ProfessionalAssessmentForm() {
       return;
     }
     
-    // Validate red flags
+    const calculatedScores = {
+      odi: calculateODI(),
+      startBack: calculateSTarTBack(),
+      tbcCategories: determineTBCCategory()
+    };
+    setScores(calculatedScores);
+    
+    // Check red flags and handle referral
     if (profile.hasRedFlags) {
-      const severity = redFlagsChecklist
-        .filter(flag => profile.redFlags.includes(flag.id))
-        .map(flag => flag.severity);
+      const flaggedItems = redFlagsChecklist.filter(flag => profile.redFlags.includes(flag.id));
+      const emergencyFlags = flaggedItems.filter(f => f.severity === 'emergency');
+      const highFlags = flaggedItems.filter(f => f.severity === 'high');
+      const mediumFlags = flaggedItems.filter(f => f.severity === 'medium');
       
-      if (severity.includes('emergency')) {
-        alert('⚠️ RED FLAGS CRITIQUES: Référence médicale urgente nécessaire!');
+      // Prepare referral note
+      const referralNote = {
+        urgency: emergencyFlags.length > 0 ? 'emergency' : highFlags.length > 0 ? 'high' : 'medium',
+        flags: flaggedItems,
+        patientInfo: {
+          age: data.age,
+          sex: data.sex,
+          occupation: data.occupation
+        },
+        clinicalFindings: {
+          odi: calculatedScores.odi?.score,
+          odiInterpretation: calculatedScores.odi?.interpretation,
+          startBack: calculatedScores.startBack,
+          duration: data.duration,
+          onset: data.onset,
+          neurologicalSigns: profile.neurologicalSigns
+        },
+        redFlags: {
+          emergency: emergencyFlags.map(f => f.label),
+          high: highFlags.map(f => f.label),
+          medium: mediumFlags.map(f => f.label)
+        },
+        recommendation: emergencyFlags.length > 0 
+          ? 'RÉFÉRENCE URGENTE - Consultation médicale immédiate nécessaire'
+          : highFlags.length > 0
+          ? 'Référence médicale recommandée avant exercices'
+          : 'Avis médical suggéré, exercices possibles avec surveillance'
+      };
+      
+      setReferralData(referralNote);
+      setShowReferralModal(true);
+      
+      // If emergency, stop here
+      if (emergencyFlags.length > 0) {
         return;
       }
+      
+      // For high/medium flags, modal will ask to continue or not
+      // We return here and let the modal buttons trigger continueWithProgram()
+      return;
+    }
+    
+    // No red flags, proceed directly
+    await generateProgram(profile, calculatedScores);
+  };
+
+  const continueWithProgram = async () => {
+    setShowReferralModal(false);
+    
+    let profile;
+    try {
+      profile = buildPatientProfile();
+    } catch (error) {
+      console.error('Error building profile:', error);
+      return;
     }
     
     const calculatedScores = {
@@ -579,7 +640,11 @@ export default function ProfessionalAssessmentForm() {
       startBack: calculateSTarTBack(),
       tbcCategories: determineTBCCategory()
     };
-    setScores(calculatedScores);
+    
+    await generateProgram(profile, calculatedScores);
+  };
+
+  const generateProgram = async (profile, calculatedScores) => {
     
     try {
       setLoading(true);
@@ -639,6 +704,74 @@ export default function ProfessionalAssessmentForm() {
       setLoading(false);
       setLoadingMessage('');
     }
+  };
+
+  const downloadReferralNote = () => {
+    if (!referralData) return;
+    
+    const today = new Date().toLocaleDateString('fr-CA');
+    
+    const noteContent = `NOTE DE RÉFÉRENCE MÉDICALE
+Date: ${today}
+
+URGENCE: ${referralData.urgency === 'emergency' ? 'URGENTE' : referralData.urgency === 'high' ? 'ÉLEVÉE' : 'MODÉRÉE'}
+
+INFORMATIONS PATIENT
+- Âge: ${referralData.patientInfo.age} ans
+- Sexe: ${referralData.patientInfo.sex}
+- Profession: ${referralData.patientInfo.occupation || 'N/A'}
+
+RÉSULTATS CLINIQUES
+- ODI: ${referralData.clinicalFindings.odi}% (${referralData.clinicalFindings.odiInterpretation})
+- STarT Back: ${referralData.clinicalFindings.startBack?.toUpperCase()}
+- Durée des symptômes: ${referralData.clinicalFindings.duration}
+- Début: ${referralData.clinicalFindings.onset}
+
+RED FLAGS IDENTIFIÉS
+
+${referralData.redFlags.emergency.length > 0 ? `🚨 RED FLAGS D'URGENCE:
+${referralData.redFlags.emergency.map(f => `  - ${f}`).join('\n')}
+` : ''}
+${referralData.redFlags.high.length > 0 ? `⚠️ RED FLAGS SÉRIEUX:
+${referralData.redFlags.high.map(f => `  - ${f}`).join('\n')}
+` : ''}
+${referralData.redFlags.medium.length > 0 ? `⚠️ POINTS D'ATTENTION:
+${referralData.redFlags.medium.map(f => `  - ${f}`).join('\n')}
+` : ''}
+
+SIGNES NEUROLOGIQUES
+${referralData.clinicalFindings.neurologicalSigns ? `
+- Test de Lasègue: ${referralData.clinicalFindings.neurologicalSigns.slr || 'Non testé'}
+- Réflexes: ${referralData.clinicalFindings.neurologicalSigns.reflexes || 'Non testés'}
+- Sensation: ${referralData.clinicalFindings.neurologicalSigns.sensation || 'Non testée'}
+- Force motrice: ${referralData.clinicalFindings.neurologicalSigns.motorStrength || 'Non testée'}
+` : 'Non documentés'}
+
+RECOMMANDATION
+${referralData.recommendation}
+
+${referralData.urgency === 'emergency' ? 
+  'ACTION IMMÉDIATE REQUISE - Référence vers urgence recommandée' : 
+  referralData.urgency === 'high' ?
+  'Consultation médicale recommandée avant initiation du programme d\'exercices' :
+  'Avis médical suggéré - Programme d\'exercices possible avec surveillance'
+}
+
+---
+Note générée par PhysioConcept AI
+Physiothérapeute: [Nom du thérapeute]
+Signature: _______________
+`;
+
+    const blob = new Blob([noteContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `referral-note-${today}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const renderSection = () => {
@@ -1023,6 +1156,117 @@ export default function ProfessionalAssessmentForm() {
         </div>
       </div>
 
+      {/* MODAL DE RÉFÉRENCE MÉDICALE */}
+      {showReferralModal && referralData && (
+        <div className="modal-overlay" onClick={() => referralData.urgency !== 'emergency' && setShowReferralModal(false)}>
+          <div className="referral-modal" onClick={(e) => e.stopPropagation()}>
+            <div className={`modal-header ${referralData.urgency}`}>
+              {referralData.urgency === 'emergency' ? '🚨 RÉFÉRENCE URGENTE REQUISE' : 
+               referralData.urgency === 'high' ? '⚠️ RÉFÉRENCE MÉDICALE RECOMMANDÉE' :
+               '⚠️ AVIS MÉDICAL SUGGÉRÉ'}
+            </div>
+
+            <div className="modal-body">
+              <div className="referral-section">
+                <h3>Informations patient</h3>
+                <p><strong>Âge:</strong> {referralData.patientInfo.age} ans</p>
+                <p><strong>Sexe:</strong> {referralData.patientInfo.sex}</p>
+                <p><strong>Profession:</strong> {referralData.patientInfo.occupation || 'N/A'}</p>
+              </div>
+
+              <div className="referral-section">
+                <h3>Résultats cliniques</h3>
+                <p><strong>ODI:</strong> {referralData.clinicalFindings.odi}% ({referralData.clinicalFindings.odiInterpretation})</p>
+                <p><strong>STarT Back:</strong> {referralData.clinicalFindings.startBack?.toUpperCase()}</p>
+                <p><strong>Durée:</strong> {referralData.clinicalFindings.duration}</p>
+                <p><strong>Début:</strong> {referralData.clinicalFindings.onset}</p>
+              </div>
+
+              {referralData.redFlags.emergency.length > 0 && (
+                <div className="referral-section emergency-flags">
+                  <h3>🚨 Red Flags d'urgence</h3>
+                  <ul>
+                    {referralData.redFlags.emergency.map((flag, idx) => (
+                      <li key={idx}>{flag}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {referralData.redFlags.high.length > 0 && (
+                <div className="referral-section high-flags">
+                  <h3>⚠️ Red Flags sérieux</h3>
+                  <ul>
+                    {referralData.redFlags.high.map((flag, idx) => (
+                      <li key={idx}>{flag}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {referralData.redFlags.medium.length > 0 && (
+                <div className="referral-section medium-flags">
+                  <h3>⚠️ Points d'attention</h3>
+                  <ul>
+                    {referralData.redFlags.medium.map((flag, idx) => (
+                      <li key={idx}>{flag}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="referral-section recommendation">
+                <h3>Recommandation</h3>
+                <p className="recommendation-text">{referralData.recommendation}</p>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              {referralData.urgency === 'emergency' ? (
+                <>
+                  <button 
+                    className="btn-danger"
+                    onClick={() => {
+                      downloadReferralNote();
+                      setShowReferralModal(false);
+                    }}
+                  >
+                    📄 Télécharger note de référence
+                  </button>
+                  <button 
+                    className="btn-secondary"
+                    onClick={() => setShowReferralModal(false)}
+                  >
+                    Fermer
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    className="btn-warning"
+                    onClick={downloadReferralNote}
+                  >
+                    📄 Télécharger note de référence
+                  </button>
+                  <button 
+                    className="btn-primary"
+                    onClick={continueWithProgram}
+                  >
+                    Continuer avec programme d'exercices
+                  </button>
+                  <button 
+                    className="btn-secondary"
+                    onClick={() => setShowReferralModal(false)}
+                  >
+                    Annuler
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         .professional-assessment-form {
           display: flex;
@@ -1343,6 +1587,153 @@ export default function ProfessionalAssessmentForm() {
         .btn-success:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 2rem;
+        }
+
+        .referral-modal {
+          background: white;
+          border-radius: 12px;
+          max-width: 700px;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+          padding: 1.5rem;
+          color: white;
+          font-size: 1.3rem;
+          font-weight: 700;
+          border-radius: 12px 12px 0 0;
+        }
+
+        .modal-header.emergency {
+          background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .modal-header.high {
+          background: linear-gradient(135deg, #f39c12 0%, #d68910 100%);
+        }
+
+        .modal-header.medium {
+          background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .modal-body {
+          padding: 2rem;
+        }
+
+        .referral-section {
+          margin-bottom: 1.5rem;
+          padding-bottom: 1.5rem;
+          border-bottom: 1px solid #ecf0f1;
+        }
+
+        .referral-section:last-of-type {
+          border-bottom: none;
+        }
+
+        .referral-section h3 {
+          color: #2c3e50;
+          font-size: 1.1rem;
+          margin-bottom: 0.75rem;
+        }
+
+        .referral-section p {
+          color: #555;
+          line-height: 1.6;
+          margin: 0.5rem 0;
+        }
+
+        .referral-section ul {
+          list-style: none;
+          padding: 0;
+        }
+
+        .referral-section ul li {
+          padding: 0.5rem;
+          margin: 0.25rem 0;
+          background: #f8f9fa;
+          border-left: 3px solid #3498db;
+          border-radius: 4px;
+          color: #555;
+        }
+
+        .emergency-flags ul li {
+          background: #fee;
+          border-left-color: #e74c3c;
+        }
+
+        .high-flags ul li {
+          background: #fff3cd;
+          border-left-color: #f39c12;
+        }
+
+        .medium-flags ul li {
+          background: #e3f2fd;
+          border-left-color: #2196f3;
+        }
+
+        .recommendation {
+          background: #f8f9fa;
+          padding: 1rem;
+          border-radius: 8px;
+          border-left: 4px solid #3498db;
+        }
+
+        .recommendation-text {
+          font-weight: 600;
+          color: #2c3e50;
+          margin: 0;
+        }
+
+        .modal-actions {
+          padding: 1.5rem;
+          background: #f8f9fa;
+          display: flex;
+          gap: 1rem;
+          justify-content: flex-end;
+          border-radius: 0 0 12px 12px;
+        }
+
+        .modal-actions button {
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .btn-danger {
+          background: #e74c3c;
+          color: white;
+        }
+
+        .btn-danger:hover {
+          background: #c0392b;
+        }
+
+        .btn-warning {
+          background: #f39c12;
+          color: white;
+        }
+
+        .btn-warning:hover {
+          background: #d68910;
         }
 
         @media (max-width: 1024px) {
