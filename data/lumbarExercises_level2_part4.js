@@ -168,6 +168,66 @@ Contre-indications RELATIVES:
     ],
     
     status: 'active'
+  },
+
+  {
+    name: 'Plank with Alternating Arm Reach',
+    name_fr: 'Planche avec Levée Bras Alternée',
+    body_region: 'lumbar',
+    exercise_type: 'strengthening',
+    description: 'Plank dynamique avec arm reach alterné pour anti-rotation obliques + shoulder stability + progression plank standard.',
+    instructions_patient: `Position: Planche standard. Exécution: Levez bras droit avant (hold 3-5s), reposez, levez bras gauche, alternez 8-12 reps par bras. Points clés: Hanches STABLES (ne tournez pas!), core rigide, bras tendu avant, contrôle total. Plus difficile que planche standard.`,
+    instructions_professional: `Indications: Anti-rotation progression plank, oblique strengthening, shoulder-core integration, proprioception. Activation: Obliques contralateral 65-80% MVC (anti-rotation single arm support), RA 70-80% MVC, shoulder stabilizers 60-70%. Arm removal = asymmetric support = ↑ anti-rotation demand. Hold: 3-5s per arm, 8-12 reps. Evidence Level 3, Effectiveness 84/100. Progression: Standard plank 60s+ → Arm reach 8 reps → Arm+leg reach (hardest). Contre-indications: Acute LBP, inability standard plank 45s+, shoulder pathology.`,
+    dosage_reps: '8-12 per arm',
+    dosage_sets: '3',
+    dosage_frequency: '3x/semaine',
+    reps_optimal: 10,
+    sets_optimal: 3,
+    difficulty_level: 'intermediate',
+    evidence_level: '3',
+    effectiveness_score: 84,
+    key_points: ['Obliques 65-80% MVC anti-rotation single arm', 'Progression standard plank → arm reach → arm+leg', 'Shoulder-core integration', 'Hold 3-5s per reach optimal'],
+    contraindications: ['Acute LBP', 'Standard plank <45s inability', 'Shoulder pathology', 'Anti-rotation control deficit'],
+    tags: { phase: ['subacute', 'chronic', 'prevention'], pattern: ['anti_rotation', 'progression_plank'], mechanism: ['strengthening', 'anti_rotation', 'proprioception'], level: ['intermediate'], equipment: ['none'], setting: ['home', 'clinic', 'gym'] },
+    indications: { primary: ['plank_progression', 'anti_rotation_training', 'oblique_strengthening', 'shoulder_core_integration'], secondary: ['chronic_lbp', 'prevention'], contraindications: ['acute_lbp', 'standard_plank_inability'] },
+    clinical_reasoning: 'Evidence Level 3: Plank arm reach obliques 65-80% MVC anti-rotation contralateral arm removal = asymmetric support. Shoulder stabilizers 60-70% integration. Progression standard plank 60s+ → arm reach. Hold 3-5s per arm, 8-12 reps. Frequency 3x/semaine.',
+    progression_levels: [
+      { level: 1, description: 'Short hold 2-3s', reps: '6-8 per arm', sets: '3', notes: 'Initial progression' },
+      { level: 2, description: 'Standard hold 3-5s', reps: '8-12 per arm', sets: '3', notes: 'Standard' },
+      { level: 3, description: 'Long hold 5-7s', reps: '8-10 per arm', sets: '3', notes: 'Advanced' },
+      { level: 4, description: 'Arm+opposite leg reach', reps: '6-8 per side', sets: '3', notes: 'Maximum challenge' }
+    ],
+    status: 'active'
+  },
+
+  {
+    name: 'Standing Band Rotation (Low to High)',
+    name_fr: 'Rotation Debout avec Bande (Bas vers Haut)',
+    body_region: 'lumbar',
+    exercise_type: 'strengthening',
+    description: 'Pattern rotation avec bande élastique pour obliques + functional movement + sport-specific training.',
+    instructions_patient: `Position: Debout côté band ancré bas, pieds largeur épaules, band 2 mains. Exécution: Rotation tronc + pull band (bas-gauche vers haut-droite), finir bras tendus haut, retour contrôlé. 12-15 reps par côté. Points clés: Rotation COMPLÈTE (hanches+tronc ensemble), pivoter pieds, band resistance constante, contrôle excentrique retour.`,
+    instructions_professional: `Indications: Oblique strengthening functional pattern, rotation + extension integration, sport-specific (golf, tennis, throwing), return to sport preparation. Activation: Obliques 70-85% MVC rotation motor + resistance, RA 55-65%, erector spinae 50-60% extension component. Pattern: Low-to-high simulates lift+throw movement functional. Band resistance: Progressive tension through ROM. Tempo: 2s concentric rotation, 2-3s eccentric return. Evidence Level 4, Effectiveness 81/100. Variations: High-to-low (chop pattern), horizontal (pure rotation), half-kneeling (↑ stability demand). Contre-indications: Acute LBP, spondylolisthésis, rotation-intolerant pattern, inability control movement.`,
+    dosage_reps: '12-15 per side',
+    dosage_sets: '3',
+    dosage_frequency: '2-3x/semaine',
+    reps_optimal: 12,
+    sets_optimal: 3,
+    difficulty_level: 'intermediate',
+    evidence_level: '4',
+    effectiveness_score: 81,
+    key_points: ['Obliques 70-85% MVC functional rotation', 'Low-to-high simulates lift+throw pattern', 'Sport-specific transfer golf/tennis/throwing', 'Band progressive tension through ROM'],
+    contraindications: ['Acute LBP', 'Spondylolisthésis', 'Rotation intolerance', 'Movement control deficit'],
+    tags: { phase: ['subacute', 'chronic', 'return_sport', 'functional'], pattern: ['functional', 'rotation', 'sport_specific'], mechanism: ['strengthening', 'rotation', 'functional'], level: ['intermediate'], equipment: ['resistance_band'], setting: ['clinic', 'gym', 'home'] },
+    indications: { primary: ['oblique_strengthening', 'functional_rotation', 'sport_specific_training', 'return_sport_preparation'], secondary: ['chronic_lbp', 'functional_capacity'], contraindications: ['acute_lbp', 'spondylolisthesis', 'rotation_intolerant'] },
+    clinical_reasoning: 'Evidence Level 4: Band rotation obliques 70-85% MVC functional pattern rotation+extension. Low-to-high simulates lift+throw sport-specific. Band progressive tension ROM. Sport transfer golf/tennis/throwing. Tempo 2s concentric/2-3s eccentric. Variation high-to-low chop.',
+    progression_levels: [
+      { level: 1, description: 'Light band slow tempo', reps: '12-15', sets: '2-3', notes: 'Learning pattern' },
+      { level: 2, description: 'Medium band controlled', reps: '12-15', sets: '3', notes: 'Standard' },
+      { level: 3, description: 'Heavy band explosive concentric', reps: '10-12', sets: '3', notes: 'Power development' },
+      { level: 4, description: 'Half-kneeling heavy band', reps: '10-12', sets: '3', notes: 'Stability challenge' }
+    ],
+    status: 'active'
   }
 ];
 
