@@ -501,7 +501,7 @@ export default function PatientAssessmentForm({ onComplete }) {
               >
                 ❌ Non
               </button>
-            <>
+            </>
           ) : question.type === 'select' ? (
             <select
               value={answer || ''}
