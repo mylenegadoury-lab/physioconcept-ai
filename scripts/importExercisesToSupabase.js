@@ -31,6 +31,25 @@ function mapExerciseToSchema(exercise, index) {
   // Generate ID from name
   const id = exercise.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   
+  // Map exercise_type to Supabase allowed values
+  // Schema allows: strength, mobility, stability, proprioception, cardiovascular, flexibility, neuromuscular-control
+  const typeMapping = {
+    'strengthening': 'strength',
+    'motor_control': 'neuromuscular-control',
+    'functional': 'strength', // Functional exercises are strength-based
+    'power': 'strength',
+    'stability': 'stability',
+    'mobility': 'mobility',
+    'flexibility': 'flexibility'
+  };
+  
+  // Map evidence_level to Supabase allowed values
+  // Schema allows: 1A, 1B, 2A, 2B, 3A, 3B, 4, 5
+  // Our exercises have: 1A, 1B, 2A, 2B, 3, 4, 5
+  const evidenceMapping = {
+    '3': '3A', // Map generic '3' to '3A' (expert consensus)
+  };
+  
   return {
     // IDs and names
     id: id,
@@ -43,8 +62,8 @@ function mapExerciseToSchema(exercise, index) {
     muscle_groups: exercise.muscle_groups || [], // Optional field
     joint_actions: exercise.joint_actions || [], // Optional field
     
-    // Exercise type
-    exercise_type: exercise.exercise_type,
+    // Exercise type - mapped to schema values
+    exercise_type: typeMapping[exercise.exercise_type] || exercise.exercise_type,
     equipment_required: exercise.tags?.equipment ? [exercise.tags.equipment] : [],
     difficulty_level: exercise.difficulty_level,
     
@@ -81,8 +100,8 @@ function mapExerciseToSchema(exercise, index) {
     key_points: exercise.key_points,
     common_errors: [],
     
-    // Evidence
-    evidence_level: exercise.evidence_level,
+    // Evidence - mapped to schema values
+    evidence_level: evidenceMapping[exercise.evidence_level] || exercise.evidence_level,
     effectiveness_score: exercise.effectiveness_score,
     confidence_interval: null,
     

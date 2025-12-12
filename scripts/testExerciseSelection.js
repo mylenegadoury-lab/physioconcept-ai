@@ -6,6 +6,10 @@
  */
 
 import { selectExercises, generateJustification } from '../lib/exerciseSelection.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config({ path: '.env.local' });
 
 // Test profiles
 const testProfiles = [
