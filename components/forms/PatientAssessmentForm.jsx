@@ -308,10 +308,15 @@ export default function PatientAssessmentForm({ onComplete }) {
   ];
 
   const handleAnswer = (questionId, value) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: value
-    }));
+    console.log('handleAnswer called:', { questionId, value });
+    setAnswers(prev => {
+      const newAnswers = {
+        ...prev,
+        [questionId]: value
+      };
+      console.log('Updated answers:', newAnswers);
+      return newAnswers;
+    });
   };
 
   const calculateODI = () => {
@@ -449,12 +454,14 @@ export default function PatientAssessmentForm({ onComplete }) {
           {question.type === 'yesno' ? (
             <>
               <button
+                type="button"
                 className={`option-button ${answer === 'yes' ? 'selected' : ''}`}
                 onClick={() => handleAnswer(question.id, 'yes')}
               >
                 ✅ Oui
               </button>
               <button
+                type="button"
                 className={`option-button ${answer === 'no' ? 'selected' : ''}`}
                 onClick={() => handleAnswer(question.id, 'no')}
               >
@@ -478,6 +485,7 @@ export default function PatientAssessmentForm({ onComplete }) {
             question.options.map(opt => (
               <button
                 key={opt.value}
+                type="button"
                 className={`option-button multiselect ${
                   (answer || []).includes(opt.value) ? 'selected' : ''
                 }`}
@@ -493,7 +501,7 @@ export default function PatientAssessmentForm({ onComplete }) {
                 {opt.label}
               </button>
             ))
-          ) : question.type === 'scale' ? (
+          ) : (
             question.options.map(opt => (
               <button
                 key={opt.value}
@@ -509,6 +517,7 @@ export default function PatientAssessmentForm({ onComplete }) {
             question.options.map(opt => (
               <button
                 key={opt.value}
+                type="button"
                 className={`option-button ${answer === opt.value ? 'selected' : ''}`}
                 onClick={() => handleAnswer(question.id, opt.value)}
               >
