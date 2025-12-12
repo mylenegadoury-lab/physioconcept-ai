@@ -169,61 +169,38 @@ export default asyncHandler(async function handler(req, res) {
         }).join("\n\n")}`
       : "";
 
-    const prompt = `Tu es un physiothérapeute expert. SÉLECTIONNE 4-5 exercices de la liste ci-dessous et personnalise-les pour ce patient spécifique.
+    const prompt = `Tu es un physiothérapeute expert. SÉLECTIONNE 3-4 exercices et crée un plan personnalisé.
 
-${dossierSection}
-${structuredSection}
+PATIENT:
+- Problématique: ${problematique}
+- Douleur: ${painIntensity}/10
+- Objectif: ${objectif}
+${comorbidities ? `- Comorbidités: ${comorbidities}` : ''}
 
+EXERCICES DISPONIBLES:
 ${availableExercisesText}
 
-INSTRUCTIONS:
-
-1. RED FLAGS: Vérifie syndrome queue cheval, infection, fracture, cancer. Si présent:
-   "redFlags": {"present": true, "items": ["..."], "priority": "CRITIQUE|HAUTE", "recommendation": "Référence médicale urgente"}
-
-2. SÉLECTIONNE 4-5 EXERCICES de la liste ci-dessus basés sur:
-   - Niveau de douleur du patient (${painIntensity}/10)
-   - Objectif (${objectif})
-   - Comorbidités (${comorbidities || 'aucune'})
-   
-   Pour chaque exercice sélectionné:
-   - Utilise le NOM EXACT de la liste
-   - ADAPTE le dosage selon le patient (ajuste reps/sets si nécessaire)
-   - Justification: pourquoi cet exercice pour CE patient
-   - Personnalise les instructions pour ce cas
-
-3. PLAN 6 SEMAINES (3 phases):
-   Phase 1 (sem 1-2): Contrôle douleur, ROM, éducation
-   Phase 2 (sem 3-4): Renforcement progressif  
-   Phase 3 (sem 5-6): Optimisation, retour activités
-
-4. ÉDUCATION: Vulgarisation condition, progression attendue, auto-gestion
-
-FORMAT JSON REQUIS:
+FORMAT JSON (CONCIS):
 {
-  "redFlags": {"present": false, "items": [], "priority": "AUCUNE", "recommendation": "..."},
-  "education": {"understanding": "...", "meaning": "...", "helpful": "...", "avoid": "...", "progression": "..."},
+  "redFlags": {"present": false, "items": [], "recommendation": "Aucune contre-indication"},
+  "education": {"understanding": "Explication courte de la condition", "progression": "Progression attendue"},
   "exercises": [
     {
       "name": "NOM EXACT de la liste",
-      "description": "Description de la liste",
-      "dosage": {"reps": "10-12", "sets": "3", "frequency": "3x/semaine", "tempo": "2-1-2", "rest": "60s", "load": "poids corps"},
-      "justification": "Pourquoi pour CE patient spécifique",
-      "patientInstructions": "Instructions adaptées à CE patient",
-      "clinicianChecklist": ["Points de vérification adaptés"]
+      "description": "Description courte",
+      "dosage": {"reps": "10-12", "sets": "3", "frequency": "3x/semaine"},
+      "justification": "Raison courte",
+      "patientInstructions": "Instructions concises"
     }
   ],
   "weeklyProgression": [
-    {"phase": "Phase 1: ...", "weeks": "1-2", "goals": ["..."], "exercises": ["..."], "frequency": "...", "progressionCriteria": "..."},
-    {"phase": "Phase 2: ...", "weeks": "3-4", "goals": ["..."], "exercises": ["..."], "frequency": "...", "progressionCriteria": "..."},
-    {"phase": "Phase 3: ...", "weeks": "5-6", "goals": ["..."], "exercises": ["..."], "frequency": "...", "progressionCriteria": "..."}
+    {"phase": "Phase 1", "weeks": "1-2", "goals": ["Réduire douleur"], "focus": "Contrôle"},
+    {"phase": "Phase 2", "weeks": "3-4", "goals": ["Renforcer"], "focus": "Force"},
+    {"phase": "Phase 3", "weeks": "5-6", "goals": ["Optimiser"], "focus": "Fonction"}
   ]
 }
 
-IMPORTANT: 
-- UTILISE les exercices de la liste (evidence-based)
-- Personnalise le dosage et les instructions pour CE patient
-- Réponds STRICTEMENT en JSON valide.`;
+Réponds en JSON valide, CONCIS et CIBLÉ.`;
 
     const response = await client.chat.completions.create({
       model: OPENAI_CONFIG.PROGRAM_GENERATION.model,
