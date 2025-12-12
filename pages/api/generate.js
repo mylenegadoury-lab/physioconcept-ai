@@ -163,15 +163,13 @@ export default asyncHandler(async function handler(req, res) {
 
     const structuredSection = `CHAMPS STRUCTURÉS:\n- Problématique: ${problematique || "Non spécifié"}\n- Nom: ${patientName || "Non spécifié"}\n- Âge: ${patientAge || "Non spécifié"}\n- Intensité douleur: ${painIntensity || "Non spécifié"}\n- Durée: ${painDuration || "Non spécifié"}\n- Localisation: ${painLocation || "Non spécifié"}\n- Restriction mouvement: ${movementRestriction || "Non spécifié"}\n- Peur du mouvement: ${fearLevel || "Non spécifié"}\n- Traitements antérieurs: ${treatmentHistory || "Aucun"}\n- Comorbidités: ${comorbidities || "Aucune"}\n- Objectif: ${objectif || "Réduire la douleur"}`;
 
-    // 🚀 NEW: Build exercise library from Supabase with full clinical details
+    // 🚀 NEW: Build exercise library from Supabase with concise clinical details
     const availableExercisesText = exercicesDisponibles.length
       ? `EXERCICES VALIDÉS PAR LA RECHERCHE SCIENTIFIQUE (choisir 4-5):\n${exercicesDisponibles.map((e) => {
-          // Format Supabase exercises with rich clinical data
+          // Format Supabase exercises - CONCISE for faster GPT-4 processing
           return `- ${e.name_fr || e.name} (Evidence: ${e.evidence_level}, Efficacité: ${e.effectiveness_score || 'N/A'}/100)
-  Description: ${e.description}
-  Instructions patient: ${e.instructions_patient?.substring(0, 150) || 'N/A'}...
-  Dosage optimal: ${e.reps_optimal || e.dosage_reps || 'N/A'} reps x ${e.sets_optimal || e.dosage_sets || 'N/A'} sets
-  Points clés: ${e.key_points?.join(', ') || 'N/A'}`;
+  ${e.description}
+  Dosage: ${e.reps_optimal || e.dosage_reps || 'N/A'} reps x ${e.sets_optimal || e.dosage_sets || 'N/A'} sets`;
         }).join("\n\n")}`
       : "";
 
