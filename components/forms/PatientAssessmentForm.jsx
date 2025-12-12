@@ -420,12 +420,21 @@ export default function PatientAssessmentForm({ onComplete }) {
 
   const handleSubmit = async () => {
     console.log('🎯 handleSubmit called');
+    alert('handleSubmit STARTED');
     
-    const profile = buildPatientProfile();
-    console.log('📋 Profile built:', profile);
+    let profile;
+    try {
+      profile = buildPatientProfile();
+      console.log('📋 Profile built:', profile);
+      alert('Profile built: ' + JSON.stringify(profile).substring(0, 100));
+    } catch (error) {
+      console.error('❌ Error building profile:', error);
+      alert('ERROR building profile: ' + error.message);
+      return;
+    }
     
     // Check for red flags
-    if (profile.redFlags.length > 0) {
+    if (profile.redFlags && profile.redFlags.length > 0) {
       console.log('⚠️ Red flags detected:', profile.redFlags);
       alert('⚠️ ATTENTION: Vos symptômes nécessitent une consultation médicale urgente. Veuillez consulter un médecin avant de faire des exercices.');
       return;
@@ -434,8 +443,11 @@ export default function PatientAssessmentForm({ onComplete }) {
     try {
       console.log('🔄 Setting loading to true');
       setLoading(true);
+      alert('Loading set to true');
       
       console.log('📡 Calling /api/select-exercises...');
+      alert('Calling API...');
+      
       // Call exercise selection API
       const response = await fetch('/api/select-exercises', {
         method: 'POST',
@@ -444,6 +456,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       });
       
       console.log('📡 Response received:', response.status);
+      alert('Response received: ' + response.status);
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -453,6 +466,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       
       const data = await response.json();
       console.log('✅ Data received:', data);
+      alert('Data received, exercises: ' + (data.selectedExercises?.length || 0));
       
       // Store results with correct keys for exercise-results page
       sessionStorage.setItem('selectedExercises', JSON.stringify(data.selectedExercises));
@@ -461,11 +475,12 @@ export default function PatientAssessmentForm({ onComplete }) {
       console.log('💾 Data stored in sessionStorage');
       
       console.log('🔀 Redirecting to /exercise-results');
+      alert('About to redirect...');
       window.location.href = '/exercise-results';
       
     } catch (error) {
       console.error('❌ Error in handleSubmit:', error);
-      alert('Une erreur est survenue. Veuillez réessayer.');
+      alert('ERROR: ' + error.message);
       setLoading(false);
     }
   };
