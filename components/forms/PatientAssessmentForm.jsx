@@ -649,6 +649,21 @@ export default function PatientAssessmentForm({ onComplete }) {
           </button>
         )}
         
+        {/* BOUTON DE TEST - S'AFFICHE TOUJOURS */}
+        <button
+          onClick={() => alert('TEST BUTTON WORKS!')}
+          style={{ 
+            padding: '10px 20px', 
+            background: 'red', 
+            color: 'white', 
+            border: 'none',
+            cursor: 'pointer',
+            margin: '10px'
+          }}
+        >
+          TEST CLICK
+        </button>
+        
         {step < totalSteps ? (
           <button
             onClick={() => setStep(step + 1)}
