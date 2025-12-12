@@ -308,13 +308,14 @@ export default function PatientAssessmentForm({ onComplete }) {
   ];
 
   const handleAnswer = (questionId, value) => {
-    console.log('handleAnswer called:', { questionId, value });
+    console.log('🔥 CLICK DETECTED:', { questionId, value });
+    alert(`Clicked! ${questionId} = ${value}`);
     setAnswers(prev => {
       const newAnswers = {
         ...prev,
         [questionId]: value
       };
-      console.log('Updated answers:', newAnswers);
+      console.log('📝 Updated answers:', newAnswers);
       return newAnswers;
     });
   };
@@ -534,7 +535,10 @@ export default function PatientAssessmentForm({ onComplete }) {
   const allQuestions = [...odiQuestions, ...startBackQuestions, ...contextQuestions];
   const totalSteps = Math.ceil(allQuestions.length / 3); // 3 questions per step
   const currentQuestions = allQuestions.slice((step - 1) * 3, step * 3);
-  const progress = (step / totalSteps) * 100;
+  
+  // Calculate progress based on answered questions, not step
+  const answeredCount = Object.keys(answers).length;
+  const progress = (answeredCount / allQuestions.length) * 100;
 
   return (
     <div className="patient-assessment-form">
