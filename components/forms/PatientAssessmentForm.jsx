@@ -419,17 +419,23 @@ export default function PatientAssessmentForm({ onComplete }) {
   };
 
   const handleSubmit = async () => {
+    console.log('🎯 handleSubmit called');
+    
     const profile = buildPatientProfile();
+    console.log('📋 Profile built:', profile);
     
     // Check for red flags
     if (profile.redFlags.length > 0) {
+      console.log('⚠️ Red flags detected:', profile.redFlags);
       alert('⚠️ ATTENTION: Vos symptômes nécessitent une consultation médicale urgente. Veuillez consulter un médecin avant de faire des exercices.');
       return;
     }
     
     try {
+      console.log('🔄 Setting loading to true');
       setLoading(true);
       
+      console.log('📡 Calling /api/select-exercises...');
       // Call exercise selection API
       const response = await fetch('/api/select-exercises', {
         method: 'POST',
@@ -437,20 +443,28 @@ export default function PatientAssessmentForm({ onComplete }) {
         body: JSON.stringify({ patientProfile: profile })
       });
       
+      console.log('📡 Response received:', response.status);
+      
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error:', errorText);
         throw new Error('Erreur lors de la sélection des exercices');
       }
       
       const data = await response.json();
+      console.log('✅ Data received:', data);
       
       // Store results with correct keys for exercise-results page
       sessionStorage.setItem('selectedExercises', JSON.stringify(data.selectedExercises));
       sessionStorage.setItem('justifications', JSON.stringify(data.justifications || []));
       sessionStorage.setItem('patientProfile', JSON.stringify(profile));
+      console.log('💾 Data stored in sessionStorage');
+      
+      console.log('🔀 Redirecting to /exercise-results');
       window.location.href = '/exercise-results';
       
     } catch (error) {
-      console.error('Error:', error);
+      console.error('❌ Error in handleSubmit:', error);
       alert('Une erreur est survenue. Veuillez réessayer.');
       setLoading(false);
     }
