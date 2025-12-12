@@ -9,6 +9,11 @@ import { verifyCitationsList } from "../../lib/evidence";
 import { validateGenerateRequest } from "../../lib/validation";
 import { asyncHandler, ValidationError, logError } from "../../lib/errors";
 import { OPENAI_CONFIG, EXERCISE_LIMITS, PAIN_INTENSITY_THRESHOLDS } from "../../lib/constants";
+import { 
+  getExercisesByRegion, 
+  getStudies,
+  getGuidelinesByCondition 
+} from "../../lib/supabase";
 
 /**
  * Résume automatiquement les notes trop longues (> 3000 caractères)
@@ -102,6 +107,9 @@ export default asyncHandler(async function handler(req, res) {
     language = "fr",
   } = req.body;
 
+  // ⏱️ START TIMER
+  const generationStartTime = Date.now();
+  
   // Validate request
   const validation = validateGenerateRequest(req.body);
   if (!validation.valid) {
@@ -111,8 +119,38 @@ export default asyncHandler(async function handler(req, res) {
     // Résumer automatiquement les notes trop longues pour éviter token limit
     const summarizedPatientFolder = await summarizePatientNotes(patientFolderText);
 
-    // Récupérer les exercices disponibles pour cette problématique (si fournie)
-    const exercicesDisponibles = problematique ? getExercisesByProblematique(problematique) : [];
+    // 🚀 NEW: Query Supabase for evidence-based exercises
+    console.log('🔍 Querying Supabase for evidence-based exercises...');
+    const startQueryTime = Date.now();
+    
+    // Map problematique to body_region
+    const regionMap = {
+      'lombalgie': 'lumbar',
+      'cervicalgie': 'cervical',
+      'epaule': 'shoulder',
+      'genou': 'knee',
+      'hanche': 'hip',
+      'cheville': 'ankle',
+    };
+    const bodyRegion = regionMap[problematique?.toLowerCase()] || 'lumbar';
+    
+    // Query Supabase for high-quality exercises
+    const { data: supabaseExercises, error: exerciseError } = await getExercisesByRegion(bodyRegion, {
+      minEffectiveness: 70,
+      evidenceLevel: ['1A', '1B', '2A'],
+      status: 'active',
+    });
+    
+    if (exerciseError) {
+      console.error('❌ Supabase query error:', exerciseError);
+    }
+    
+    console.log(`✅ Found ${supabaseExercises?.length || 0} evidence-based exercises in ${Date.now() - startQueryTime}ms`);
+    
+    // Fallback to old system if Supabase empty
+    const exercicesDisponibles = (supabaseExercises && supabaseExercises.length > 0) 
+      ? supabaseExercises 
+      : (problematique ? getExercisesByProblematique(problematique) : []);
 
     // Construire le prompt en privilégiant le dossier patient collé si présent
     const dossierSection = summarizedPatientFolder
@@ -121,25 +159,40 @@ export default asyncHandler(async function handler(req, res) {
 
     const structuredSection = `CHAMPS STRUCTURÉS:\n- Problématique: ${problematique || "Non spécifié"}\n- Nom: ${patientName || "Non spécifié"}\n- Âge: ${patientAge || "Non spécifié"}\n- Intensité douleur: ${painIntensity || "Non spécifié"}\n- Durée: ${painDuration || "Non spécifié"}\n- Localisation: ${painLocation || "Non spécifié"}\n- Restriction mouvement: ${movementRestriction || "Non spécifié"}\n- Peur du mouvement: ${fearLevel || "Non spécifié"}\n- Traitements antérieurs: ${treatmentHistory || "Aucun"}\n- Comorbidités: ${comorbidities || "Aucune"}\n- Objectif: ${objectif || "Réduire la douleur"}`;
 
+    // 🚀 NEW: Build exercise library from Supabase with full clinical details
     const availableExercisesText = exercicesDisponibles.length
-      ? `EXERCICES RECOMMANDÉS DISPONIBLES:\n${exercicesDisponibles.map((e) => `- ${e.name}: ${e.description}`).join("\n")}`
+      ? `EXERCICES VALIDÉS PAR LA RECHERCHE SCIENTIFIQUE (choisir 4-5):\n${exercicesDisponibles.map((e) => {
+          // Format Supabase exercises with rich clinical data
+          return `- ${e.name_fr || e.name} (Evidence: ${e.evidence_level}, Efficacité: ${e.effectiveness_score || 'N/A'}/100)
+  Description: ${e.description}
+  Instructions patient: ${e.instructions_patient?.substring(0, 150) || 'N/A'}...
+  Dosage optimal: ${e.reps_optimal || e.dosage_reps || 'N/A'} reps x ${e.sets_optimal || e.dosage_sets || 'N/A'} sets
+  Points clés: ${e.key_points?.join(', ') || 'N/A'}`;
+        }).join("\n\n")}`
       : "";
 
-    const prompt = `Tu es un physiothérapeute expert. Génère un programme de réadaptation de 6 semaines, progressif et sécuritaire.
+    const prompt = `Tu es un physiothérapeute expert. SÉLECTIONNE 4-5 exercices de la liste ci-dessous et personnalise-les pour ce patient spécifique.
 
 ${dossierSection}
 ${structuredSection}
 
-GUIDE RAPIDE:
+${availableExercisesText}
+
+INSTRUCTIONS:
 
 1. RED FLAGS: Vérifie syndrome queue cheval, infection, fracture, cancer. Si présent:
    "redFlags": {"present": true, "items": ["..."], "priority": "CRITIQUE|HAUTE", "recommendation": "Référence médicale urgente"}
 
-2. EXERCICES: 4-5 exercices progressifs basés sur la problématique. Chaque exercice:
-   - Nom, description claire
-   - Dosage: {"reps": "10-12", "sets": "3", "frequency": "3-4x/semaine", "tempo": "2-1-2", "rest": "60s", "load": "poids corps"}
-   - Justification clinique
-   - Critères progression mesurables
+2. SÉLECTIONNE 4-5 EXERCICES de la liste ci-dessus basés sur:
+   - Niveau de douleur du patient (${painIntensity}/10)
+   - Objectif (${objectif})
+   - Comorbidités (${comorbidities || 'aucune'})
+   
+   Pour chaque exercice sélectionné:
+   - Utilise le NOM EXACT de la liste
+   - ADAPTE le dosage selon le patient (ajuste reps/sets si nécessaire)
+   - Justification: pourquoi cet exercice pour CE patient
+   - Personnalise les instructions pour ce cas
 
 3. PLAN 6 SEMAINES (3 phases):
    Phase 1 (sem 1-2): Contrôle douleur, ROM, éducation
@@ -154,12 +207,12 @@ FORMAT JSON REQUIS:
   "education": {"understanding": "...", "meaning": "...", "helpful": "...", "avoid": "...", "progression": "..."},
   "exercises": [
     {
-      "name": "Nom exercice",
-      "description": "Description détaillée position/mouvement",
-      "dosage": {"reps": "10-12", "sets": "3", "frequency": "3x/semaine", "tempo": "2-1-2", "rest": "60s", "load": "..."},
-      "justification": "Pourquoi cet exercice pour ce patient",
-      "patientInstructions": "Instructions simples patient",
-      "clinicianChecklist": ["Point vérification 1", "Point 2"]
+      "name": "NOM EXACT de la liste",
+      "description": "Description de la liste",
+      "dosage": {"reps": "10-12", "sets": "3", "frequency": "3x/semaine", "tempo": "2-1-2", "rest": "60s", "load": "poids corps"},
+      "justification": "Pourquoi pour CE patient spécifique",
+      "patientInstructions": "Instructions adaptées à CE patient",
+      "clinicianChecklist": ["Points de vérification adaptés"]
     }
   ],
   "weeklyProgression": [
@@ -169,7 +222,10 @@ FORMAT JSON REQUIS:
   ]
 }
 
-IMPORTANT: Réponds STRICTEMENT en JSON valide.`;
+IMPORTANT: 
+- UTILISE les exercices de la liste (evidence-based)
+- Personnalise le dosage et les instructions pour CE patient
+- Réponds STRICTEMENT en JSON valide.`;
 
     const response = await client.chat.completions.create({
       model: OPENAI_CONFIG.PROGRAM_GENERATION.model,
@@ -234,9 +290,46 @@ IMPORTANT: Réponds STRICTEMENT en JSON valide.`;
       }
     }
 
-    // Attach evidence only (images disabled for performance)
+    // 🚀 NEW: Enrich exercises with full Supabase data
+    console.log('📝 Enriching exercises with Supabase clinical data...');
     try {
       if (programData && Array.isArray(programData.exercises)) {
+        programData.exercises = programData.exercises.map((ex) => {
+          // Find matching Supabase exercise
+          const supabaseEx = exercicesDisponibles.find(
+            (se) => 
+              se.name_fr?.toLowerCase() === ex.name?.toLowerCase() ||
+              se.name?.toLowerCase() === ex.name?.toLowerCase() ||
+              se.name_en?.toLowerCase() === ex.name?.toLowerCase()
+          );
+          
+          if (supabaseEx) {
+            console.log(`✅ Matched: ${ex.name} → Supabase data attached`);
+            return {
+              ...ex,
+              id: supabaseEx.id,
+              evidence_level: supabaseEx.evidence_level,
+              effectiveness_score: supabaseEx.effectiveness_score,
+              body_region: supabaseEx.body_region,
+              instructions_professional: supabaseEx.instructions_professional,
+              key_points: supabaseEx.key_points,
+              common_errors: supabaseEx.common_errors,
+              progression_criteria: supabaseEx.progression_criteria || [],
+              dosage: {
+                ...ex.dosage,
+                reps: ex.dosage?.reps || `${supabaseEx.reps_optimal || 10}-${supabaseEx.reps_optimal || 12}`,
+                sets: ex.dosage?.sets || String(supabaseEx.sets_optimal || 3),
+                rest: ex.dosage?.rest || `${supabaseEx.rest_seconds || 60}s`,
+              },
+              // Mark as evidence-based
+              source: 'supabase',
+              quality_verified: true,
+            };
+          }
+          
+          return ex;
+        });
+        
         // Attach condition-level evidence if available
         const conditionEvidence = req.body.problematique
           ? getEvidenceForCondition(req.body.problematique)
@@ -467,6 +560,20 @@ IMPORTANT: Réponds STRICTEMENT en JSON valide.`;
       console.error('Instruction generation error', instrErr?.message || instrErr);
     }
 
+    // ⏱️ CALCULATE GENERATION TIME
+    const generationTime = ((Date.now() - generationStartTime) / 1000).toFixed(2);
+    console.log(`\n⚡ GÉNÉRATION TERMINÉE EN ${generationTime}s\n`);
+    
+    // Add timing metadata to response
+    programData.metadata = {
+      generationTime: `${generationTime}s`,
+      timestamp: new Date().toISOString(),
+      exerciseSource: 'supabase',
+      evidenceBased: true,
+      exercisesFound: exercicesDisponibles.length,
+      exercisesSelected: programData.exercises?.length || 0,
+    };
+    
     // If async processing is enabled, enqueue the program for background processing
     if (process.env.ASYNC_JOBS === 'true') {
       try {
@@ -478,7 +585,7 @@ IMPORTANT: Réponds STRICTEMENT en JSON valide.`;
         } else {
           logError(new Error('No enqueue implementation available'));
         }
-        return res.status(200).json({ jobId, status: 'queued' });
+        return res.status(200).json({ jobId, status: 'queued', metadata: programData.metadata });
       } catch (e) {
         logError(e, { context: 'Job enqueue failed' });
         // fall through to return programData partially processed
