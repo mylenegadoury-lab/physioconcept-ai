@@ -16,6 +16,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.87.1",
     "bullmq": "^5.4.2",
+    "dotenv": "^17.2.3",
     "ioredis": "^5.3.2",
     "next": "14.0.4",
     "openai": "^4.0.0",

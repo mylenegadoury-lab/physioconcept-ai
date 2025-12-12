@@ -39,17 +39,11 @@ CREATE TABLE IF NOT EXISTS studies (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   reviewed_by TEXT,
   last_reviewed_date DATE,
-  next_review_date DATE,
-  
-  -- Search optimization
-  tsv tsvector GENERATED ALWAYS AS (
-    to_tsvector('english', title || ' ' || authors || ' ' || conclusion)
-  ) STORED
+  next_review_date DATE
 );
 
 CREATE INDEX idx_studies_evidence_level ON studies(evidence_level);
 CREATE INDEX idx_studies_year ON studies(year DESC);
-CREATE INDEX idx_studies_tsv ON studies USING GIN(tsv);
 CREATE INDEX idx_studies_doi ON studies(doi);
 CREATE INDEX idx_studies_pmid ON studies(pmid);
 
@@ -130,12 +124,7 @@ CREATE TABLE IF NOT EXISTS exercises (
   last_reviewed_date DATE,
   next_review_date DATE,
   version INTEGER DEFAULT 1,
-  status TEXT DEFAULT 'active' CHECK (status IN ('active', 'under-review', 'deprecated')),
-  
-  -- Search optimization
-  tsv tsvector GENERATED ALWAYS AS (
-    to_tsvector('french', name_fr || ' ' || description || ' ' || ARRAY_TO_STRING(primary_indications, ' '))
-  ) STORED
+  status TEXT DEFAULT 'active' CHECK (status IN ('active', 'under-review', 'deprecated'))
 );
 
 CREATE INDEX idx_exercises_body_region ON exercises(body_region);
@@ -143,7 +132,6 @@ CREATE INDEX idx_exercises_type ON exercises(exercise_type);
 CREATE INDEX idx_exercises_difficulty ON exercises(difficulty_level);
 CREATE INDEX idx_exercises_evidence ON exercises(evidence_level, effectiveness_score DESC);
 CREATE INDEX idx_exercises_status ON exercises(status);
-CREATE INDEX idx_exercises_tsv ON exercises USING GIN(tsv);
 CREATE INDEX idx_exercises_indications ON exercises USING GIN(primary_indications);
 
 -- ============================================
@@ -433,7 +421,7 @@ CREATE OR REPLACE VIEW protocols_with_exercises AS
 SELECT 
   p.*,
   COUNT(DISTINCT pe.exercise_id) as exercise_count,
-  ARRAY_AGG(DISTINCT e.name_fr ORDER BY pe.week_start, pe.order_in_session) as exercise_names,
+  ARRAY_AGG(e.name_fr ORDER BY pe.week_start, pe.order_in_session) as exercise_names,
   AVG(e.effectiveness_score) as avg_exercise_effectiveness
 FROM protocols p
 LEFT JOIN protocol_exercises pe ON p.id = pe.protocol_id
@@ -518,7 +506,6 @@ COMMENT ON TABLE quality_metrics IS 'Métriques de qualité calculées automatiq
 
 COMMENT ON COLUMN exercises.evidence_level IS 'Oxford CEBM Levels of Evidence: 1A (méta-analyse RCT) → 5 (expert opinion)';
 COMMENT ON COLUMN exercises.effectiveness_score IS 'Score 0-100 basé sur effect size, NNT, et qualité études';
-COMMENT ON COLUMN exercises.pedro_score IS 'Physiotherapy Evidence Database quality score (0-10)';
 
 -- ============================================
 -- INITIAL DATA - Sample for testing
