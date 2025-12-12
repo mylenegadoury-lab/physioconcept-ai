@@ -611,6 +611,14 @@ export default function PatientAssessmentForm({ onComplete }) {
   const answeredCount = Object.keys(answers).length;
   const progress = (answeredCount / allQuestions.length) * 100;
 
+  console.log('📊 Form state:', { 
+    step, 
+    totalSteps, 
+    isLastStep: step === totalSteps,
+    answeredCount, 
+    totalQuestions: allQuestions.length 
+  });
+
   return (
     <div className="patient-assessment-form">
       <div className="form-header">
@@ -651,6 +659,7 @@ export default function PatientAssessmentForm({ onComplete }) {
         ) : (
           <button
             onClick={(e) => {
+              alert('BOUTON CLIQUÉ!'); // Test simple
               console.log('🎯 SUBMIT CLICKED');
               e.preventDefault();
               handleSubmit();
@@ -658,6 +667,7 @@ export default function PatientAssessmentForm({ onComplete }) {
             className="nav-button submit"
             disabled={loading}
             type="button"
+            style={{ cursor: 'pointer', pointerEvents: 'auto' }}
           >
             {loading ? '⏳ Génération en cours...' : '🎯 Obtenir mon programme'}
           </button>
