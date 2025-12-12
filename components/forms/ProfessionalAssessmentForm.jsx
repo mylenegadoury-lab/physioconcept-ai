@@ -10,6 +10,8 @@ export default function ProfessionalAssessmentForm({ onComplete }) {
   const [section, setSection] = useState('demographics');
   const [data, setData] = useState({});
   const [scores, setScores] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
 
   // ============================================
   // SECTION 1: DONNÉES DÉMOGRAPHIQUES
@@ -541,8 +543,15 @@ export default function ProfessionalAssessmentForm({ onComplete }) {
     };
   };
 
-  const handleSubmit = () => {
-    const profile = buildPatientProfile();
+  const handleSubmit = async () => {
+    let profile;
+    try {
+      profile = buildPatientProfile();
+    } catch (error) {
+      console.error('Error building profile:', error);
+      alert('Erreur lors de la création du profil patient.');
+      return;
+    }
     
     // Validate red flags
     if (profile.hasRedFlags) {
@@ -556,13 +565,71 @@ export default function ProfessionalAssessmentForm({ onComplete }) {
       }
     }
     
-    setScores({
+    const calculatedScores = {
       odi: calculateODI(),
       startBack: calculateSTarTBack(),
       tbcCategories: determineTBCCategory()
-    });
+    };
+    setScores(calculatedScores);
     
-    onComplete(profile);
+    try {
+      setLoading(true);
+      setLoadingMessage('Sélection des exercices basée sur l\'évidence...');
+      
+      // Step 1: Select exercises based on clinical profile
+      const selectResponse = await fetch('/api/select-exercises', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patientProfile: profile })
+      });
+      
+      if (!selectResponse.ok) {
+        throw new Error('Erreur lors de la sélection des exercices');
+      }
+      
+      const selectData = await selectResponse.json();
+      
+      // Step 2: Enrich with AI - PROFESSIONAL LEVEL (more detailed)
+      setLoadingMessage('Génération du raisonnement clinique et dosage précis...');
+      console.log('🎓 Enriching program with PROFESSIONAL-LEVEL AI...');
+      
+      const enrichResponse = await fetch('/api/enrich-program', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          selectedExercises: selectData.selectedExercises || [],
+          patientProfile: { ...profile, isProfessional: true }, // Flag for professional mode
+          justifications: selectData.justifications || []
+        })
+      });
+      
+      let enrichedProgram = null;
+      if (enrichResponse.ok) {
+        const enrichData = await enrichResponse.json();
+        enrichedProgram = enrichData.enrichedProgram;
+        console.log('✅ Program enriched with professional-level AI');
+      } else {
+        console.warn('⚠️ Enrichment failed, using basic exercises');
+      }
+      
+      // Store results with professional flag
+      sessionStorage.setItem('selectedExercises', JSON.stringify(enrichedProgram?.exercises || selectData.selectedExercises || []));
+      sessionStorage.setItem('justifications', JSON.stringify(selectData.justifications || []));
+      sessionStorage.setItem('patientProfile', JSON.stringify({ ...profile, isProfessional: true }));
+      sessionStorage.setItem('enrichedProgram', JSON.stringify(enrichedProgram));
+      sessionStorage.setItem('clinicalScores', JSON.stringify(calculatedScores));
+      
+      setLoadingMessage('Redirection vers le plan de traitement...');
+      
+      // Redirect to results page
+      window.location.href = '/exercise-results';
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Une erreur est survenue lors de la génération du programme. Veuillez réessayer.');
+      setLoading(false);
+      setLoadingMessage('');
+    }
   };
 
   const renderSection = () => {
@@ -938,8 +1005,10 @@ export default function ProfessionalAssessmentForm({ onComplete }) {
             <button
               onClick={handleSubmit}
               className="btn-success"
+              disabled={loading}
+              type="button"
             >
-              ✅ Générer programme
+              {loading ? `⏳ ${loadingMessage || 'Génération en cours...'}` : '✅ Générer programme'}
             </button>
           )}
         </div>

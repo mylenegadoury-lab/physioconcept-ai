@@ -9,6 +9,7 @@ export default function PatientAssessmentForm({ onComplete }) {
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   
   // ODI Questions simplifiées pour patients
   const odiQuestions = [
@@ -440,6 +441,7 @@ export default function PatientAssessmentForm({ onComplete }) {
     
     try {
       setLoading(true);
+      setLoadingMessage('Sélection de vos exercices...');
       
       // Call exercise selection API
       const response = await fetch('/api/select-exercises', {
@@ -456,10 +458,35 @@ export default function PatientAssessmentForm({ onComplete }) {
       
       const data = await response.json();
       
+      // Enrich program with AI-generated personalized content
+      setLoadingMessage('Personnalisation de votre programme avec l\'IA...');
+      console.log('🎨 Enriching program with AI...');
+      const enrichResponse = await fetch('/api/enrich-program', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          selectedExercises: data.selectedExercises || [],
+          patientProfile: profile,
+          justifications: data.justifications || []
+        })
+      });
+      
+      let enrichedProgram = null;
+      if (enrichResponse.ok) {
+        const enrichData = await enrichResponse.json();
+        enrichedProgram = enrichData.enrichedProgram;
+        console.log('✅ Program enriched with AI');
+      } else {
+        console.warn('⚠️ Enrichment failed, using basic exercises');
+      }
+      
       // Store results in sessionStorage
-      sessionStorage.setItem('selectedExercises', JSON.stringify(data.selectedExercises || []));
+      sessionStorage.setItem('selectedExercises', JSON.stringify(enrichedProgram?.exercises || data.selectedExercises || []));
       sessionStorage.setItem('justifications', JSON.stringify(data.justifications || []));
       sessionStorage.setItem('patientProfile', JSON.stringify(profile));
+      sessionStorage.setItem('enrichedProgram', JSON.stringify(enrichedProgram));
+      
+      setLoadingMessage('Redirection vers vos résultats...');
       
       // Redirect to results page
       window.location.href = '/exercise-results';
@@ -468,6 +495,7 @@ export default function PatientAssessmentForm({ onComplete }) {
       console.error('Error:', error);
       alert('Une erreur est survenue. Veuillez réessayer.');
       setLoading(false);
+      setLoadingMessage('');
     }
   };
 
@@ -656,7 +684,7 @@ export default function PatientAssessmentForm({ onComplete }) {
             disabled={loading}
             type="button"
           >
-            {loading ? '⏳ Génération en cours...' : '🎯 Obtenir mon programme'}
+            {loading ? `⏳ ${loadingMessage || 'Génération en cours...'}` : '🎯 Obtenir mon programme'}
           </button>
         )}
       </div>
