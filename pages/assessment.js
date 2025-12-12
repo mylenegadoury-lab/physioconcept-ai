@@ -11,43 +11,7 @@ import ProfessionalAssessmentForm from '../components/forms/ProfessionalAssessme
 
 export default function Assessment() {
   const [mode, setMode] = useState(null); // 'patient' or 'professional'
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  const handleAssessmentComplete = async (patientProfile) => {
-    setLoading(true);
-    
-    try {
-      // Call API to select exercises
-      const response = await fetch('/api/select-exercises', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ patientProfile }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de la sélection des exercices');
-      }
-
-      const data = await response.json();
-      
-      // Store results and navigate
-      sessionStorage.setItem('selectedExercises', JSON.stringify(data.selectedExercises));
-      sessionStorage.setItem('justifications', JSON.stringify(data.justifications));
-      sessionStorage.setItem('patientProfile', JSON.stringify(patientProfile));
-      
-      // Navigate to results
-      router.push('/exercise-results');
-      
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Une erreur est survenue. Veuillez réessayer.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -311,9 +275,9 @@ export default function Assessment() {
         </button>
         
         {mode === 'patient' ? (
-          <PatientAssessmentForm onComplete={handleAssessmentComplete} />
+          <PatientAssessmentForm />
         ) : (
-          <ProfessionalAssessmentForm onComplete={handleAssessmentComplete} />
+          <ProfessionalAssessmentForm />
         )}
       </div>
 

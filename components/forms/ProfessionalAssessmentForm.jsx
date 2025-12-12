@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 
-export default function ProfessionalAssessmentForm({ onComplete }) {
+export default function ProfessionalAssessmentForm() {
   const [section, setSection] = useState('demographics');
   const [data, setData] = useState({});
   const [scores, setScores] = useState({});
@@ -491,6 +491,14 @@ export default function ProfessionalAssessmentForm({ onComplete }) {
       .filter(flag => data[flag.id] === true)
       .map(flag => flag.id);
     
+    // Build red flags severity map
+    const redFlagsSeverity = {};
+    redFlagsChecklist.forEach(flag => {
+      if (data[flag.id] === true) {
+        redFlagsSeverity[flag.id] = flag.severity;
+      }
+    });
+    
     return {
       // Demographics
       age: data.age,
@@ -526,6 +534,7 @@ export default function ProfessionalAssessmentForm({ onComplete }) {
       
       // Red flags
       redFlags,
+      redFlagsSeverity,
       hasRedFlags: redFlags.length > 0,
       
       // Contraindications

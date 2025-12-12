@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 
-export default function PatientAssessmentForm({ onComplete }) {
+export default function PatientAssessmentForm() {
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(false);
