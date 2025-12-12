@@ -479,11 +479,11 @@ export default function PatientAssessmentForm({ onComplete }) {
                 type="button"
                 className="option-button"
                 style={{
-                  borderColor: answer === 'yes' ? '#2ecc71' : '#e0e0e0',
-                  background: answer === 'yes' ? '#d5f4e6' : 'white',
+                  borderColor: answer === 'yes' ? '#2ecc71' : '#3498db',
+                  background: answer === 'yes' ? '#d5f4e6' : '#3498db',
                   fontWeight: answer === 'yes' ? 700 : 400,
                   boxShadow: answer === 'yes' ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none',
-                  color: '#2c3e50'
+                  color: answer === 'yes' ? '#2c3e50' : 'white'
                 }}
                 onClick={() => handleAnswer(question.id, 'yes')}
               >
@@ -493,11 +493,11 @@ export default function PatientAssessmentForm({ onComplete }) {
                 type="button"
                 className="option-button"
                 style={{
-                  borderColor: answer === 'no' ? '#2ecc71' : '#e0e0e0',
-                  background: answer === 'no' ? '#d5f4e6' : 'white',
+                  borderColor: answer === 'no' ? '#2ecc71' : '#3498db',
+                  background: answer === 'no' ? '#d5f4e6' : '#3498db',
                   fontWeight: answer === 'no' ? 700 : 400,
                   boxShadow: answer === 'no' ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none',
-                  color: '#2c3e50'
+                  color: answer === 'no' ? '#2c3e50' : 'white'
                 }}
                 onClick={() => handleAnswer(question.id, 'no')}
               >
@@ -544,11 +544,11 @@ export default function PatientAssessmentForm({ onComplete }) {
                 type="button"
                 className="option-button scale"
                 style={{
-                  borderColor: answer === opt.value ? '#2ecc71' : '#e0e0e0',
-                  background: answer === opt.value ? '#d5f4e6' : 'white',
+                  borderColor: answer === opt.value ? '#2ecc71' : '#3498db',
+                  background: answer === opt.value ? '#d5f4e6' : '#3498db',
                   fontWeight: answer === opt.value ? 700 : 400,
                   boxShadow: answer === opt.value ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none',
-                  color: '#2c3e50'
+                  color: answer === opt.value ? '#2c3e50' : 'white'
                 }}
                 onClick={() => handleAnswer(question.id, opt.value)}
               >
@@ -563,11 +563,11 @@ export default function PatientAssessmentForm({ onComplete }) {
                 type="button"
                 className="option-button"
                 style={{
-                  borderColor: answer === opt.value ? '#2ecc71' : '#e0e0e0',
-                  background: answer === opt.value ? '#d5f4e6' : 'white',
+                  borderColor: answer === opt.value ? '#2ecc71' : '#3498db',
+                  background: answer === opt.value ? '#d5f4e6' : '#3498db',
                   fontWeight: answer === opt.value ? 700 : 400,
                   boxShadow: answer === opt.value ? '0 0 0 3px rgba(46, 204, 113, 0.2)' : 'none',
-                  color: '#2c3e50'
+                  color: answer === opt.value ? '#2c3e50' : 'white'
                 }}
                 onClick={() => handleAnswer(question.id, opt.value)}
               >
