@@ -1,14 +1,32 @@
-# 🏥 PhysioConcept Pro - Plateforme de Génération d'Exercices
+# 🏥 PhysioConcept AI - Prescription Personnalisée d'Exercices
 
-**L'IA au service de la physiothérapie** - Générez des programmes d'exercices personnalisés en secondes, peu importe la problématique de votre patient.
+**Système intelligent de prescription d'exercices basé sur l'evidence-based medicine** - Évaluations cliniques standardisées + Algorithme de sélection + Base de données d'exercices validés.
 
-## 🎯 Ce que vous pouvez faire
+---
 
-Générez des exercices personnalisés pour:
+## ✅ SYSTÈME OPÉRATIONNEL
 
-- 🔴 **Colonne vertébrale:** Lombalgie, Cervicalgie, Dorsalgie
-- 💪 **Membre supérieur:** Épaule, Coude, Poignet
-- 🦵 **Membre inférieur:** Hanche, Genou, Cheville, Pied
+**Version actuelle:** 1.0 - MVP Complet  
+**Région disponible:** Lombalgie (62 exercices)  
+**Statut:** Prêt pour tests utilisateur
+
+---
+
+## 🎯 Fonctionnalités
+
+### Pour les patients
+- **Évaluation simplifiée** en ~5 minutes (emojis, tooltips)
+- **Exercices personnalisés** (8-12 sélectionnés automatiquement)
+- **Instructions claires** en français
+- **Programme imprimable/téléchargeable**
+
+### Pour les professionnels
+- **Évaluation clinique complète** (ODI, STarT Back, TBC)
+- **Scoring en temps réel** (disability, risk stratification)
+- **Justifications evidence-based** pour chaque exercice
+- **Export rapport clinique** (à venir)
+
+---
 
 ## 🚀 Démarrage rapide
 
@@ -24,28 +42,135 @@ npm install
 
 Créez `.env.local`:
 ```env
-OPENAI_API_KEY=sk-xxxxxxxxxxxxx
+# Supabase (base de données)
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx...
+SUPABASE_SERVICE_ROLE_KEY=eyJxxx...
 ```
 
-### 3. Lancer
+### 3. Import exercices (première fois)
+
+```bash
+node scripts/importExercisesToSupabase.js
+# ✅ Doit afficher: "62/62 exercises imported"
+```
+
+### 4. Lancer
 
 ```bash
 npm run dev
-# Accès: http://localhost:3000
+# Accès: http://localhost:3000 (ou 3001 si occupé)
 ```
 
-## 📊 Flux d'utilisation
+### 5. Tester
+
+```bash
+# Tests système automatisés
+./test-system.sh
+
+# Ou manuellement dans le navigateur:
+# → http://localhost:3001/assessment
+# → Choisir "Patient" ou "Professionnel"
+# → Remplir formulaire
+# → Voir résultats
+```
+
+**Guide détaillé:** Voir `READY_TO_TEST.md`
+
+---
+
+## 📊 Architecture
 
 ```
-1. Dashboard (/dashboard)
-   ↓ Sélectionner une problématique
-2. Formulaire (/formulaire)
-   ↓ Remplir l'évaluation patient
-3. API (/api/generate)
-   ↓ OpenAI génère le programme
-4. Résultats (/result)
-   ↓ Affichage + Impression + Export
+┌─────────────────────┐
+│   UTILISATEUR       │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  /assessment        │  ← Sélection rôle
+│  (Role Selection)   │
+└──────────┬──────────┘
+           │
+    ┌──────┴──────┐
+    │             │
+    ▼             ▼
+┌──────────┐  ┌───────────┐
+│ Patient  │  │Professional│
+│  Form    │  │   Form     │
+│3 sections│  │5 sections │
+└────┬─────┘  └─────┬─────┘
+     │              │
+     └──────┬───────┘
+            │
+            ▼
+   ┌────────────────┐
+   │ POST /api/     │
+   │ select-        │
+   │ exercises      │
+   └────────┬───────┘
+            │
+            ▼
+   ┌────────────────┐
+   │  4-Step        │
+   │  Algorithm     │
+   │  ├ Safety      │
+   │  ├ Pattern     │
+   │  ├ Goals       │
+   │  └ Scoring     │
+   └────────┬───────┘
+            │
+            ▼
+   ┌────────────────┐
+   │  Supabase DB   │
+   │  62 exercises  │
+   └────────┬───────┘
+            │
+            ▼
+   ┌────────────────┐
+   │ /exercise-     │
+   │  results       │
+   │ ├ Grid cards   │
+   │ ├ Modal        │
+   │ └ Actions      │
+   └────────────────┘
 ```
+
+---
+
+## 🏗️ Composants clés
+
+### Formulaires
+- **`components/forms/PatientAssessmentForm.jsx`**
+  - 3 sections: Douleur, Psycho, Mouvements
+  - Emoji scales, tooltips, auto-save
+  - ~5 minutes completion
+  
+- **`components/forms/ProfessionalAssessmentForm.jsx`**
+  - 5 sections: ODI, STarT Back, TBC, Safety, Goals
+  - Real-time scoring, red flags validation
+  - ~10-15 minutes completion
+
+### API
+- **`pages/api/select-exercises.js`**
+  - Endpoint: POST `/api/select-exercises`
+  - Input: `patientProfile` (phase, ODI, goals, etc.)
+  - Output: 8-12 `selectedExercises` + `justifications`
+
+### Algorithme
+- **`lib/exerciseSelection.js`**
+  - 4 steps: Safety filter → Pattern matching → Goal alignment → Evidence scoring
+  - Guidelines: NICE 2020, APTA 2021, McKenzie
+  - Evidence weights: 1A/1B (×1.5), 2A/2B (×1.3), 3A/3B (×1.1)
+
+### Base de données
+- **Supabase PostgreSQL**
+  - 62 lumbar exercises
+  - 47 colonnes (FR/EN, dosage, scoring, contraindications)
+  - Evidence levels: 1A→5
+  - Avg effectiveness: 82/100
+
+---
 
 ## ✨ Fonctionnalités principales
 
