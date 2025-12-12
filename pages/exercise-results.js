@@ -12,6 +12,7 @@ export default function ExerciseResults() {
   const [exercises, setExercises] = useState([]);
   const [justifications, setJustifications] = useState([]);
   const [profile, setProfile] = useState(null);
+  const [enrichedProgram, setEnrichedProgram] = useState(null);
   const [selectedExercise, setSelectedExercise] = useState(null);
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export default function ExerciseResults() {
     const exercisesData = sessionStorage.getItem('selectedExercises');
     const justificationsData = sessionStorage.getItem('justifications');
     const profileData = sessionStorage.getItem('patientProfile');
+    const enrichedData = sessionStorage.getItem('enrichedProgram');
 
     if (!exercisesData) {
       router.push('/assessment');
@@ -28,6 +30,7 @@ export default function ExerciseResults() {
     setExercises(JSON.parse(exercisesData));
     setJustifications(JSON.parse(justificationsData || '[]'));
     setProfile(JSON.parse(profileData || '{}'));
+    setEnrichedProgram(enrichedData ? JSON.parse(enrichedData) : null);
   }, []);
 
   const getEvidenceBadgeColor = (level) => {
@@ -88,6 +91,56 @@ export default function ExerciseResults() {
           )}
         </div>
 
+        {enrichedProgram?.globalGuidance && (
+          <div className="global-guidance">
+            <h2>📚 Vue d'ensemble de votre programme</h2>
+            
+            {enrichedProgram.globalGuidance.programOverview && (
+              <div className="guidance-section">
+                <p className="program-overview">{enrichedProgram.globalGuidance.programOverview}</p>
+              </div>
+            )}
+
+            {enrichedProgram.globalGuidance.educationPoints && enrichedProgram.globalGuidance.educationPoints.length > 0 && (
+              <div className="guidance-section">
+                <h3>💡 Points éducatifs clés</h3>
+                <ul className="education-points">
+                  {enrichedProgram.globalGuidance.educationPoints.map((point, idx) => (
+                    <li key={idx}>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {enrichedProgram.globalGuidance.weeklySchedule && (
+              <div className="guidance-section">
+                <h3>📅 Planning hebdomadaire suggéré</h3>
+                <div className="weekly-schedule">
+                  {Object.entries(enrichedProgram.globalGuidance.weeklySchedule).map(([day, activity]) => (
+                    <div key={day} className="schedule-item">
+                      <strong>{day}:</strong> {activity}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {enrichedProgram.globalGuidance.redFlagsToWatch && enrichedProgram.globalGuidance.redFlagsToWatch.length > 0 && (
+              <div className="guidance-section warning-section">
+                <h3>🚨 Signes d'alerte</h3>
+                <p style={{marginBottom: '0.5rem', color: '#e74c3c'}}>
+                  Consultez un professionnel si vous observez:
+                </p>
+                <ul className="red-flags-list">
+                  {enrichedProgram.globalGuidance.redFlagsToWatch.map((flag, idx) => (
+                    <li key={idx}>{flag}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="exercises-grid">
           {exercises.map((exercise, index) => (
             <div 
@@ -119,21 +172,45 @@ export default function ExerciseResults() {
               </div>
 
               <div className="exercise-dosage">
-                <div className="dosage-item">
-                  <span className="dosage-icon">🔁</span>
-                  <span>{exercise.reps_min}-{exercise.reps_max} répétitions</span>
-                </div>
-                <div className="dosage-item">
-                  <span className="dosage-icon">📊</span>
-                  <span>{exercise.sets_min}-{exercise.sets_max} séries</span>
-                </div>
-                <div className="dosage-item">
-                  <span className="dosage-icon">📅</span>
-                  <span>{exercise.frequency_per_week}x/semaine</span>
-                </div>
+                {exercise.enriched ? (
+                  <>
+                    <div className="dosage-item">
+                      <span className="dosage-icon">📊</span>
+                      <span>{exercise.enriched.parameters.sets} séries</span>
+                    </div>
+                    <div className="dosage-item">
+                      <span className="dosage-icon">🔁</span>
+                      <span>{exercise.enriched.parameters.reps}</span>
+                    </div>
+                    <div className="dosage-item">
+                      <span className="dosage-icon">📅</span>
+                      <span>{exercise.enriched.parameters.frequency}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="dosage-item">
+                      <span className="dosage-icon">🔁</span>
+                      <span>{exercise.reps_min}-{exercise.reps_max} répétitions</span>
+                    </div>
+                    <div className="dosage-item">
+                      <span className="dosage-icon">📊</span>
+                      <span>{exercise.sets_min}-{exercise.sets_max} séries</span>
+                    </div>
+                    <div className="dosage-item">
+                      <span className="dosage-icon">📅</span>
+                      <span>{exercise.frequency_per_week}x/semaine</span>
+                    </div>
+                  </>
+                )}
               </div>
 
-              {justifications.find(j => j.exercise === exercise.name) && (
+              {exercise.enriched?.education?.why ? (
+                <div className="justification-preview">
+                  <strong>💡 Pourquoi cet exercice pour vous?</strong>
+                  <p>{exercise.enriched.education.why}</p>
+                </div>
+              ) : justifications.find(j => j.exercise === exercise.name) && (
                 <div className="justification-preview">
                   <strong>Pourquoi cet exercice?</strong>
                   <p>
@@ -206,47 +283,211 @@ export default function ExerciseResults() {
               </span>
             </div>
 
-            <div className="modal-section">
-              <h3>📋 Instructions</h3>
-              <div className="instructions">
-                {selectedExercise.instructions_patient?.split('\n\n').map((para, idx) => (
-                  <p key={idx}>{para}</p>
-                )) || <p>{selectedExercise.description}</p>}
-              </div>
-            </div>
-
-            <div className="modal-section">
-              <h3>💊 Dosage recommandé</h3>
-              <div className="dosage-details">
-                <div><strong>Répétitions:</strong> {selectedExercise.reps_min}-{selectedExercise.reps_max}</div>
-                <div><strong>Séries:</strong> {selectedExercise.sets_min}-{selectedExercise.sets_max}</div>
-                <div><strong>Fréquence:</strong> {selectedExercise.frequency_per_week}x par semaine</div>
-                {selectedExercise.duration_weeks && (
-                  <div><strong>Durée:</strong> {selectedExercise.duration_weeks} semaines</div>
+            {selectedExercise.enriched ? (
+              <>
+                {/* MODE PROFESSIONNEL - Contenu détaillé */}
+                {selectedExercise.enriched.clinicalRationale && (
+                  <div className="modal-section professional-section">
+                    <h3>🧠 Raisonnement clinique</h3>
+                    <p>{selectedExercise.enriched.clinicalRationale}</p>
+                  </div>
                 )}
-              </div>
-            </div>
 
-            {selectedExercise.key_points && selectedExercise.key_points.length > 0 && (
-              <div className="modal-section">
-                <h3>✅ Points clés</h3>
-                <ul className="key-points">
-                  {selectedExercise.key_points.map((point, idx) => (
-                    <li key={idx}>{point}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+                <div className="modal-section">
+                  <h3>📋 Instructions {profile?.isProfessional ? 'pour le patient' : ''}</h3>
+                  <div className="instructions">
+                    <p>{selectedExercise.enriched.patientInstructions}</p>
+                  </div>
+                </div>
 
-            {selectedExercise.absolute_contraindications && selectedExercise.absolute_contraindications.length > 0 && (
-              <div className="modal-section warning">
-                <h3>⚠️ Contre-indications</h3>
-                <ul className="contraindications">
-                  {selectedExercise.absolute_contraindications.map((contra, idx) => (
-                    <li key={idx}>{contra}</li>
-                  ))}
-                </ul>
-              </div>
+                <div className="modal-section">
+                  <h3>💊 Paramètres personnalisés</h3>
+                  <div className="dosage-details">
+                    <div><strong>Séries:</strong> {selectedExercise.enriched.parameters.sets}</div>
+                    <div><strong>Répétitions:</strong> {selectedExercise.enriched.parameters.reps}</div>
+                    {selectedExercise.enriched.parameters.rest && (
+                      <div><strong>Repos:</strong> {selectedExercise.enriched.parameters.rest}</div>
+                    )}
+                    <div><strong>Fréquence:</strong> {selectedExercise.enriched.parameters.frequency}</div>
+                    {selectedExercise.enriched.parameters.intensity && (
+                      <div><strong>Intensité:</strong> {selectedExercise.enriched.parameters.intensity}</div>
+                    )}
+                    {selectedExercise.enriched.parameters.tempo && (
+                      <div><strong>Tempo:</strong> {selectedExercise.enriched.parameters.tempo}</div>
+                    )}
+                  </div>
+                </div>
+
+                {selectedExercise.enriched.parameters.progression && (
+                  <div className="modal-section">
+                    <h3>📈 Progression</h3>
+                    <p>{selectedExercise.enriched.parameters.progression}</p>
+                  </div>
+                )}
+
+                {selectedExercise.enriched.education && (
+                  <div className="modal-section education-section">
+                    <h3>🎓 Éducation thérapeutique</h3>
+                    
+                    <div className="education-block">
+                      <h4>💡 Pourquoi cet exercice pour vous?</h4>
+                      <p>{selectedExercise.enriched.education.why}</p>
+                    </div>
+
+                    {selectedExercise.enriched.education.evidenceBased && (
+                      <div className="education-block">
+                        <h4>📚 Basé sur la science</h4>
+                        <p>{selectedExercise.enriched.education.evidenceBased}</p>
+                      </div>
+                    )}
+
+                    {selectedExercise.enriched.education.expectedBenefits && (
+                      <div className="education-block">
+                        <h4>✨ Bénéfices attendus</h4>
+                        <ul>
+                          {selectedExercise.enriched.education.expectedBenefits.map((benefit, idx) => (
+                            <li key={idx}>{benefit}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {selectedExercise.enriched.precautions && (
+                  <div className="modal-section warning">
+                    <h3>⚠️ Précautions</h3>
+                    
+                    {selectedExercise.enriched.precautions.dosDonts && (
+                      <div className="dos-donts">
+                        {selectedExercise.enriched.precautions.dosDonts.map((item, idx) => (
+                          <div key={idx} className="precaution-item">{item}</div>
+                        ))}
+                      </div>
+                    )}
+
+                    {selectedExercise.enriched.precautions.painGuidance && (
+                      <div className="pain-guidance">
+                        <strong>🩹 Si douleur:</strong>
+                        <p>{selectedExercise.enriched.precautions.painGuidance}</p>
+                      </div>
+                    )}
+
+                    {selectedExercise.enriched.precautions.progressionCriteria && (
+                      <div className="progression-criteria">
+                        <strong>📊 Critères de progression:</strong>
+                        <p>{selectedExercise.enriched.precautions.progressionCriteria}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {selectedExercise.enriched.timing && (
+                  <div className="modal-section">
+                    <h3>⏰ Timing optimal</h3>
+                    <div><strong>Meilleur moment:</strong> {selectedExercise.enriched.timing.bestTime}</div>
+                    <div><strong>Durée:</strong> {selectedExercise.enriched.timing.duration}</div>
+                  </div>
+                )}
+
+                {/* MODE PROFESSIONNEL - Sections avancées */}
+                {selectedExercise.enriched.evidence && (
+                  <div className="modal-section professional-section">
+                    <h3>📊 Données probantes</h3>
+                    <div className="evidence-details">
+                      <div><strong>Niveau:</strong> {selectedExercise.enriched.evidence.level}</div>
+                      {selectedExercise.enriched.evidence.keyStudies && (
+                        <div>
+                          <strong>Études clés:</strong>
+                          <ul>
+                            {selectedExercise.enriched.evidence.keyStudies.map((study, idx) => (
+                              <li key={idx}>{study}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {selectedExercise.enriched.evidence.effectSize && (
+                        <div><strong>Taille d'effet:</strong> {selectedExercise.enriched.evidence.effectSize}</div>
+                      )}
+                      {selectedExercise.enriched.evidence.clinicalSignificance && (
+                        <div><strong>Signification clinique:</strong> {selectedExercise.enriched.evidence.clinicalSignificance}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {selectedExercise.enriched.biomechanics && (
+                  <div className="modal-section professional-section">
+                    <h3>🦴 Analyse biomécanique</h3>
+                    {selectedExercise.enriched.biomechanics.primaryMuscles && (
+                      <div>
+                        <strong>Muscles principaux:</strong>
+                        <ul>
+                          {selectedExercise.enriched.biomechanics.primaryMuscles.map((muscle, idx) => (
+                            <li key={idx}>{muscle}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {selectedExercise.enriched.biomechanics.commonErrors && (
+                      <div>
+                        <strong>Erreurs fréquentes:</strong>
+                        <ul>
+                          {selectedExercise.enriched.biomechanics.commonErrors.map((error, idx) => (
+                            <li key={idx}>{error}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {/* FALLBACK - Contenu de base si pas d'enrichissement */}
+                <div className="modal-section">
+                  <h3>📋 Instructions</h3>
+                  <div className="instructions">
+                    {selectedExercise.instructions_patient?.split('\n\n').map((para, idx) => (
+                      <p key={idx}>{para}</p>
+                    )) || <p>{selectedExercise.description}</p>}
+                  </div>
+                </div>
+
+                <div className="modal-section">
+                  <h3>💊 Dosage recommandé</h3>
+                  <div className="dosage-details">
+                    <div><strong>Répétitions:</strong> {selectedExercise.reps_min}-{selectedExercise.reps_max}</div>
+                    <div><strong>Séries:</strong> {selectedExercise.sets_min}-{selectedExercise.sets_max}</div>
+                    <div><strong>Fréquence:</strong> {selectedExercise.frequency_per_week}x par semaine</div>
+                    {selectedExercise.duration_weeks && (
+                      <div><strong>Durée:</strong> {selectedExercise.duration_weeks} semaines</div>
+                    )}
+                  </div>
+                </div>
+
+                {selectedExercise.key_points && selectedExercise.key_points.length > 0 && (
+                  <div className="modal-section">
+                    <h3>✅ Points clés</h3>
+                    <ul className="key-points">
+                      {selectedExercise.key_points.map((point, idx) => (
+                        <li key={idx}>{point}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {selectedExercise.absolute_contraindications && selectedExercise.absolute_contraindications.length > 0 && (
+                  <div className="modal-section warning">
+                    <h3>⚠️ Contre-indications</h3>
+                    <ul className="contraindications">
+                      {selectedExercise.absolute_contraindications.map((contra, idx) => (
+                        <li key={idx}>{contra}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -300,6 +541,89 @@ export default function ExerciseResults() {
         .badge-value {
           color: #2c3e50;
           font-weight: 700;
+        }
+
+        .global-guidance {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 2rem;
+          border-radius: 12px;
+          margin: 2rem 0;
+        }
+
+        .global-guidance h2 {
+          color: white;
+          margin-bottom: 1.5rem;
+          font-size: 1.8rem;
+        }
+
+        .guidance-section {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          padding: 1.5rem;
+          border-radius: 8px;
+          margin-bottom: 1.5rem;
+        }
+
+        .guidance-section h3 {
+          color: white;
+          margin-bottom: 1rem;
+          font-size: 1.2rem;
+        }
+
+        .program-overview {
+          font-size: 1.1rem;
+          line-height: 1.6;
+          color: rgba(255, 255, 255, 0.95);
+        }
+
+        .education-points, .red-flags-list {
+          list-style: none;
+          padding: 0;
+        }
+
+        .education-points li, .red-flags-list li {
+          padding: 0.5rem 0;
+          padding-left: 1.5rem;
+          position: relative;
+          color: rgba(255, 255, 255, 0.9);
+        }
+
+        .education-points li::before {
+          content: '✓';
+          position: absolute;
+          left: 0;
+          color: #2ecc71;
+          font-weight: bold;
+        }
+
+        .red-flags-list li::before {
+          content: '⚠';
+          position: absolute;
+          left: 0;
+          font-weight: bold;
+        }
+
+        .weekly-schedule {
+          display: grid;
+          gap: 0.5rem;
+        }
+
+        .schedule-item {
+          background: rgba(255, 255, 255, 0.15);
+          padding: 0.75rem;
+          border-radius: 6px;
+          color: white;
+        }
+
+        .schedule-item strong {
+          color: #ffd700;
+          margin-right: 0.5rem;
+        }
+
+        .warning-section {
+          background: rgba(231, 76, 60, 0.2) !important;
+          border-left: 4px solid #e74c3c;
         }
 
         .exercises-grid {
@@ -526,6 +850,79 @@ export default function ExerciseResults() {
           color: #34495e;
           margin-bottom: 1rem;
           font-size: 1.2rem;
+        }
+
+        .modal-section.professional-section {
+          background: #f8f9fa;
+          padding: 1.5rem;
+          border-radius: 8px;
+          border-left: 4px solid #3498db;
+        }
+
+        .modal-section.education-section {
+          background: #e8f8f5;
+          padding: 1.5rem;
+          border-radius: 8px;
+          border-left: 4px solid #2ecc71;
+        }
+
+        .education-block {
+          margin-bottom: 1.5rem;
+        }
+
+        .education-block h4 {
+          color: #16a085;
+          margin-bottom: 0.5rem;
+          font-size: 1rem;
+        }
+
+        .education-block p, .education-block ul {
+          color: #555;
+          line-height: 1.6;
+        }
+
+        .education-block ul {
+          padding-left: 1.5rem;
+        }
+
+        .dos-donts {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .precaution-item {
+          padding: 0.5rem;
+          background: white;
+          border-radius: 4px;
+          color: #555;
+        }
+
+        .pain-guidance, .progression-criteria {
+          margin-top: 1rem;
+          padding: 1rem;
+          background: white;
+          border-radius: 4px;
+        }
+
+        .pain-guidance strong, .progression-criteria strong {
+          display: block;
+          margin-bottom: 0.5rem;
+          color: #e74c3c;
+        }
+
+        .evidence-details {
+          color: #555;
+        }
+
+        .evidence-details > div {
+          margin-bottom: 1rem;
+        }
+
+        .evidence-details ul {
+          margin-top: 0.5rem;
+          padding-left: 1.5rem;
         }
 
         .instructions p {
