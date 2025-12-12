@@ -308,19 +308,13 @@ export default function PatientAssessmentForm({ onComplete }) {
   ];
 
   const handleAnswer = (questionId, value) => {
-    console.log('🔥 CLICK DETECTED:', { questionId, value });
-    alert(`Clicked! ${questionId} = ${value}`);
-    setAnswers(prev => {
-      const newAnswers = {
-        ...prev,
-        [questionId]: value
-      };
-      console.log('📝 Updated answers:', newAnswers);
-      return newAnswers;
-    });
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: value
+    }));
   };
 
-  const calculateODI = () => {
+  const handleMultiSelectAnswer = (questionId, value) => {
     const odiIds = odiQuestions.map(q => q.id);
     const odiAnswers = odiIds.filter(id => answers[id] !== undefined);
     if (odiAnswers.length === 0) return 0;
