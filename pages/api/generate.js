@@ -169,38 +169,176 @@ export default asyncHandler(async function handler(req, res) {
         }).join("\n\n")}`
       : "";
 
-    const prompt = `Tu es un physiothérapeute expert. SÉLECTIONNE 3-4 exercices et crée un plan personnalisé.
+    const prompt = `Tu es un physiothérapeute expert spécialisé en réadaptation musculosquelettique. Analyse ce cas clinique et crée un programme thérapeutique personnalisé basé sur l'évidence scientifique.
 
-PATIENT:
+PROFIL PATIENT:
 - Problématique: ${problematique}
-- Douleur: ${painIntensity}/10
-- Objectif: ${objectif}
-${comorbidities ? `- Comorbidités: ${comorbidities}` : ''}
+- Âge: ${patientAge || 'Non spécifié'}
+- Intensité douleur: ${painIntensity}/10
+- Durée des symptômes: ${painDuration || 'Non spécifié'}
+- Localisation: ${painLocation || 'Non spécifié'}
+- Restriction de mouvement: ${movementRestriction || 'Non spécifié'}
+- Peur du mouvement (kinésiophobie): ${fearLevel || 'Non spécifié'}
+- Traitements antérieurs: ${treatmentHistory || 'Aucun'}
+- Comorbidités: ${comorbidities || 'Aucune'}
+- Objectif principal: ${objectif}
 
-EXERCICES DISPONIBLES:
+EXERCICES VALIDÉS (Evidence-Based):
 ${availableExercisesText}
 
-FORMAT JSON (CONCIS):
+INSTRUCTIONS DÉTAILLÉES:
+
+1. RED FLAGS - Vérification obligatoire:
+   - Syndrome de la queue de cheval
+   - Infection/Fièvre
+   - Fracture récente/Ostéoporose sévère
+   - Cancer/Perte de poids inexpliquée
+   - Douleur nocturne constante
+   
+   Si présent: {"present": true, "items": [...], "priority": "CRITIQUE", "recommendation": "Référence médicale immédiate"}
+
+2. SÉLECTION D'EXERCICES (3-5 exercices):
+   Critères de sélection basés sur:
+   - Niveau de douleur actuel (adapter intensité)
+   - Phase de guérison (aiguë/subaiguë/chronique)
+   - Kinésiophobie (progressivité si présente)
+   - Comorbidités (contre-indications)
+   - Objectif fonctionnel du patient
+   - Niveau d'évidence scientifique (prioriser 1A/1B/2A)
+   
+   Pour CHAQUE exercice:
+   - Justification clinique détaillée (pourquoi pour CE patient)
+   - Adaptation du dosage selon le profil (reps/sets/tempo/charge)
+   - Instructions patient personnalisées (langage clair)
+   - Points de vérification clinicien (sécurité/biomécanique)
+   - Critères de progression (quand augmenter)
+   - Signaux d'alarme (quand arrêter/modifier)
+
+3. PLAN DE PROGRESSION 6 SEMAINES:
+   
+   Phase 1 (Semaines 1-2) - Contrôle et Protection:
+   - Objectifs: Réduction douleur, ROM sans douleur, éducation
+   - Fréquence: 3-4x/semaine
+   - Intensité: 3-5/10 effort perçu
+   - Critères progression: Douleur stable <5/10, ROM amélioré 20%
+   
+   Phase 2 (Semaines 3-4) - Renforcement:
+   - Objectifs: Force musculaire, endurance, confiance
+   - Fréquence: 3-4x/semaine
+   - Intensité: 5-7/10 effort perçu
+   - Critères progression: Force +30%, capacité fonctionnelle améliorée
+   
+   Phase 3 (Semaines 5-6) - Optimisation:
+   - Objectifs: Retour activités, prévention récidive
+   - Fréquence: 3-5x/semaine
+   - Intensité: 6-8/10 effort perçu
+   - Critères succès: Objectif fonctionnel atteint, autonomie complète
+
+4. ÉDUCATION THÉRAPEUTIQUE:
+   - Explication de la condition (physiologie simple)
+   - Pronostic et timeline réaliste
+   - Stratégies d'autogestion (gestion crise, pacing)
+   - Facteurs aggravants à éviter
+   - Progression attendue et signaux positifs
+   - Maintien à long terme
+
+FORMAT JSON COMPLET:
 {
-  "redFlags": {"present": false, "items": [], "recommendation": "Aucune contre-indication"},
-  "education": {"understanding": "Explication courte de la condition", "progression": "Progression attendue"},
+  "redFlags": {
+    "present": false,
+    "items": [],
+    "priority": "AUCUNE",
+    "recommendation": "Pas de contre-indication identifiée"
+  },
+  "clinicalReasoning": {
+    "diagnosis": "Diagnostic ou hypothèse clinique",
+    "phase": "Aiguë/Subaiguë/Chronique",
+    "prognosis": "Bon/Modéré/Réservé avec justification",
+    "keyFactors": ["Facteurs influençant le pronostic"]
+  },
+  "education": {
+    "understanding": "Explication simple de la condition (200-300 mots)",
+    "meaning": "Que signifie cette condition pour le patient",
+    "helpful": "Ce qui aide vraiment (basé sur évidence)",
+    "avoid": "Ce qui peut aggraver (avec explications)",
+    "progression": "Timeline réaliste de guérison (semaines)"
+  },
   "exercises": [
     {
       "name": "NOM EXACT de la liste",
-      "description": "Description courte",
-      "dosage": {"reps": "10-12", "sets": "3", "frequency": "3x/semaine"},
-      "justification": "Raison courte",
-      "patientInstructions": "Instructions concises"
+      "description": "Description technique",
+      "dosage": {
+        "reps": "8-12",
+        "sets": "3",
+        "frequency": "3x/semaine",
+        "tempo": "2-1-2 (excentrique-pause-concentrique)",
+        "rest": "60-90 secondes",
+        "load": "Poids corps / Charge légère / etc"
+      },
+      "justification": "Pourquoi cet exercice pour CE patient spécifique (raisonnement clinique détaillé)",
+      "patientInstructions": "Instructions claires adaptées au niveau du patient",
+      "clinicianChecklist": [
+        "Point de vérification biomécanique 1",
+        "Point de vérification biomécanique 2",
+        "Signal d'alarme à surveiller"
+      ],
+      "progressionCriteria": "Quand et comment progresser cet exercice",
+      "modifications": {
+        "easier": "Régression si trop difficile",
+        "harder": "Progression quand maîtrisé"
+      }
     }
   ],
   "weeklyProgression": [
-    {"phase": "Phase 1", "weeks": "1-2", "goals": ["Réduire douleur"], "focus": "Contrôle"},
-    {"phase": "Phase 2", "weeks": "3-4", "goals": ["Renforcer"], "focus": "Force"},
-    {"phase": "Phase 3", "weeks": "5-6", "goals": ["Optimiser"], "focus": "Fonction"}
-  ]
+    {
+      "phase": "Phase 1: Contrôle et Protection",
+      "weeks": "1-2",
+      "goals": ["Objectif 1", "Objectif 2"],
+      "exercises": ["Exercice 1", "Exercice 2"],
+      "frequency": "3-4x/semaine",
+      "intensity": "3-5/10 RPE",
+      "keyPoints": ["Point important 1", "Point important 2"],
+      "progressionCriteria": "Critères pour passer à Phase 2"
+    },
+    {
+      "phase": "Phase 2: Renforcement",
+      "weeks": "3-4",
+      "goals": ["Objectif 1", "Objectif 2"],
+      "exercises": ["Exercice 1", "Exercice 3"],
+      "frequency": "3-4x/semaine",
+      "intensity": "5-7/10 RPE",
+      "keyPoints": ["Point important 1", "Point important 2"],
+      "progressionCriteria": "Critères pour passer à Phase 3"
+    },
+    {
+      "phase": "Phase 3: Optimisation",
+      "weeks": "5-6",
+      "goals": ["Objectif 1", "Objectif 2"],
+      "exercises": ["Exercice 2", "Exercice 4"],
+      "frequency": "3-5x/semaine",
+      "intensity": "6-8/10 RPE",
+      "keyPoints": ["Point important 1", "Point important 2"],
+      "progressionCriteria": "Critères de succès complet"
+    }
+  ],
+  "safetyConsiderations": {
+    "stopSigns": ["Signal 1 pour arrêter", "Signal 2 pour arrêter"],
+    "modifySigns": ["Signal pour modifier approche"],
+    "contraindications": ["Contre-indication absolue 1"]
+  },
+  "reassessmentPlan": {
+    "timeline": "Quand réévaluer (semaines 2, 4, 6)",
+    "metrics": ["Métrique 1 à mesurer", "Métrique 2 à mesurer"],
+    "successCriteria": ["Critère de réussite 1", "Critère de réussite 2"]
+  }
 }
 
-Réponds en JSON valide, CONCIS et CIBLÉ.`;
+IMPORTANT: 
+- Raisonnement clinique approfondi basé sur l'évidence
+- Personnalisation complète pour CE patient spécifique
+- Sécurité avant tout (red flags, contre-indications)
+- Instructions claires et professionnelles
+- Réponds en JSON valide strictement conforme au format.`;
 
     const response = await client.chat.completions.create({
       model: OPENAI_CONFIG.PROGRAM_GENERATION.model,
