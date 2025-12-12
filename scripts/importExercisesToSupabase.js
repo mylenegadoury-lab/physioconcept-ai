@@ -7,6 +7,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { allLumbarExercises } from '../data/lumbarExercises.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config({ path: '.env.local' });
 
 // Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -24,49 +28,78 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  * Map exercise object to Supabase schema
  */
 function mapExerciseToSchema(exercise, index) {
+  // Generate ID from name
+  const id = exercise.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  
   return {
-    // Basic info
+    // IDs and names
+    id: id,
     name: exercise.name,
     name_fr: exercise.name_fr,
+    name_en: exercise.name, // Use English name as default
+    
+    // Anatomical
     body_region: exercise.body_region,
+    muscle_groups: exercise.muscle_groups || [], // Optional field
+    joint_actions: exercise.joint_actions || [], // Optional field
+    
+    // Exercise type
     exercise_type: exercise.exercise_type,
-    description: exercise.description,
+    equipment_required: exercise.tags?.equipment ? [exercise.tags.equipment] : [],
+    difficulty_level: exercise.difficulty_level,
+    
+    // Clinical indications (from our indications object)
+    primary_indications: exercise.indications?.primary || [],
+    secondary_indications: exercise.indications?.secondary || [],
+    
+    // Contraindications (from our contraindications array)
+    absolute_contraindications: exercise.contraindications || [],
+    relative_contraindications: [],
+    precautions: [],
+    red_flags: [],
+    
+    // Dosage - Parse from our string format (handle "2-3" or "3" formats)
+    reps_min: parseInt(exercise.dosage_reps?.split('-')[0]) || null,
+    reps_max: parseInt(exercise.dosage_reps?.split('-')[1] || exercise.dosage_reps) || null,
+    reps_optimal: exercise.reps_optimal || null,
+    sets_min: parseInt(exercise.dosage_sets?.split('-')[0]) || null,
+    sets_max: parseInt(exercise.dosage_sets?.split('-')[1] || exercise.dosage_sets) || null,
+    sets_optimal: exercise.sets_optimal || null,
+    frequency_per_week: parseInt(exercise.dosage_frequency) || null,
+    duration_weeks: 4, // Default 4 weeks
+    rest_seconds: null,
+    tempo: null,
+    
+    // Progressions (we don't have IDs yet, leave null for now)
+    regression_exercise_id: null,
+    progression_exercise_id: null,
     
     // Instructions
+    description: exercise.description,
     instructions_patient: exercise.instructions_patient,
     instructions_professional: exercise.instructions_professional,
+    key_points: exercise.key_points,
+    common_errors: [],
     
-    // Dosage
-    dosage_reps: exercise.dosage_reps,
-    dosage_sets: exercise.dosage_sets,
-    dosage_frequency: exercise.dosage_frequency,
-    reps_optimal: exercise.reps_optimal || null,
-    sets_optimal: exercise.sets_optimal || null,
-    hold_time: exercise.hold_time || null,
-    
-    // Classification
-    difficulty_level: exercise.difficulty_level,
+    // Evidence
     evidence_level: exercise.evidence_level,
     effectiveness_score: exercise.effectiveness_score,
+    confidence_interval: null,
     
-    // Arrays
-    key_points: exercise.key_points,
-    contraindications: exercise.contraindications,
-    
-    // JSON fields
-    tags: exercise.tags,
-    indications: exercise.indications,
-    progression_levels: exercise.progression_levels,
-    
-    // Clinical
-    clinical_reasoning: exercise.clinical_reasoning,
-    activation: exercise.activation || null,
+    // Media (we don't have these yet)
+    image_url: null,
+    video_url: null,
+    thumbnail_url: null,
     
     // Metadata
-    status: exercise.status,
-    order_index: index + 1,
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    created_by: 'physioconcept-ai',
+    reviewed_by: null,
+    last_reviewed_date: new Date().toISOString().split('T')[0],
+    next_review_date: null,
+    version: 1,
+    status: exercise.status || 'active'
   };
 }
 
