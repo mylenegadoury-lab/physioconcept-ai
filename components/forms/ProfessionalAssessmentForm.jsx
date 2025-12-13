@@ -663,9 +663,9 @@ export default function ProfessionalAssessmentForm() {
       
       const selectData = await selectResponse.json();
       
-      // Step 2: Enrich with AI - PROFESSIONAL LEVEL (more detailed)
+      // Step 2: Enrich with AI - PROFESSIONAL LEVEL (more detailed + clinical analysis)
       setLoadingMessage('Génération du raisonnement clinique et dosage précis...');
-      console.log('🎓 Enriching program with PROFESSIONAL-LEVEL AI...');
+      console.log('🎓 Enriching program with PROFESSIONAL-LEVEL AI (with clinical analysis)...');
       
       const enrichResponse = await fetch('/api/enrich-program', {
         method: 'POST',
@@ -673,7 +673,8 @@ export default function ProfessionalAssessmentForm() {
         body: JSON.stringify({
           selectedExercises: selectData.selectedExercises || [],
           patientProfile: { ...profile, isProfessional: true }, // Flag for professional mode
-          justifications: selectData.justifications || []
+          justifications: selectData.justifications || [],
+          clinicalAnalysis: selectData.clinicalAnalysis // Pass comprehensive clinical analysis
         })
       });
       

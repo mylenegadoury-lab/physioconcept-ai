@@ -1,12 +1,14 @@
 /**
- * API ENDPOINT: /api/enrich-program
- * Enrichit les exercices sélectionnés avec du contenu personnalisé généré par IA
+ * API ENDPOINT: /api/enrich-program (ENHANCED)
+ * Enrichit les exercices sélectionnés avec contenu personnalisé généré par IA
+ * Inclut l'analyse clinique approfondie pour personnalisation maximale
  * 
  * POST /api/enrich-program
  * Body: { 
  *   selectedExercises: [...], 
  *   patientProfile: {...},
- *   justifications: [...]
+ *   justifications: [...],
+ *   clinicalAnalysis: {...} // NOUVEAU
  * }
  * Response: { enrichedProgram: {...} }
  */
@@ -19,7 +21,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { selectedExercises, patientProfile, justifications } = req.body;
+    const { selectedExercises, patientProfile, justifications, clinicalAnalysis } = req.body;
 
     if (!selectedExercises || !patientProfile) {
       return res.status(400).json({ 
@@ -31,12 +33,17 @@ export default async function handler(req, res) {
     console.log(`   Exercises to enrich: ${selectedExercises.length}`);
     console.log(`   Patient ODI: ${patientProfile.odi}`);
     console.log(`   Phase: ${patientProfile.phase}`);
+    if (clinicalAnalysis) {
+      console.log(`   Phenotype: ${clinicalAnalysis.phenotype?.primaryPhenotype}`);
+      console.log(`   Capacity: ${clinicalAnalysis.capacity?.level}`);
+    }
 
-    // Generate enriched program with AI
+    // Generate enriched program with AI (including clinical analysis)
     const enrichedProgram = await generateEnrichedProgram({
       selectedExercises,
       patientProfile,
-      justifications: justifications || []
+      justifications: justifications || [],
+      clinicalAnalysis // Pass clinical analysis to enrichment
     });
 
     console.log('✅ Enrichment completed');

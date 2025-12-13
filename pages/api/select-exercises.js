@@ -66,6 +66,7 @@ export default async function handler(req, res) {
         totalScore: ex.totalScore
       })),
       justifications,
+      clinicalAnalysis: result.clinicalAnalysis, // NOUVEAU: Include clinical analysis
       metadata: {
         totalAvailable: result.totalAvailable,
         afterSafety: result.afterSafety,

@@ -460,14 +460,15 @@ export default function PatientAssessmentForm() {
       
       // Enrich program with AI-generated personalized content
       setLoadingMessage('Personnalisation de votre programme avec l\'IA...');
-      console.log('🎨 Enriching program with AI...');
+      console.log('🎨 Enriching program with AI (with clinical analysis)...');
       const enrichResponse = await fetch('/api/enrich-program', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           selectedExercises: data.selectedExercises || [],
           patientProfile: profile,
-          justifications: data.justifications || []
+          justifications: data.justifications || [],
+          clinicalAnalysis: data.clinicalAnalysis // Pass clinical analysis
         })
       });
       
